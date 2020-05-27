@@ -1,0 +1,54 @@
+package com.thinkive.fxc.ismp.bus.base.basicdata.dao;
+
+import java.util.List;
+
+import com.thinkive.base.jdbc.DataRow;
+
+/**
+ * 作者：MIKE
+ * 公司：深圳市思迪信息技术股份公司
+ * 日期时间：2017年1月6日 下午12:21:35
+ * 说明：省份、城市数据查询服务类
+ */
+public interface ProvinceCityDao
+{    
+    /**
+     * @return 省份数据信息
+     * @throws Exception
+     */
+    public List<DataRow> getProvinceList()throws Exception;
+    
+    
+    /**
+     * @param province_no 省份编号
+     * @return 城市数据信息
+     * @throws Exception
+     */
+    public List<DataRow> getCityList(String province_no)throws Exception;
+    
+
+    /**
+     * @param regional_id 区域编号
+    * @return 区域下城市数据信息
+    * @throws Exception
+    */
+   public List<DataRow> getPostList(String regional_id)throws Exception;
+   
+   /**
+    * @param regional_id 区域编号
+    * @return 区域下省份数据信息
+    * @throws Exception
+    */
+   public List<DataRow> getRegionIdList(String regional_id)throws Exception;
+   
+   /**
+    * @return 区域数据信息
+    * @throws Exception
+    */
+   public List<DataRow> getRegionList()throws Exception;
+   /**
+    * @return 查询渠道信息
+    * @throws Exception
+    */
+   public DataRow getChannel(String mobile_no) throws Exception;
+}

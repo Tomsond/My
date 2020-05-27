@@ -1,0 +1,327 @@
+#!/bin/sh
+###########################################################################################
+##                                                                                       ##
+##   一、该脚本必须放到程序同级目录                                                      ##
+##   二、使用说明                                                                        ##
+##          cd 目录                                                                      ##
+##          ./run.sh start           启动[中间件服务]                                    ##
+##          ./run.sh restart         重启[中间件服务]                                    ##
+##          ./run.sh stop            停止[中间件服务][监控服务]                          ##
+##          ./run.sh startall        启动[中间件服务][监控服务][重启服务]                ##
+##          ./run.sh stopall         停止[中间件服务][监控服务][重启服务]                ##
+##          ./run.sh status          查看[中间件服务][监控服务][重启服务]                ##
+##          ./run.sh watchdog        启动[中间件服务][监控服务]                          ##
+##          ./run.sh stopresetdog    停止[重启服务]                                      ##
+##          ./run.sh stopwatchdog    停止[监控服务]                                      ##
+##                                                                                       ##
+##  注意:                                                                                ##
+##      1、生产系统需要定时重启动的，  采用./run.sh startall启动                         ##
+##      2、生产系统不需要定时重启动的，采用./run.sh watchdog启动                         ##
+##                                                                                       ##
+###########################################################################################
+  
+#设定服务程序路径与名称(注意:此路径是文件路径,包含执行文件名称)
+SERVER_DIR=$(cd `dirname $0`;pwd)
+SERVER_PATH="$SERVER_DIR/TBAServer"
+SERVER_NAME="中间件服务"
+WATCHDOG_NAME="监控服务"
+RESETDOG_NAME="重启服务"
+
+#设定系统运行环境变量
+ulimit -c unlimited
+ulimit -n 1048576
+MALLOC_ARENA_MAX=1
+LC_ALL="zh_CN.GBK"
+LANG="zh_CN.GBK"
+LD_LIBRARY_PATH=$SERVER_DIR/:$SERVER_DIR/libso:$SERVER_DIR/lib:$SERVER_DIR/classes/:$LD_LIBRARY_PATH
+export MALLOC_ARENA_MAX
+export LC_ALL
+export LANG
+export LD_LIBRARY_PATH
+
+#是否输出控制台数据(0:不输出 1:输出到stdout.txt文件)
+ISOUT=1
+
+#watchdog的检测时间(单位:秒)
+TIME=3
+
+#是否需要重启动(0:不需要 1:需要)
+ISRESET=1
+
+#重启动的时间点(ISRESET=1有效，格式为时:分:秒)
+RESETTIME=04:00:00
+
+#是否删除临时脚本(0:不删除 1:删除)
+DELETETMP=1
+
+
+################以上为需要配置的变量#################
+
+check_server_process()
+{ 
+    RESULT=$(ps -ef | grep ${SERVER_PATH} | grep -v "grep")
+    if [ -n "$RESULT" ]; then
+        echo [$SERVER_NAME]正在运行
+        return 0
+    else
+        echo [$SERVER_NAME]未运行
+        return 1
+    fi
+}
+
+start_server()
+{
+    if [ $ISOUT == 1 ];then
+        nohup $SERVER_PATH >> ${SERVER_DIR}/stdout.txt 2>&1 &    
+    else
+        nohup $SERVER_PATH >  /dev/null  2>&1 &    
+    fi
+    
+    echo  [$SERVER_NAME]启动完成
+}
+
+stop_server()
+{
+    kill -9 $(cat ${SERVER_DIR}/pid.txt)
+    rm -rf ${SERVER_DIR}/pid.txt
+    echo  [$SERVER_NAME]停止成功
+
+}
+
+
+check_watchdog_process()
+{
+    WATCHDOGRESUL=$(ps -ef | grep ${SERVER_DIR}/watchdog.tmp | grep -v "grep")
+    if [ -n "$WATCHDOGRESUL" ]; then
+        echo "[$WATCHDOG_NAME]正在运行"
+        return 0
+    else
+        echo "[$WATCHDOG_NAME]未运行"
+        return 1
+    fi
+}
+
+
+start_watchdog()
+{
+    WATCHDOGRESUL=$(ps -ef | grep ${SERVER_DIR}/watchdog.tmp | grep -v "grep")
+    if [ -n "$WATCHDOGRESUL" ]; then
+        echo "[$WATCHDOG_NAME]正在运行"
+    else
+        #生成临时脚本
+        echo "echo \$\$ > watchdog.pid
+        export LC_ALL=\"zh_CN.GBK\"
+        export LANG=\"zh_CN.GBK\"
+        export LD_LIBRARY_PATH=./libso:./lib:./classes/:\$LD_LIBRARY_PATH
+        SERVER_PATH=\"$SERVER_PATH\"
+        SERVER_DIR=\"$SERVER_DIR\"
+        ISOUT=\"$ISOUT\"
+        while :
+        do
+            WATCHDOGRESULT=\$(ps -ef | grep \${SERVER_PATH} | grep -v "grep")
+            if [ -z \"\$WATCHDOGRESULT\" ]; then
+                echo \"[\$(date +%Y-%m-%d/%H:%M:%S)] [$SERVER_NAME]进程未存活，开始启动[$SERVER_NAME]\" >> \${SERVER_DIR}/watchdog.log      
+                if [ \$ISOUT == \"1\" ];then
+                    nohup \$SERVER_PATH >> \${SERVER_DIR}/stdout.txt 2>&1 &    
+                else
+                    nohup \$SERVER_PATH > /dev/null  2>&1 &    
+                fi                
+            fi
+            sleep $TIME
+        done" > ${SERVER_DIR}/watchdog.tmp
+        chmod u+x ${SERVER_DIR}/watchdog.tmp
+        nohup ${SERVER_DIR}/watchdog.tmp >/dev/null 2>&1 &
+        echo "[$WATCHDOG_NAME]启动完成"
+        if [ $DELETETMP == 1 ];then
+            sleep 1
+            rm -rf ${SERVER_DIR}/watchdog.tmp
+        fi
+    fi
+}
+
+stop_watchdog()
+{
+    WDPID=$(cat ${SERVER_DIR}/watchdog.pid)
+    kill -9 $WDPID
+    rm -rf ${SERVER_DIR}/watchdog.pid
+    echo "[$WATCHDOG_NAME]停止成功"
+
+}
+
+check_resetdog_process()
+{
+    RESETDOGRESUL=$(ps -ef | grep ${SERVER_DIR}/resetdog.tmp | grep -v "grep")
+    if [ -n "$RESETDOGRESUL" ]; then
+        echo "[$RESETDOG_NAME]正在运行"
+        return 0
+    else
+        echo "[$RESETDOG_NAME]未运行"
+        return 1
+    fi
+}
+
+start_resetdog()
+{
+    RESETDOGRESUL=$(ps -ef | grep ${SERVER_DIR}/resetdog.tmp | grep -v "grep")
+    if [ -n "$RESETDOGRESUL" ]; then
+        echo "[$RESETDOG_NAME]正在运行"
+    else
+        #生成临时脚本
+        echo "echo \$\$ > resetdog.pid
+        export LC_ALL=\"zh_CN.GBK\"
+        export LANG=\"zh_CN.GBK\"
+        export LD_LIBRARY_PATH=./libso:./lib:./classes/:\$LD_LIBRARY_PATH
+        SERVER_PATH=\"$SERVER_PATH\"
+        SERVER_DIR=\"$SERVER_DIR\"
+        ISOUT=\"$ISOUT\"
+        ISRESET=\"$ISRESET\"
+        while :
+        do
+            if [ \$ISRESET == \"1\" ];then
+                CURTIME=\"\$(date +%2H:%2M:%2S)\"
+                if [ \$CURTIME == \"$RESETTIME\" ]; then
+                    echo \"[\$(date +%Y-%m-%d/%H:%M:%S)] 重启动时间到达，准备重启[$SERVER_NAME]进程\" >> \${SERVER_DIR}/resetdog.log 
+                    kill -9 \$(cat \${SERVER_DIR}/pid.txt)
+                    if [ \$ISOUT == \"1\" ];then
+                        nohup \$SERVER_PATH >> \${SERVER_DIR}/stdout.txt 2>&1 &    
+                    else
+                        nohup \$SERVER_PATH > /dev/null  2>&1 &    
+                    fi    
+                    echo \"[\$(date +%Y-%m-%d/%H:%M:%S)] 重启动[$SERVER_NAME]进程完成\" >> \${SERVER_DIR}/resetdog.log
+                fi                                                  
+            fi 
+            sleep 1
+        done" > ${SERVER_DIR}/resetdog.tmp
+        chmod u+x ${SERVER_DIR}/resetdog.tmp
+        nohup ${SERVER_DIR}/resetdog.tmp >/dev/null 2>&1 &
+        echo "[$RESETDOG_NAME]启动完成"
+        if [ $DELETETMP == 1 ];then
+            sleep 1
+            rm -rf ${SERVER_DIR}/resetdog.tmp
+        fi
+    fi
+}
+
+stop_resetdog()
+{
+    RDPID=$(cat ${SERVER_DIR}/resetdog.pid)
+    kill -9 $RDPID
+    rm -rf ${SERVER_DIR}/resetdog.pid
+    echo "[$RESETDOG_NAME]停止成功"
+}
+
+watchdog_log()
+{
+    echo "[$(date +%Y-%m-%d/%H:%M:%S)] $1" >> ${SERVER_DIR}/watchdog.log
+}
+
+case "$1" in
+ start)
+     check_server_process
+     if [ $? = 1 ]; then
+        check_watchdog_process
+        if [ $? = 0 ]; then
+            echo "[$SERVER_NAME]将由[$WATCHDOG_NAME]启动，[$WATCHDOG_NAME]现在的扫描间隔为$TIME"
+        else
+            start_server
+        fi
+    fi
+ ;;
+ restart)
+    check_server_process
+    if [ $? = 0 ]; then
+        stop_server
+        check_watchdog_process
+        if [ $? = 0 ]; then
+            echo "[$SERVER_NAME]将由[$WATCHDOG_NAME]启动，扫描间隔时间为[$TIME]秒"
+            watchdog_log "[$SERVER_NAME]将由[$WATCHDOG_NAME]启动，扫描间隔时间为[$TIME]秒"
+        else
+            start_server
+        fi
+    else
+        echo "请先执行start命令启动"
+    fi
+ ;; 
+ stop)
+    check_resetdog_process
+    check_watchdog_process
+    if [ $? = 0 ]; then
+        stop_watchdog
+    fi    
+    check_server_process
+    if [ $? = 0 ]; then
+        stop_server
+    fi
+ ;;
+ startall)
+    check_server_process
+    if [ $? = 1 ]; then
+        start_server
+    fi
+    check_resetdog_process
+    if [ $? = 1 ]; then
+        start_resetdog
+    fi    
+    check_watchdog_process
+    if [ $? = 1 ]; then
+        start_watchdog
+    fi 	
+ ;;
+ stopall)
+    check_resetdog_process
+    if [ $? = 0 ]; then
+        stop_resetdog
+    fi   
+    check_watchdog_process
+    if [ $? = 0 ]; then
+        stop_watchdog
+    fi 
+    check_server_process
+    if [ $? = 0 ]; then
+        stop_server
+    fi  
+ ;; 
+ status)
+    check_resetdog_process 
+    check_watchdog_process
+    check_server_process
+ ;;
+ watchdog)
+    check_server_process
+    if [ $? = 1 ]; then
+        echo "[$WATCHDOG_NAME]启动时未发现存活的[$SERVER_NAME]进程，[$WATCHDOG_NAME]将会主动启动[$SERVER_NAME]"
+        watchdog_log "[$WATCHDOG_NAME]启动时未发现存活的[$SERVER_NAME]进程，[$WATCHDOG_NAME]将会主动启动[$SERVER_NAME]"
+    fi
+    start_watchdog
+ ;;
+ stopresetdog)
+    check_resetdog_process
+    if [ $? = 0 ]; then
+        stop_resetdog
+    fi 
+ ;;
+ stopwatchdog)
+    check_watchdog_process
+    if [ $? = 0 ]; then
+        stop_watchdog
+    fi 
+ ;; 
+ *)
+echo "*******************************************************************************************
+参数错误，请输入如下参数:    
+  start           启动[中间件服务] 
+  restart         重启[中间件服务]     
+  stop            停止[中间件服务][监控服务]
+  startall        启动[中间件服务][监控服务][重启服务]
+  stopall         停止[中间件服务][监控服务][重启服务]
+  status          查看[中间件服务][监控服务][重启服务]
+  watchdog        启动[中间件服务][监控服务]
+  stopresetdog    停止[重启服务]
+  stopwatchdog    停止[监控服务] 
+  
+  注意: 
+       1、生产系统需要定时重启动的，  采用./run.sh startall启动
+       2、生产系统不需要定时重启动的，采用./run.sh watchdog启动        
+*******************************************************************************************"
+ ;;
+ esac

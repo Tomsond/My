@@ -1,0 +1,47 @@
+package com.thinkive.fxc.ismp.bus.base.basicdata.dao.impl;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.fxc.ismp.bus.base.basicdata.contants.BaseTableConstants;
+import com.thinkive.fxc.ismp.bus.base.basicdata.dao.AgreementInfoDao;
+import com.thinkive.fxc.ismp.bus.base.basicdata.vo.AgreementInfoVo;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseDao;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.util.ModelUtil;
+
+/**
+ * @描述: 公共--协议信息表(T_FXC_AGREEMENT_INFO)数据层接口实现类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月30日 下午12:14:01
+ */
+public class AgreementInfoDaoImpl extends ISMPBaseDao implements AgreementInfoDao
+{
+	
+	@Override
+	public AgreementInfoVo queryInfoAndMdByCode(String code)
+	{
+		StringBuilder sql = new StringBuilder(
+				" SELECT T1.ID,T1.AGREE_NAME, T1.AGREE_ENAME,T1.AGREE_FNO,T1.AGREE_CODE,T1.AGREE_MARK, T2.AGREE_VERSION, T2.AGREE_MD5, T2.AGREE_BRIEF, T2.AGREE_STATUS,T1.CONTENT_TYPE,T1.FILEUPLOAD_URL,T1.SECRET_KEY FROM ");
+		sql.append(BaseTableConstants.T_FXC_AGREEMENT_INFO);
+		sql.append(" T1 LEFT JOIN ");
+		sql.append(BaseTableConstants.T_FXC_AGREEMENT_CONTENT);
+		sql.append(" T2 ON  T1.ID = T2.AGREE_NO AND T2.AGREE_STATUS = ? WHERE T1.AGREE_CODE = ?");
+		DataRow result = getJdbcTemplate().queryMap(sql.toString(), new String[] { DictionaryConstants.BOL_TRUE, code });
+		return ModelUtil.packInfo(result, AgreementInfoVo.class);
+	}
+	
+	@Override
+	public AgreementInfoVo queryInfoAndContentByCode(String code)
+	{
+		StringBuilder sql = new StringBuilder(
+				" SELECT T1.ID,T1.AGREE_NAME,T1.AGREE_ENAME,T1.AGREE_FNO,T1.AGREE_CODE,T1.AGREE_MARK, T2.AGREE_VERSION, T2.AGREE_MD5, T2.AGREE_BRIEF, T2.AGREE_STATUS,T2.AGREE_CONTENT,T1.CONTENT_TYPE,T1.FILEUPLOAD_URL,T1.SECRET_KEY FROM ");
+		sql.append(BaseTableConstants.T_FXC_AGREEMENT_INFO);
+		sql.append(" T1 LEFT JOIN ");
+		sql.append(BaseTableConstants.T_FXC_AGREEMENT_CONTENT);
+		sql.append(" T2 ON  T1.ID = T2.AGREE_NO AND T2.AGREE_STATUS = ? WHERE T1.AGREE_CODE = ?");
+		DataRow result = getJdbcTemplate().queryMap(sql.toString(), new String[] { DictionaryConstants.BOL_TRUE, code });
+		return ModelUtil.packInfo(result, AgreementInfoVo.class);
+	}
+}

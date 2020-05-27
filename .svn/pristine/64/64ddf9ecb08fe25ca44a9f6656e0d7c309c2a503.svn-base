@@ -1,0 +1,26 @@
+package com.thinkive.fxc.ismp.bus.base.business.service;
+
+import java.util.List;
+
+import com.thinkive.fxc.ismp.bus.base.business.model.VideoRecordModel;
+
+
+/**
+ * @描述: 视频节点服务类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月19日 下午4:26:00
+ */
+public interface VideoNodeService
+{
+	/**
+	 * @描述：查询视频见证状态
+	 * @作者：谢能琥
+	 * @时间：2016年11月22日下午4:43:56
+	 * @param businessId
+	 * @return
+	 */
+	public List<VideoRecordModel> queryWitnessVideoState(Long businessId);
+}

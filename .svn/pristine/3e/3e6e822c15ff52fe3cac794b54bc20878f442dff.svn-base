@@ -1,0 +1,70 @@
+package com.thinkive.fxc.ismp.bus.base.business.service;
+
+import java.util.List;
+
+import com.thinkive.fxc.ismp.bus.base.business.model.ChoiceAccountRecordModel;
+
+/**
+ * @描述: 用户选择帐号记录服务类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年9月3日 上午11:03:38
+ */
+public interface ChoiceAccountRecordService
+{
+	
+	/**
+	 * @描述：批量添加用户选择的市场
+	 * @作者：刘恺
+	 * @时间：2016年9月3日 上午11:10:12
+	 * @param stkbds		市场，逗号分割多个市场
+	 * @param businessId	业务实例编号
+	 * @param nodeId		节点标识
+	 * @param state			处理状态
+	 */
+	public List<ChoiceAccountRecordModel> addBatchByStkbds(String stkbds, Long businessId, String nodeId, String state) throws Exception;
+	
+	/**
+	 * @描述：批量添加选择帐号记录
+	 * @作者：刘恺
+	 * @时间：2016年9月3日 上午11:22:38
+	 * @param choiceAccountRecordModels
+	 * @param businessId
+	 * @param nodeId
+	 * @throws Exception
+	 */
+	public List<ChoiceAccountRecordModel> addBatch(List<ChoiceAccountRecordModel> choiceAccountRecordModels, Long businessId, String nodeId) throws Exception;
+	
+	/**
+	 * @描述：批量添加用户选择的帐号
+	 * @作者：刘恺
+	 * @时间：2016年9月3日 上午11:30:47
+	 * @param accounts		帐号,逗号分割多个帐号
+	 * @param businessId	业务实例编号
+	 * @param nodeId		节点标识
+	 * @param state			处理状态
+	 * @throws Exception
+	 */
+	public List<ChoiceAccountRecordModel> addBatchByAccounts(String accounts, Long businessId, String nodeId, String state) throws Exception;
+	
+	/**
+	 * @描述：根据业务实例编号和节点标识查询选择帐号记录
+	 * @作者：刘恺
+	 * @时间：2016年9月16日 上午11:53:09
+	 * @param businessId
+	 * @param nodeId
+	 * @return
+	 */
+	public List<ChoiceAccountRecordModel> queryByBusinessIdAndNodeId(Long businessId, String nodeId);
+	
+    /**
+     * @描述：根据业务实例编号和节点标识查询选择帐号记录
+     * @作者：张斌
+     * @时间：2016年9月16日 上午11:53:09
+     * @param businessId
+     * @return List<ChoiceAccountRecordModel>
+     */
+    public List<ChoiceAccountRecordModel> queryByBusinessId(Long businessId);
+}

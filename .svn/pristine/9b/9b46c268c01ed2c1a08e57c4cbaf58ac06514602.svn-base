@@ -1,0 +1,92 @@
+package com.thinkive.fxc.ismp.bus.business.smjj.service.impl;
+
+import java.util.List;
+
+import com.thinkive.base.util.StringHelper;
+import com.thinkive.fxc.ismp.bus.business.service.impl.BusinessCommonServiceImpl;
+import com.thinkive.fxc.ismp.bus.business.smjj.dao.SmjjAssetsRecordDao;
+import com.thinkive.fxc.ismp.bus.business.smjj.dao.SmjjImageRecordDao;
+import com.thinkive.fxc.ismp.bus.business.smjj.model.SmjjAssetsRecordModel;
+import com.thinkive.fxc.ismp.bus.business.smjj.model.SmjjImageRecordModel;
+import com.thinkive.fxc.ismp.bus.business.smjj.service.SmjjImageRecordService;
+
+/**
+ * 
+ * 描述：私募基金影像资料记录服务实现类
+ * @author xyhz0310
+ * @created 2019年7月3日 上午9:09:20
+ * @since
+ */
+public class SmjjImageRecordServiceImpl extends BusinessCommonServiceImpl implements SmjjImageRecordService
+{
+	
+	private SmjjImageRecordDao smjjImageRecordDao;
+	
+	private SmjjAssetsRecordDao smjjAssetsRecordDao;
+	
+	public void setSmjjImageRecordDao(SmjjImageRecordDao smjjImageRecordDao)
+	{
+		this.smjjImageRecordDao = smjjImageRecordDao;
+	}
+	public void setSmjjAssetsRecordDao(SmjjAssetsRecordDao smjjAssetsRecordDao)
+	{
+		this.smjjAssetsRecordDao = smjjAssetsRecordDao;
+	}
+	
+	@Override
+	public SmjjImageRecordModel addOrUpdate(SmjjImageRecordModel imageRecordModel)
+	{
+		int updateTotal = smjjImageRecordDao.updateByBIdAndNIdAndCode(imageRecordModel);
+		if (0 == updateTotal)
+		{
+			imageRecordModel = smjjImageRecordDao.add(imageRecordModel);
+		}
+		return imageRecordModel;
+	}
+	
+	@Override
+	public Long queryCountByCodes(List<String> mediaCodes, Long businessId, String nodeId)
+	{
+		return smjjImageRecordDao.queryCountByCodes(mediaCodes, businessId, nodeId);
+	}
+	
+	@Override
+	public List<SmjjImageRecordModel> queryByParams(SmjjImageRecordModel imageRecordModel)
+	{
+		return smjjImageRecordDao.queryByParams(imageRecordModel);
+	}
+
+	@Override
+	public SmjjAssetsRecordModel addOrUpdate(SmjjAssetsRecordModel imageRecordModel) {
+		
+		SmjjAssetsRecordModel smjjAssetsRecordModel = new SmjjAssetsRecordModel();
+		SmjjAssetsRecordModel sModel = smjjAssetsRecordDao.queryByUserId(imageRecordModel);
+		if (sModel != null && !sModel.isEmpty()) {
+			imageRecordModel.setId(sModel.getId());
+			if (StringHelper.isBlank(String.valueOf(imageRecordModel.getBusinessId()))) {
+				imageRecordModel.setBusinessId(sModel.getBusinessId());
+			}
+			smjjAssetsRecordDao.update(imageRecordModel);
+			smjjAssetsRecordModel.putAll(imageRecordModel);
+		}
+		else {
+			smjjAssetsRecordModel = smjjAssetsRecordDao.add(imageRecordModel);
+		}
+		
+		return smjjAssetsRecordModel;
+	}
+	
+	/**
+	 * 
+	 * @描述：查询用户输入记录
+	 * @作者：闫耀辉
+	 * @时间：2019年9月18日 下午3:22:56
+	 * @param smjjAssetsRecordModel
+	 * @return
+	 */
+    @Override
+    public List<SmjjAssetsRecordModel> queryAssetRecord(SmjjAssetsRecordModel smjjAssetsRecordModel)
+    {
+        return smjjAssetsRecordDao.queryByParams(smjjAssetsRecordModel);
+    }
+}

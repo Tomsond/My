@@ -1,0 +1,58 @@
+package com.thinkive.fxc.ismp.bus.business.entrust.contants;
+
+/**
+ * @描述: 委托方式错误编号
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0.0 
+ * @创建时间: 2016年9月5日 下午4:30:14
+ */
+public class EntrustErrorCodeContants
+{
+    /**
+     * 数据库中未配置任何委托方式
+     */
+    public static final int NO_ENTRUST = -100415101;
+    
+    /**
+     * 委托方式不能为空
+     */
+    public static final int BLANK_ENTRUT = -100416101;
+    
+    /**
+     * 委托方式修改类型错误
+     */
+    public static final int ERROR_CHANGE_TYPE = -100416102;
+    
+    /**
+     * 数据库未配置该委托方式,禁止操作
+     */
+    public static final int PROHIBIT_OPERATION_WT = -100416103;
+    
+    /**
+     * 该委托方式尚未开通，无法取消
+     */
+    public static final int CANNOT_CENCEL_WT = -100416104;
+    
+    /**
+     * 禁止关闭该委托方式
+     */
+    public static final int CANNOT_CLOSE_WT = -100416105;
+    
+    /**
+     * 该委托方式已开通,不能重复开通
+     */
+    public static final int EARLY_OPENED_WT = -100416106;
+    
+    /**
+     * 数据库配置不能开通该委托方式
+     */
+    public static final int PROHIBIT_OPEN_WT = -100416107;
+    
+    /**
+     * 调用第三方取消用户委托方式失败
+     */
+    public static final int CANCEL_WT_FAILURE = -100416108;
+    
+}

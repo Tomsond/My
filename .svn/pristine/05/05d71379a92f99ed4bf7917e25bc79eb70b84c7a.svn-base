@@ -1,0 +1,13 @@
+package com.thinkive.fxc.ismp.bus.base.basicdata.dao;
+
+import com.thinkive.fxc.ismp.bus.base.basicdata.model.ProprietyModel;
+
+public interface ProprietyDao {
+
+	/**
+	 * 插入匹配信息记录
+	 * @param modeel
+	 * @return
+	 */
+	public int InsertPropriety(ProprietyModel modeel)  throws Exception;
+}

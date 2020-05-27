@@ -1,0 +1,66 @@
+package com.thinkive.fxc.ismp.bus.base.business.dao.impl;
+
+import java.util.Date;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.DateHelper;
+import com.thinkive.fxc.ismp.bus.base.business.dao.BillDao;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseDao;
+import com.thinkive.fxc.ismp.bus.base.constants.SystemConstants;
+
+/**
+ * 作者：MIKE
+ * 公司：深圳市思迪信息技术股份公司
+ * 日期时间：2017年2月24日 下午7:43:27
+ * 说明：对账单数据库操作类
+ */
+public class BillDaoImpl extends ISMPBaseDao implements BillDao
+{
+	
+	@Override
+	public DataRow getEamilBillInfo(long userId) throws Exception
+	{
+		StringBuffer sql = new StringBuffer("SELECT BILL.USER_ID,BILL.EMAIL,BILL.STATUS FROM T_ISMP_USER_EMAILBILL BILL WHERE 1=1 ");
+		sql.append(" AND USER_ID = ?");
+		return getJdbcTemplate().queryMap(sql.toString(), new Object[] { userId });
+	}
+	
+	@Override
+	public DataRow insertBillInfo(DataRow data) throws Exception
+	{
+		String date_time = DateHelper.formatDate(new Date(), DateHelper.pattern_time);
+		DataRow insertData = new DataRow();
+		insertData.set("id", this.getSeqValue(SystemConstants.DB_ISMP,"T_ISMP_USER_EMAILBILL"));
+		insertData.set("create_date", date_time);
+		insertData.set("update_date", date_time);
+		insertData.set("user_id", data.getString("user_id"));
+		insertData.set("email", data.getString("email"));
+		insertData.set("status", data.getString("status"));
+		getJdbcTemplate().insert("T_ISMP_USER_EMAILBILL", insertData);
+		return insertData;
+	}
+	
+	@Override
+	public DataRow updateBillInfo(DataRow data) throws Exception
+	{
+		String user_id = data.getString("user_id");
+		String date_time = DateHelper.formatDate(new Date(), DateHelper.pattern_time);
+		data.set("update_date", date_time);
+		getJdbcTemplate().update("T_ISMP_USER_EMAILBILL", data, new String[] { "user_id" }, new Object[] { user_id });
+		data.set("user_id", user_id);
+		return data;
+	}
+	
+	/**
+	 * 作者：MIKE
+	 * 公司：深圳市思迪信息技术股份公司
+	 * 日期时间：2017年2月24日 下午7:52:18
+	 * 说明：增加对账单邮箱操作记录信息
+	 */
+	@Override
+	public void InserBillOperationEmail(DataRow dataRow) throws Exception
+	{
+		getJdbcTemplate().insert("T_ISMP_B_EMAILBILL", dataRow);
+	}
+	
+}

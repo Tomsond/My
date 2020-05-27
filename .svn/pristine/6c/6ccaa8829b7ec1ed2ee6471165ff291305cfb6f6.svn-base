@@ -1,0 +1,231 @@
+package com.thinkive.fxc.ismp.bus.base.basicdata.model;
+
+import java.sql.Timestamp;
+import java.util.Date;
+
+import com.thinkive.base.jdbc.DataRow;
+
+/**
+ * @描述: 公共-问卷问题表(T_FXC_SURVEY_QUESTION)模型
+ * @版权: Copyright (c) 2016 
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0 
+ * @创建时间: 2016年8月16日 下午4:14:04
+ */
+public class SurveyQuestionModel extends DataRow 
+{
+
+    private static final long serialVersionUID = 6791488625677323460L;
+    
+    private static final String ID = "id";
+    
+    private static final String SITE_NO = "site_no";
+    
+    private static final String NAME = "name";
+    
+    private static final String DESCRIPTION = "description";
+    
+    private static final String STATE = "state";
+    
+    private static final String SUB_ID = "sub_id";
+    
+    private static final String TYPE = "type";
+    
+    private static final String EXT_CODE = "ext_code";
+    
+    private static final String ORDER_LINE = "order_line";
+    
+    private static final String CREATE_DATE  = "create_date";
+    
+    private static final String CREATE_BY = "create_by";
+    
+    private static final String UPDATE_DATE = "update_date";
+    
+    private static final String UPDATE_BY = "update_by";
+    
+    /**
+     * 获取自增主键
+     */
+    public Long getId() {
+        return getLong(ID);
+    }
+
+    /**
+     * 设置自增主键
+     */
+    public void setId(Long id) {
+        set(ID, id);
+    }
+    
+    /**
+     * 获取所属站点
+     */
+    public String getSiteNo() {
+        return getString(SITE_NO);
+    }
+
+    /**
+     * 设置所属站点
+     */
+    public void setSiteNo(String siteNo) {
+        set(SITE_NO, siteNo);
+    }
+    
+    /**
+     * 获取问卷名称
+     */
+    public String getName() {
+        return getString(NAME);
+    }
+
+    /**
+     * 获取问卷名称   
+     */
+    public void setName(String name) {
+        set(NAME, name);
+    }   
+    
+    /**
+     * 获取描述
+     */
+    public String getDescription() {
+        return getString(DESCRIPTION);
+    }
+
+    /**
+     * 获取描述
+     */
+    public void setDescription(String description) {
+        set(DESCRIPTION, description);
+    }   
+    
+    /**
+     * 获取状态
+     */
+    public String getState() {
+        return getString(STATE);
+    }
+
+    /**
+     * 获取状态
+     */
+    public void setState(String state) {
+        set(STATE, state);
+    }
+    
+    /**
+     * 获取主题ID
+     */
+    public Long getSubId() {
+        return getLong(SUB_ID);
+    }
+
+    /**
+     * 获取主题ID
+     */
+    public void setSubId(Long subId) {
+        set(SUB_ID, subId);
+    }   
+    
+    
+    /**
+     * 获取问题类型
+     */
+    public Integer getType() {
+        return getInt(TYPE);
+    }
+
+    /**
+     * 获取问题类型
+     */
+    public void setType(Integer type) {
+        set(TYPE, type);
+    }  
+    
+    /**
+     * 获取外部扩展编号
+     */
+    public String getExtCode() {
+        return getString(EXT_CODE);
+    }
+
+    /**
+     * 获取外部扩展编号
+     */
+    public void setExtCode(String extCode) {
+        set(EXT_CODE, extCode);
+    }   
+    
+    /**
+     * 获取排序值
+     */
+    public Long getOrderLine() {
+        return getLong(ORDER_LINE);
+    }
+
+    /**
+     * 获取排序值
+     */
+    public void setOrderLine(Long orderLine) {
+        set(ORDER_LINE, orderLine);
+    }
+    
+    /**
+     * 获取创建时间
+     */
+    public Date getCreateDate() {
+        return (Date) get(CREATE_DATE);
+    }
+
+    /**
+     * 设置创建时间
+     */
+    public void setCreateDate(Date createDate) {
+        Timestamp timestamp=new Timestamp(createDate.getTime());
+        set(CREATE_DATE, timestamp);
+    }
+    
+    /**
+     * 获取更新时间
+     */
+    public Date getUpdateDate() {
+        return (Date) get(UPDATE_DATE);
+    }
+
+    /**
+     * 设置更新时间
+     */
+    public void setUpdateDate(Date updateDate) {
+        Timestamp timestamp=new Timestamp(updateDate.getTime());
+        set(UPDATE_DATE, timestamp);
+    }
+    
+    /**
+     * 获取创建人
+     */
+    public Long getCreateBy() {
+        return getLong(CREATE_BY);
+    }
+
+    /**
+     * 设置创建人
+     */
+    public void setCreateBy(Long createBy) {
+        set(CREATE_BY, createBy);
+    }  
+    
+    /**
+     * 获取修改人
+     */
+    public Long getUpdateBy() {
+        return getLong(UPDATE_BY);
+    }
+
+    /**
+     * 设置修改人
+     */
+    public void setUpdateBy(Long updateBy) {
+        set(UPDATE_BY, updateBy);
+    }  
+}

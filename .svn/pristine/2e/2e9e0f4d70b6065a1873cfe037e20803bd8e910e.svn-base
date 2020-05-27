@@ -1,0 +1,101 @@
+package com.thinkive.fxc.ismp.bus.business.user.function;
+
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
+
+import com.thinkive.base.jdbc.DBPage;
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.service.BusinessEntityService;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.server.InvokeException;
+import com.thinkive.server.ResultVo;
+
+/**
+ * @描述: 获取我的业务办理记录
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0.0 
+ * @创建时间: 2016年9月23日 下午2:25:27
+ */
+public class Function1004438 extends ISMPBaseFunction
+{
+	private Long userId;
+    
+	private String businessCode;
+	
+	private String dealResult;
+	
+	private String businessId;
+	
+	private String iscomplete;
+	
+	private String cur_page;
+	
+	private String num_per_page;
+	
+	private BusinessEntityService businessEntityService;
+    
+	@Override
+	public ResultVo execute() throws Exception
+	{
+		checkInput();
+		
+		ResultVo resultVo = new ResultVo();
+	
+		DataRow paramData = new DataRow();
+		paramData.set("userId", userId);
+		paramData.set("businesscode", businessCode);
+		paramData.set("businessId", businessId);
+		paramData.set("dealResult", dealResult);
+		paramData.set("iscomplete", iscomplete);
+		paramData.set("current_page", cur_page);
+		paramData.set("page_count", num_per_page);
+		
+		businessEntityService=SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_BUSINESSENTITY, BusinessEntityService.class);
+		DBPage businessPage = businessEntityService.queryPageByParams(paramData, Integer.valueOf(cur_page), Integer.valueOf(num_per_page));
+		@SuppressWarnings("unchecked")
+        List<DataRow> businessList = businessPage.getData();
+		if(null != businessList){
+		    for (DataRow businessInfo : businessList)
+	        {
+	            String hasDetail=businessInfo.getString("hasDetail");
+	            if(StringUtils.isNotBlank(hasDetail)){
+	                businessInfo.set("hasDetail", DictionaryConstants.BOL_TRUE);
+	            }else{
+	                businessInfo.set("hasDetail", DictionaryConstants.BOL_FALSE);
+	            }
+	        }
+		}
+		
+		int totalRows = businessPage.getTotalRows(); //获取记录总条数
+		int totalPages = businessPage.getTotalPages();//获取总页数
+		DataRow pageInfo = new DataRow();
+		pageInfo.set("numPerpage", num_per_page);
+		pageInfo.set("currentPage", cur_page);
+		pageInfo.set("totalPages", totalPages);
+		pageInfo.set("totalRows", totalRows);
+		resultVo.setResult("pageList", businessList);
+		resultVo.setResult("pageInfo", pageInfo);
+		resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+		resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+		return resultVo;
+	}
+	
+	private void checkInput() throws InvokeException
+	{
+	    userId = Long.valueOf(this.getAndCheckBlankStrParam("user_id", ErrorCodeCheckInput.BLANK_USERID));
+		cur_page=this.getAndCheckBlankStrParam("cur_page", ErrorCodeCheckInput.BLANK_CUR_PAGE);
+		num_per_page=this.getAndCheckBlankStrParam("num_per_page", ErrorCodeCheckInput.BLANK_NUM_PER_PAGE);
+        businessCode = this.getStrParameter("business_code"); //业务类型编号
+        dealResult = this.getStrParameter("state"); //业务办理结果
+        businessId = this.getStrParameter("business_id"); //业务流程ID
+        iscomplete = this.getStrParameter("iscomplete"); //是否完结
+	        
+	}
+}

@@ -1,0 +1,25 @@
+package com.thinkive.fxc.ismp.bus.base.business.dao;
+
+import com.thinkive.fxc.ismp.bus.base.business.model.AgreeNoConfigModel;
+
+/**
+ * @描述: 协议签署节点协议配置表(t_ismp_agree_agreeno_config)数据层接口
+ * @版权: Copyright (c) 2016 
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0 
+ * @创建时间: 2016年8月16日 上午11:25:48
+ */
+public interface AgreeNoConfigDao
+{
+	
+	/**
+	 * @描述: 根据节点英文标识nodeId查询协议签署节点协议配置
+	 * @作者: 田源  
+	 * @时间：2016年8月17日 下午3:59:13
+	 * @param nodeId
+	 * @return AgreeNoConfigModel
+	 * @
+	 */
+	public AgreeNoConfigModel queryByNodeId(String nodeId);
+}

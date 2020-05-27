@@ -1,0 +1,155 @@
+package com.thinkive.fxc.ismp.bus.base.business.model;
+
+import java.sql.Timestamp;
+import java.util.Date;
+
+import com.thinkive.base.jdbc.DataRow;
+
+/**
+ * @描述: 公安校验信息表(T_FXC_IDNO_INFO)模型
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年11月7日 上午10:22:28
+ */
+public class CitizenInfo extends DataRow
+{
+	
+	private static final long serialVersionUID = 1638315732349851939L;
+	
+	private final static String ID = "id"; // 自增主键
+	
+	private final static String BIRTHDATE = "birth_date"; // 生日
+	
+	private final static String CITIZENIDNUMBER = "citizen_id_number"; // 身份证号
+	
+	private final static String NAME = "name"; // 姓名
+	
+	private final static String PHOTOS = "photos"; // 照片数据
+	
+	private final static String SEXCODE = "sexcode"; // 性别编码
+	
+	private final static String PHOTO_PATH = "photo_path"; // 实际存放路径
+	
+	private final static String CREATE_DATE = "create_date"; // 创建时间
+	
+	private final static String UPDATE_DATE = "update_date"; // 更新时间
+	
+	private final static String SOURCE = "source"; // 校验渠道(1:中登;2:众融;3:昊一;4:金证;5:龙团;)
+	
+	private final static String SECRET_KEY = "secret_key"; // 文件密钥
+	
+	public String getSecretKey()
+	{
+		return this.getString(SECRET_KEY);
+	}
+	
+	public void setSecretKey(String secretKey)
+	{
+		this.set(SECRET_KEY, secretKey);
+	}
+	
+	public String getSource()
+	{
+		return this.getString(SOURCE);
+	}
+	
+	public void setSource(String source)
+	{
+		this.set(SOURCE, source);
+	}
+	
+	public String getId()
+	{
+		return this.getString(ID);
+	}
+	
+	public void setId(String id)
+	{
+		this.set(ID, id);
+	}
+	
+	public String getBirthdate()
+	{
+		return this.getString(BIRTHDATE);
+	}
+	
+	public void setBirthdate(String birthdate)
+	{
+		this.set(BIRTHDATE, birthdate);
+	}
+	
+	public String getCitizenidnumber()
+	{
+		return this.getString(CITIZENIDNUMBER);
+	}
+	
+	public void setCitizenidnumber(String citizenidnumber)
+	{
+		this.set(CITIZENIDNUMBER, citizenidnumber);
+	}
+	
+	public String getName()
+	{
+		return this.getString(NAME);
+	}
+	
+	public void setName(String name)
+	{
+		this.set(NAME, name);
+	}
+	
+	public String getPhotos()
+	{
+		return this.getString(PHOTOS);
+	}
+	
+	public void setPhotos(String photos)
+	{
+		this.set(PHOTOS, photos);
+	}
+	
+	public String getSexcode()
+	{
+		return this.getString(SEXCODE);
+	}
+	
+	public void setSexcode(String sexcode)
+	{
+		this.set(SEXCODE, sexcode);
+	}
+	
+	public String getPhotoPath()
+	{
+		return this.getString(PHOTO_PATH);
+	}
+	
+	public void setPhotoPath(String photoPath)
+	{
+		this.set(PHOTO_PATH, photoPath);
+	}
+	
+	public Date getCreateDate()
+	{
+		return (Date) this.get(CREATE_DATE);
+	}
+	
+	public void setCreateDate(Date createDate)
+	{
+		Timestamp timestamp = new Timestamp(createDate.getTime());
+		this.set(CREATE_DATE, timestamp);
+	}
+	
+	public Date getUpdateDate()
+	{
+		return (Date) this.get(UPDATE_DATE);
+	}
+	
+	public void setUpdateDate(Date updateDate)
+	{
+		Timestamp timestamp = new Timestamp(updateDate.getTime());
+		this.set(UPDATE_DATE, timestamp);
+	}
+	
+}

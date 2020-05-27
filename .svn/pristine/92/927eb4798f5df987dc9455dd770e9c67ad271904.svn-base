@@ -1,0 +1,202 @@
+package com.thinkive.fxc.ismp.bus.base.basicdata.model;
+
+import java.sql.Timestamp;
+import java.util.Date;
+
+import com.thinkive.base.jdbc.DataRow;
+
+/**
+ * @描述: 公共-营业部业务权限表(T_FXC_BUSINESS_RIGHTS) 模型
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 尹杰民
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月18日 下午1:32:53
+ */
+public class BusinessRightsModel extends DataRow
+{
+    
+    private static final long   serialVersionUID = -3956568554100766643L;
+    
+    private static final String ID               = "id";
+    
+    private static final String BRANCH_ID        = "branch_id";
+    
+    private static final String TYPE             = "type";
+    
+    private static final String ROLE_ID          = "role_id";
+    
+    private static final String USER_ID          = "user_id";
+    
+    private static final String SUBRANCH_ID      = "subranch_id";
+    
+    private static final String CREATE_DATE      = "create_date";
+    
+    private static final String CREATE_BY        = "create_by";
+    
+    private static final String UPDATE_DATE      = "update_date";
+    
+    private static final String UPDATE_BY        = "update_by";
+    
+    /**
+     * 获取自增主键
+     */
+    public Long getId()
+    {
+        return getLong(ID);
+    }
+    
+    /**
+     * 设置自增主键
+     */
+    public void setId(Long id)
+    {
+        set(ID, id);
+    }
+    
+    /**
+     * 获取分公司营业部ID
+     */
+    public String getBranchId()
+    {
+        return getString(BRANCH_ID);
+    }
+    
+    /**
+     * 设置分公司营业部ID
+     */
+    public void setBranchId(String branchId)
+    {
+        set(BRANCH_ID, branchId);
+    }
+    
+    /**
+     * 获取类型
+     */
+    public String getType()
+    {
+        return getString(TYPE);
+    }
+    
+    /**
+     * 设置类型
+     */
+    public void setType(String type)
+    {
+        set(TYPE, type);
+    }
+    
+    /**
+     * 获取角色ID
+     */
+    public Long getRoleId()
+    {
+        return getLong(ROLE_ID);
+    }
+    
+    /**
+     * 设置角色ID
+     */
+    public void setRoleId(Long roleId)
+    {
+        set(ROLE_ID, roleId);
+    }
+    
+    /**
+     * 获取用户ID
+     */
+    public Long getUserId()
+    {
+        return getLong(USER_ID);
+    }
+    
+    /**
+     * 设置用户ID
+     */
+    public void setUserId(Long userId)
+    {
+        set(USER_ID, userId);
+    }
+    
+    /**
+     * 获取可以管理的营业部编号
+     */
+    public String getSubranchId()
+    {
+        return getString(SUBRANCH_ID);
+    }
+    
+    /**
+     * 设置可以管理的营业部编号
+     */
+    public void setSubranchId(String subranchId)
+    {
+        set(SUBRANCH_ID, subranchId);
+    }
+    
+    /**
+     * 获取创建时间
+     */
+    public Date getCreateDate()
+    {
+        return (Date) get(CREATE_DATE);
+    }
+    
+    /**
+     * 设置创建时间
+     */
+    public void setCreateDate(Date createDate)
+    {
+        Timestamp timestamp=new Timestamp(createDate.getTime());
+        set(CREATE_DATE, timestamp);
+    }
+    
+    /**
+     * 获取创建人
+     */
+    public Long getCreateBy()
+    {
+        return getLong(CREATE_BY);
+    }
+    
+    /**
+     * 设置创建人
+     */
+    public void setCreateBy(Long createBy)
+    {
+        set(CREATE_BY, createBy);
+    }
+    
+    /**
+     * 获取更新时间
+     */
+    public Date getUpdateDate()
+    {
+       return (Date) get(UPDATE_DATE);
+    }
+    
+    /**
+     * 设置更新时间
+     */
+    public void setUpdateDate(Date updateDate)
+    {
+        Timestamp timestamp=new Timestamp(updateDate.getTime());
+        set(UPDATE_DATE, timestamp);
+    }
+    
+    /**
+     * 获取修改人
+     */
+    public Long getUpdateBy()
+    {
+        return getLong(UPDATE_BY);
+    }
+    
+    /**
+     * 设置修改人
+     */
+    public void setUpdateBy(Long updateBy)
+    {
+        set(UPDATE_BY, updateBy);
+    }
+}

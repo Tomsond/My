@@ -1,0 +1,124 @@
+package com.thinkive.fxc.ismp.bus.business.assets.thirdbank.function;
+
+import org.apache.axis.transport.jms.InvokeException;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.model.BusinessEntityModel;
+import com.thinkive.fxc.ismp.bus.base.business.service.BusinessEntityService;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService; 
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.business.assets.thirdbank.contants.ThirdBankContants; 
+import com.thinkive.fxc.ismp.bus.business.assets.thirdbank.service.ThirdBankService; 
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdDictionaryConstants;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdInterface;
+import com.thinkive.server.ResultVo;
+
+/**
+ * 
+ * @描述: 根据柜台流水号查询柜台业务办理状态
+ * @版权: Copyright (c) 2019 
+ * @公司: 思迪科技 
+ * @作者: 李智凡
+ * @版本: 1.0 
+ * @创建日期: 2019年4月28日 
+ * @创建时间: 下午4:31:10
+ */
+public class Function1004500 extends ISMPBaseFunction{ 
+    
+    private long userId;//用户编号
+    
+    private String businessCode;//业务编号  
+    
+    
+    @Override
+    public ResultVo execute() throws Exception { 
+        initVar();
+        
+        ResultVo resultVo = new ResultVo();
+         
+        //获取用户信息
+        UserInfoService userInfoService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO,UserInfoService.class);
+        DataRow userInfo = userInfoService.queryUserAllInfo(userId);
+        if(userInfo == null || userInfo.size() == 0){
+            throw new InvokeException("用户数据不存在！");
+        }
+        //获取业务实例
+        BusinessEntityService businessEntityService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_BUSINESSENTITY, BusinessEntityService.class);
+        BusinessEntityModel businessEntityModel = businessEntityService.queryNotCompleteByUserIdAndBusinessCode(userId, businessCode);
+        if(businessEntityModel == null || businessEntityModel.size() == 0){
+            throw new InvokeException("业务数据不存在！");
+        } 
+        
+        //获取三方存管流水信息
+        ThirdBankService thirdBankService = SpringHelper.getBean(ThirdBankContants.SERVICE_ID_THIRDBANK, ThirdBankService.class);
+        DataRow thirdbankbusinessinfovo=thirdBankService.queryThirdbankByBusinessId(businessEntityModel.getId());
+        if(thirdbankbusinessinfovo == null || thirdbankbusinessinfovo.size() == 0){
+            throw new InvokeException("业务数据不存在！");
+        } 
+        
+        //调用三方接口获取业务处理结果
+        ThirdInterface thirdInterface = SpringHelper.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDINTERFACE, ThirdInterface.class); 
+        String fund_account=thirdbankbusinessinfovo.getString("fund_account");
+        String client_id=userInfo.getString("client_id");
+        String ywqqid=thirdbankbusinessinfovo.getString("ywqqid");
+        DataRow queryywqqjg=thirdInterface.queryYwQqJg(client_id,ywqqid,fund_account);
+        String acpt_status=queryywqqjg.getString("acpt_status");
+        String remark=remark(Integer.valueOf(acpt_status));
+        queryywqqjg.set("remark", queryywqqjg.getString("remark")+remark);
+        String dealResult="7";
+        //dealResult    1：办理成功，2：审核不通过，3：跑批不通过，4：审核驳回，5.：跑批驳回，6：用户主动关闭申请,7：实时办理失败，8：待审核，9：待跑批 
+        //0 已受理，1   待复核，2   已办理，3   已作废，4   办理失败，5   待办理，9   正在处理 
+        if (acpt_status.equals("0") || acpt_status.equals("1") || acpt_status.equals("5") || acpt_status.equals("9")) {
+            dealResult="8";
+        } else if (acpt_status.equals("2")) {
+            dealResult="1";
+        }else {
+            dealResult="7";
+        }
+        businessEntityModel.setId(businessEntityModel.getId());
+        businessEntityModel.setDealResult(dealResult);
+        businessEntityModel.setDescription(remark); 
+        businessEntityService.update(businessEntityModel);//更新业务数据实例
+        
+        //获取业务实例
+        businessEntityModel = businessEntityService.queryNotCompleteByUserIdAndBusinessCode(userId, businessCode); 
+        resultVo.setResult("businessEntityModel", businessEntityModel);
+        resultVo.setResult("thirdbankbusinessinfovo", thirdbankbusinessinfovo);
+        resultVo.setResult("queryywqqjg", queryywqqjg);
+        resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+        resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+        return resultVo;
+    }
+    
+    private void initVar(){
+        userId = this.formatLongParam(this.getAndCheckBlankStrParam("user_id", ErrorCodeCheckInput.BLANK_USERID), ErrorCodeCheckInput.LONG_FORMAT_ERROR);
+        businessCode = this.getAndCheckBlankStrParam("businessCode", ErrorCodeCheckInput.BLANK_BUSINESSCODE);
+    }
+    
+    private String remark(int acpt_status){
+            //0 已受理，1   待复核，2   已办理，3   已作废，4   办理失败，5   待办理，9   正在处理 
+           switch (acpt_status){
+            case 0:
+                return "已受理";
+            case 1:
+                return "待复核";
+            case 2:
+                return "已办理";
+            case 3:
+                return "已作废";
+            case 4:
+                return "办理失败";
+            case 5:
+                return "待办理";
+            case 9:
+                return "正在处理 ";
+            default: 
+                return "正在处理 ";
+        } 
+    }
+    
+}

@@ -1,0 +1,28 @@
+package com.thinkive.fxc.ismp.bus.base.function;
+
+import com.thinkive.fxc.ismp.bus.BaseTest;
+import com.thinkive.fxc.ismp.bus.business.function.Function1004477;
+import com.thinkive.server.Function;
+
+
+/**
+ * 作者：MIKE
+ * 公司：深圳市思迪信息技术股份公司
+ * 日期时间：2017年2月25日 上午10:48:34
+ * 说明：对账单邮箱设置测试类
+ */
+public class Function1004484Test extends BaseTest
+{
+    
+    public void testInvoke()
+    {
+    	getRequest().addFieldValue("user_id", "443");
+//        getRequest().addFieldValue("email", "123@163.com");
+//    	getRequest().addFieldValue("op_type", "1");
+//        getRequest().addFieldValue("business_id", "bill");
+        getRequest().setFuncNo(1004477);
+        Function function = new Function1004477();
+        function.invoke(getContext());
+        System.out.println("结果数据为：" + getResponse().getData());
+    }
+}

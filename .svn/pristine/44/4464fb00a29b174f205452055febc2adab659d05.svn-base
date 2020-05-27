@@ -1,0 +1,31 @@
+package com.thinkive.fxc.ismp.bus.business.zq.constants;
+
+public class ZqConstants {
+	
+	public static final String SERVER_ID_ZQ = "com.thinkive.fxc.ismp.bus.business.zq.service.ZqService";
+	
+	public static final String ZQ_KNOWLEDGE = "zq_knowledge";
+
+	public static final String ZQ_CHOOSE_ACCOUNT = "zq_choose_account";
+	
+	public static final String ZQ_SIGN_AGREEMENT = "zq_sign_agreement";
+	
+	  /**
+     * 债券业务知识测评属性节点本地问卷编号对应的节点propertyKey
+     */
+    public static final String ZQ_KNOWLEDGE_LOCAL_CODE= "local_code";
+    
+    /**
+     * 债券业务知识测评问卷通过等级对应的节点propertyKey
+     */
+    public static final String ZQ_KNOWLEDGE_PASS_VALUE= "pass_value";
+    
+    
+    public static final String BUSINESS_CODE= "zq";
+    /**
+     * 债券合格投资者开通知识测评
+     */
+    public static final String ZQ_KNOWLEDGE_SURVEY= "zq_sdxglcst";
+
+	
+}

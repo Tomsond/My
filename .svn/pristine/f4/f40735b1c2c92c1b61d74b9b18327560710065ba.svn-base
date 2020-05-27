@@ -1,0 +1,122 @@
+package com.thinkive.fxc.ismp.bus.business.function;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.base.util.StringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.business.vo.UserInfoVo;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.business.util.DataFormatUtils;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdDictionaryConstants;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdInterfaceConstant;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdTBASConstants;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdInterface;
+import com.thinkive.server.ResultVo;
+
+/**
+ * @描述: 账户通
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年9月20日 上午11:26:34
+ */
+public class Function1004140 extends ISMPBaseFunction
+{
+	
+	private Long userId;
+	
+	public ResultVo execute() throws Exception
+	{
+		initVar();
+		ResultVo resultVo = new ResultVo();
+		//用户编号
+		
+		UserInfoService userInfoService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO, UserInfoService.class);
+		ThirdInterface thirdInterface = SpringHelper.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDINTERFACE, ThirdInterface.class);
+		UserInfoVo userInfo = userInfoService.queryAndCheckUserByUserIdAndType(userId, ThirdInterfaceConstant.USER_ACCOUNT_TYPE_ZQ);
+		DataRow thirdInput = DataFormatUtils.packThirdInput(userInfo);
+		List<DataRow> tradAccounts = thirdInterface.queryRegistAccount(thirdInput); //柜台接口查询的交易帐号
+		
+		List<DataRow> zqAccountSa = new ArrayList<DataRow>();
+		List<DataRow> zqAccountHa = new ArrayList<DataRow>();
+		List<DataRow> zqAccount = new ArrayList<DataRow>();
+		List<DataRow> xyAccount = new ArrayList<DataRow>();
+		List<DataRow> lcAccount = new ArrayList<DataRow>();
+		for (int i = 0; tradAccounts != null && i < tradAccounts.size(); i++)
+		{
+			DataRow stradItem = (DataRow) tradAccounts.get(i);
+			String trdacct_excls = stradItem.getString("trdacct_excls");//交易帐号类型
+			if (StringHelper.isBlank(trdacct_excls))
+			{
+				continue;
+			}
+			String zjacc_type = ThirdInterfaceConstant.ACCOUNT_TRDACCT.get(stradItem.getString("trdacct_excls"));
+			if (ThirdInterfaceConstant.USER_ACCOUNT_TYPE_ZQ.equals(zjacc_type))
+			{ //证券账户
+				stradItem.set("trade_type", ThirdInterfaceConstant.USER_ACCOUNT_TYPE_ZQ);
+				zqAccount.add(stradItem);
+				
+				//查询创业板和港股通
+				String stkbd = stradItem.getString("stkbd");//交易市场板块
+				String trdacct = stradItem.getString("trdacct");//交易账号
+				if (ThirdInterfaceConstant.STKBD_SHA.equals(stkbd))
+				{
+					stradItem.set("ggt_status", "0");
+					thirdInput.set("trdaccount", trdacct);
+					DataRow ggtInfo = thirdInterface.queryGGTAccount(thirdInput);
+					if (ggtInfo != null && DictionaryConstants.BOL_TRUE.equals(ggtInfo.getString("query_flag")))
+					{
+						stradItem.set("ggt_status", DictionaryConstants.BOL_TRUE);
+					}
+					zqAccountHa.add(stradItem);
+				}
+				else if (ThirdInterfaceConstant.STKBD_SZA.equals(stkbd))
+				{
+					stradItem.set("cyb_status", "0");
+					//查询创业板权限
+					thirdInput.set("trdaccount", trdacct);
+					thirdInput.set("query_type", ThirdTBASConstants.THIRDINTERFACE_QUERYTYPE_GT);
+					DataRow cybZqInfo = thirdInterface.queryCYBAccount(thirdInput);
+					if (cybZqInfo != null && DictionaryConstants.BOL_TRUE.equals(cybZqInfo.getString("query_flag")))
+					{
+						stradItem.set("cyb_status", cybZqInfo.getString("bind_state"));
+					}
+					zqAccountSa.add(stradItem);
+				}
+			}
+			if (ThirdInterfaceConstant.USER_ACCOUNT_TYPE_LC.equals(zjacc_type))
+			{
+				stradItem.set("trade_type", ThirdInterfaceConstant.USER_ACCOUNT_TYPE_LC);
+				lcAccount.add(stradItem);
+			}
+			if (ThirdInterfaceConstant.USER_ACCOUNT_TYPE_XY.equals(zjacc_type))
+			{
+				stradItem.set("trade_type", ThirdInterfaceConstant.USER_ACCOUNT_TYPE_XY);
+				xyAccount.add(stradItem);
+			}
+		}
+		resultVo.setResult("zqAccountHa", zqAccountHa);
+		resultVo.setResult("zqAccountSa", zqAccountSa);
+		resultVo.setResult("zqAccount", zqAccount);
+		resultVo.setResult("lcAccount", lcAccount);
+		resultVo.setResult("xyAccount", xyAccount);
+		return resultVo;
+	}
+	
+	/**
+	 * @描述：获取业务入参
+	 * @作者：刘恺
+	 * @时间：2016年8月23日 下午8:55:24
+	 */
+	private void initVar()
+	{
+		userId = this.formatLongParam(this.getAndCheckBlankStrParam("user_id", ErrorCodeCheckInput.BLANK_USERID), ErrorCodeCheckInput.LONG_FORMAT_ERROR);
+	}
+}

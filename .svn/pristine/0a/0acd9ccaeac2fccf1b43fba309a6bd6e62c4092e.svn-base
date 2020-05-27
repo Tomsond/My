@@ -1,0 +1,24 @@
+package com.thinkive.fxc.ismp.bus.business.assets.yzzz.dao.impl;
+
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseDao;
+import com.thinkive.fxc.ismp.bus.business.assets.yzzz.contants.YzzzContants;
+import com.thinkive.fxc.ismp.bus.business.assets.yzzz.dao.YzzzExtendDao;
+import com.thinkive.fxc.ismp.bus.business.assets.yzzz.model.YzzzExtendModel;
+
+/**
+ * @描述: 银证转账扩展信息DAO实现类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2017年3月28日 下午6:04:02
+ */
+public class YzzzExtendDaoImpl extends ISMPBaseDao implements YzzzExtendDao
+{
+	
+	@Override
+	public void add(YzzzExtendModel yzzzExtendModel)
+	{
+		this.getJdbcTemplate().insert(YzzzContants.T_ISMP_B_YZZZ, yzzzExtendModel);
+	}
+}

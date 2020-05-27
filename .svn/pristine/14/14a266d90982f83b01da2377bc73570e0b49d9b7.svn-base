@@ -1,0 +1,30 @@
+package com.thinkive.fxc.ismp.bus.base.business.service.impl;
+
+import java.util.List;
+
+import com.thinkive.fxc.ismp.bus.base.business.dao.VideoRecordDao;
+import com.thinkive.fxc.ismp.bus.base.business.model.VideoRecordModel;
+import com.thinkive.fxc.ismp.bus.base.business.service.VideoNodeService;
+
+public class VideoNodeServiceImpl implements VideoNodeService{
+
+	private VideoRecordDao videoRecordDao;
+	
+	
+	public VideoRecordDao getVideoRecordDao() {
+		return videoRecordDao;
+	}
+
+
+	public void setVideoRecordDao(VideoRecordDao videoRecordDao) {
+		this.videoRecordDao=videoRecordDao;
+	}
+
+	@Override
+	public List<VideoRecordModel> queryWitnessVideoState(Long businessId) {
+		VideoRecordModel videoRecordModel = new VideoRecordModel();
+		videoRecordModel.setBusinessId(businessId);
+		return videoRecordDao.queryByParams(videoRecordModel);
+	}
+
+}

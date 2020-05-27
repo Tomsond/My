@@ -1,0 +1,109 @@
+package com.thinkive.fxc.ismp.bus.business.user.function;
+
+import com.thinkive.base.exception.BusinessException;
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.base.util.StringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessConstants;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.model.BusinessEntityModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.UserInfoModel;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.business.vo.UserInfoVo;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.business.user.contants.UserErrorCodeContants;
+import com.thinkive.fxc.ismp.bus.business.util.DataFormatUtils;
+import com.thinkive.fxc.ismp.bus.business.util.SmsUtils;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdDictionaryConstants;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdInterface;
+import com.thinkive.server.InvokeException;
+import com.thinkive.server.ResultVo;
+
+/**
+ * @描述: 短信验证---修改手机号码
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0.0 
+ * @创建时间: 2016年9月8日 下午5:06:07
+ */
+public class Function1004107 extends ISMPBaseFunction
+{
+	
+	private String mobileCode; //手机验证码
+	
+	private String newMobile; //新手机号码
+	
+	private Long userId; //用户编号
+	
+	private String fundAccount; //资金帐号
+	
+	private UserInfoService userInfoService;
+	
+	private ThirdInterface thirdInterface;
+	
+	public ResultVo execute() throws Exception
+	{
+		//step1：获取入参并校验
+		checkInput();
+		
+		// step2:验证手机验证码是否正确
+		boolean checkResult = SmsUtils.checkMobileCode(newMobile, mobileCode, DictionaryConstants.SMS_TYPE_CHANGE_MOBILE);
+		if (!checkResult)
+		{
+			throw new BusinessException(UserErrorCodeContants.BUSINESS_MOBILE_VALIDATE_ERROR, "短信验证失败，手机号：" + newMobile + ",验证码:" + mobileCode);
+		}
+		
+		//step3:查询用户基本信息和用户账号信息,获取原手机号码
+		userInfoService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO, UserInfoService.class);
+		UserInfoVo userInfoVo = userInfoService.queryAndCheckUserByUserIdAndAccount(userId, fundAccount);
+		
+		//step3:验证要修改的手机号码是否与原来的相同 
+		String oldMobile = userInfoVo.getMobile();
+		if (newMobile.equals(oldMobile))
+		{
+			throw new BusinessException(UserErrorCodeContants.BUSINESS_MOBILE_SAME, "修改的手机号与当前绑定手机号相同：" + newMobile);
+		}
+		
+		//step4:验证要修改的手机号码是否已绑定其他用户
+		boolean existMobile = userInfoService.existMobile(newMobile);
+		if (existMobile)
+		{
+			throw new BusinessException(UserErrorCodeContants.BUSINESS_MOBILE_BINDING_OTHER, "该手机已绑定其他用户：" + newMobile);
+		}
+		
+		//step5:调用第三方接口修改手机号码
+		DataRow input = DataFormatUtils.packThirdInput(userInfoVo);
+		input.set("mobile", newMobile);
+		thirdInterface = SpringHelper.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDINTERFACE, ThirdInterface.class);
+		thirdInterface.updateUserInfo(input);
+		
+		//step6:修改云柜台数据库用户手机号码(包含修改用户基本信息，添加业务办理信息，添加快照)
+		UserInfoModel userInfoModel = new UserInfoModel();
+		userInfoModel.setUserId(userId);
+		userInfoModel.setMobile(newMobile);
+		BusinessEntityModel busiEntityModel = new BusinessEntityModel(userId, BusinessConstants.BUSINESS_MODIFIEDMOBILE, DictionaryConstants.FLOW_LASTSTEP_NEXT, DictionaryConstants.BOL_TRUE,
+				DictionaryConstants.DEAL_RESULT_SUCCESS, opSource, opStation, ip);
+		userInfoService.updateUserInfoModel(userInfoModel, busiEntityModel, userInfoVo);
+		
+		//step7:出参
+		ResultVo resultVo = new ResultVo();
+		resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+		resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+		return resultVo;
+	}
+	
+	private void checkInput() throws InvokeException
+	{
+		userId = Long.valueOf(this.getAndCheckBlankStrParam("user_id", ErrorCodeCheckInput.BLANK_USERID));
+		mobileCode = this.getAndCheckBlankStrParam("mobile_code", ErrorCodeCheckInput.BLANK_VALIDATE_CODE);
+		newMobile = this.getAndCheckBlankStrParam("new_mobile", ErrorCodeCheckInput.BLANK_NEWMOBILE_ACCOUNT);
+		if (!StringHelper.isMoblie(newMobile))
+		{
+			throw new BusinessException(ErrorCodeCheckInput.ERROR_FORMAT_MOBILE, "新手机号码格式不正确");
+		}
+		fundAccount = this.getAndCheckBlankStrParam("fundid", ErrorCodeCheckInput.BLANK_FUNDACCOUNT);
+	}
+}

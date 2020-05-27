@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:util="http://www.springframework.org/schema/util" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xmlns:cache="http://www.springframework.org/schema/cache"
+	xsi:schemaLocation="http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+    http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
+    http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd
+    http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+    http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+	<bean id="com.thinkive.fxc.ismp.businessCommonService"
+		class="com.thinkive.fxc.ismp.bus.business.service.impl.BusinessCommonServiceImpl">
+		<property name="businessEntityDao" ref="com.thinkive.fxc.ismp.businessEntityDao" />
+		<property name="flowNodeDao" ref="com.thinkive.fxc.ismp.flowNodeDao" />
+		<property name="nodeLogDao" ref="com.thinkive.fxc.ismp.nodeLogDao" />
+	</bean>
+
+	<!-- 节点属性配置 -->
+	<bean id="com.thinkive.fxc.ismp.nodePropertyConfigDao"
+		class="com.thinkive.fxc.ismp.bus.base.business.dao.impl.NodePropertyConfigDaoImpl" />
+	<bean id="com.thinkive.fxc.ismp.nodePropertyConfigService"
+		class="com.thinkive.fxc.ismp.bus.base.business.service.impl.NodePropertyConfigServiceImpl">
+		<property name="nodePropertyConfigDao" ref="com.thinkive.fxc.ismp.nodePropertyConfigDao" />
+	</bean>
+
+	<!-- 业务实例 -->
+	<bean id="com.thinkive.fxc.ismp.businessEntityDao"
+		class="com.thinkive.fxc.ismp.bus.base.business.dao.impl.BusinessEntityDaoImpl" />
+	<bean id="com.thinkive.fxc.ismp.businessEntityService"
+		class="com.thinkive.fxc.ismp.bus.base.business.service.impl.BusinessEntityServiceImpl"
+		parent="com.thinkive.fxc.ismp.businessCommonService">
+		<property name="auditTaskInfoDao" ref="com.thinkive.fxc.ismp.auditTaskInfoDao" />
+		<property name="agreeRecordDao" ref="com.thinkive.fxc.ismp.agreeRecordDao" />
+		<property name="choiceAccountRecordDao" ref="com.thinkive.fxc.ismp.choiceAccountRecordDao" />
+		<property name="ppTaskDao" ref="com.thinkive.fxc.ismp.ppTaskDao" />
+	</bean>
+
+	<!-- 业务实例 -->
+	<bean id="com.thinkive.fxc.ismp.businessConfigDao"
+		class="com.thinkive.fxc.ismp.bus.base.business.dao.impl.BusinessConfigDaoImpl" />
+	<bean id="com.thinkive.fxc.ismp.businessConfigService"
+		class="com.thinkive.fxc.ismp.bus.base.business.service.impl.BusinessConfigServiceImpl">
+		<property name="businessConfigDao" ref="com.thinkive.fxc.ismp.businessConfigDao" />
+	</bean>
+
+	<!-- 业务流程节点配置 -->
+	<bean id="com.thinkive.fxc.ismp.bprocNodeConfigDao"
+		class="com.thinkive.fxc.ismp.bus.base.business.dao.impl.BprocNodeConfigDaoImpl" />
+	<bean id="com.thinkive.fxc.ismp.bprocNodeConfigService"
+		class="com.thinkive.fxc.ismp.bus.base.business.service.impl.BprocNodeConfigServiceImpl">
+		<property name="bprocNodeConfigDao" ref="com.thinkive.fxc.ismp.bprocNodeConfigDao" />
+	</bean>
+
+	<!-- 业务办理流程节点记录 -->
+	<bean id="com.thinkive.fxc.ismp.flowNodeDao"
+		class="com.thinkive.fxc.ismp.bus.base.business.dao.impl.FlowNodeDaoImpl" />
+	<bean id="com.thinkive.fxc.ismp.flowNodeService"
+		class="com.thinkive.fxc.ismp.bus.base.business.service.impl.FlowNodeServiceImpl">
+		<property name="flowNodeDao" ref="com.thinkive.fxc.ismp.flowNodeDao" />
+	</bean>
+
+	<!-- 业务流程节点定义 -->
+	<bean id="com.thinkive.fxc.ismp.procNodeDefineDao"
+		class="com.thinkive.fxc.ismp.bus.base.business.dao.impl.ProcNodeDefineDaoImpl" />
+	<bean id="com.thinkive.fxc.ismp.procNodeDefineService"
+		class="com.thinkive.fxc.ismp.bus.base.business.service.impl.ProcNodeDefineServiceImpl">
+		<property name="procNodeDefineDao" ref="com.thinkive.fxc.ismp.procNodeDefineDao" />
+	</bean>
+
+	<!-- 业务办理节点操作记录 -->
+	<bean id="com.thinkive.fxc.ismp.nodeLogDao"
+		class="com.thinkive.fxc.ismp.bus.base.business.dao.impl.NodeLogDaoImpl" />
+
+	<!-- 公共问卷 -->
+	<bean id="com.thinkive.fxc.ismp.surveyAnswerDao"
+		class="com.thinkive.fxc.ismp.bus.base.basicdata.dao.impl.SurveyAnswerDaoImpl" />
+	<bean id="com.thinkive.fxc.ismp.surveyDefineDao"
+		class="com.thinkive.fxc.ismp.bus.base.basicdata.dao.impl.SurveyDefineDaoImpl" />
+	<bean id="com.thinkive.fxc.ismp.surveySubjectDao"
+		class="com.thinkive.fxc.ismp.bus.base.basicdata.dao.impl.SurveySubjectDaoImpl" />
+	<bean id="com.thinkive.fxc.ismp.surveyService"
+		class="com.thinkive.fxc.ismp.bus.base.basicdata.service.impl.SurveyServiceImpl">
+		<property name="surveyAnswerDao" ref="com.thinkive.fxc.ismp.surveyAnswerDao" />
+		<property name="surveyDefineDao" ref="com.thinkive.fxc.ismp.surveyDefineDao" />
+		<property name="surveySubjectDao" ref="com.thinkive.fxc.ismp.surveySubjectDao" />
+	</bean>
+
+	<!-- 公共银行 -->
+	<bean id="com.thinkive.fxc.ismp.bankInfoDao"
+		class="com.thinkive.fxc.ismp.bus.base.basicdata.dao.impl.BankInfoDaoImpl" />
+	<bean id="com.thinkive.fxc.ismp.bankService"
+		class="com.thinkive.fxc.ismp.bus.base.basicdata.service.impl.BankServiceImpl">
+		<property name="bankInfoDao" ref="com.thinkive.fxc.ismp.bankInfoDao" />
+	</bean>
+
+	<!-- 公共营业部 -->
+	<bean id="com.thinkive.fxc.ismp.branchExtinfoDao"
+		class="com.thinkive.fxc.ismp.bus.base.basicdata.dao.impl.BranchExtinfoDaoImpl" />
+	<bean id="com.thinkive.fxc.ismp.branchInfoService"
+		class="com.thinkive.fxc.ismp.bus.base.basicdata.service.impl.BranchInfoServiceImpl">
+		<property name="branchExtinfoDao" ref="com.thinkive.fxc.ismp.branchExtinfoDao" />
+	</bean>
+
+	<!-- 用户信息 -->
+	<bean id="com.thinkive.fxc.ismp.userInfoDao"
+		class="com.thinkive.fxc.ismp.bus.base.business.dao.impl.UserInfoDaoImpl" />
+	<bean id="com.thinkive.fxc.ismp.userExtendDao"
+		class="com.thinkive.fxc.ismp.bus.base.business.dao.impl.UserExtendDaoImpl" />
+	<bean id="com.thinkive.fxc.ismp.userFundAccountDao"
+		class="com.thinkive.fxc.ismp.bus.base.business.dao.impl.UserFundAccountDaoImpl" />
+	<bean id="com.thinkive.fxc.ismp.userInfoService"
+		class="com.thinkive.fxc.ismp.bus.base.business.service.impl.UserInfoServiceImpl"
+		parent="com.thinkive.fxc.ismp.businessCommonService">
+		<property name="userInfoDao" ref="com.thinkive.fxc.ismp.userInfoDao" />
+		<property name="userExtendDao" ref="com.thinkive.fxc.ismp.userExtendDao" />
+		<property name="userSnapShotDao" ref="com.thinkive.fxc.ismp.userSnapShotDao" />
+		<property name="userFundAccountDao" ref="com.thinkive.fxc.ismp.userFundAccountDao" />
+	</bean>
+
+	<!-- 业务办理用户快照 -->
+	<bean id="com.thinkive.fxc.ismp.userSnapShotDao"
+		class="com.thinkive.fxc.ismp.bus.base.business.dao.impl.UserSnapShotDaoImpl" />
+	<bean id="com.thinkive.fxc.ismp.userSnapShotService"
+		class="com.thinkive.fxc.ismp.bus.base.business.service.impl.UserSnapShotServiceImpl">
+		<property name="userExtendDao" ref="com.thinkive.fxc.ismp.userExtendDao" />
+		<property name="userSnapShotDao" ref="com.thinkive.fxc.ismp.userSnapShotDao" />
+	</bean>
+
+	<!-- 交易时间 -->
+	<bean id="com.thinkive.fxc.ismp.tradeDateDao"
+		class="com.thinkive.fxc.ismp.bus.base.basicdata.dao.impl.TradeDateDaoImpl" />
+	<bean id="com.thinkive.fxc.ismp.serviceTimeDao"
+		class="com.thinkive.fxc.ismp.bus.base.basicdata.dao.impl.ServicetimeDaoImpl" />
+	<bean id="com.thinkive.fxc.ismp.tradeTimeService"
+		class="com.thinkive.fxc.ismp.bus.base.basicdata.service.impl.TradeTimeServiceImpl">
+		<property name="tradeDateDao" ref="com.thinkive.fxc.ismp.tradeDateDao" />
+		<property name="serviceTimeDao" ref="com.thinkive.fxc.ismp.serviceTimeDao" />
+	</bean>
+
+
+	<!-- 用户登录日志 -->
+	<bean id="com.thinkive.fxc.ismp.userloginLogDao"
+		class="com.thinkive.fxc.ismp.bus.base.business.dao.impl.UserLoginLogDaoImpl" />
+	<bean id="com.thinkive.fxc.ismp.userLoginService"
+		class="com.thinkive.fxc.ismp.bus.base.business.service.impl.UserLoginLogServiceImpl">
+		<property name="userloginLogDao" ref="com.thinkive.fxc.ismp.userloginLogDao" />
+	</bean>
+
+	<!-- 数据字段服务类-->
+	<bean id="com.thinkive.fxc.ismp.enumInfoDao"
+		class="com.thinkive.fxc.ismp.bus.base.basicdata.dao.impl.EnumInfoDaoImpl" />
+	<bean id="com.thinkive.fxc.ismp.enumInfoService"
+		class="com.thinkive.fxc.ismp.bus.base.basicdata.service.impl.EnumInfoServiceImpl">
+		<property name="enumInfoDao" ref="com.thinkive.fxc.ismp.enumInfoDao" />
+	</bean>
+
+	<!-- 缓存服务类 -->
+	<bean id="com.thinkive.fxc.ismp.cacheService"
+		class="com.thinkive.fxc.ismp.bus.base.basicdata.service.impl.RedisServiceImpl">
+	</bean>
+	<!-- 短信模板服务类 -->
+	<bean id="com.thinkive.fxc.ismp.smsModelDao"
+		class="com.thinkive.fxc.ismp.bus.base.business.dao.impl.SmsModelDaoImpl" />
+	<bean id="com.thinkive.fxc.ismp.smsModelService"
+		class="com.thinkive.fxc.ismp.bus.base.business.service.impl.SmsModelServiceImpl">
+		<property name="smsModelDao" ref="com.thinkive.fxc.ismp.smsModelDao" />
+	</bean>
+	<!-- 短信服务类 -->
+	<bean id="com.thinkive.fxc.ismp.smsSendService"
+		class="com.thinkive.fxc.ismp.bus.business.service.impl.SmsSendServiceImpl" />
+	<bean id="com.thinkive.fxc.ismp.smsSendLogDao"
+		class="com.thinkive.fxc.ismp.bus.base.business.dao.impl.SmsSendLogDaoImpl" />
+	<bean id="com.thinkive.fxc.ismp.smsSendLogService"
+		class="com.thinkive.fxc.ismp.bus.base.business.service.impl.SmsSendLogServiceImpl">
+		<property name="smsSendLogDao" ref="com.thinkive.fxc.ismp.smsSendLogDao" />
+	</bean>
+	<!-- 问卷答案记录服务类 -->
+	<bean id="com.thinkive.fxc.ismp.surveyAnswerRecordDao"
+		class="com.thinkive.fxc.ismp.bus.base.business.dao.impl.SurveyAnswerRecordDaoImpl" />
+	<bean id="com.thinkive.fxc.ismp.surveyAnswerRecordService"
+		class="com.thinkive.fxc.ismp.bus.base.business.service.impl.SurveyAnswerRecordServiceImpl"
+		parent="com.thinkive.fxc.ismp.businessCommonService">
+		<property name="surveyAnswerRecordDao" ref="com.thinkive.fxc.ismp.surveyAnswerRecordDao" />
+	</bean>
+	<!-- 问卷接结果记录服务类 -->
+	<bean id="com.thinkive.fxc.ismp.surveyAnswerResultDao"
+		class="com.thinkive.fxc.ismp.bus.base.business.dao.impl.SurveyAnswerResultDaoImpl" />
+	<bean id="com.thinkive.fxc.ismp.surveyAnswerResultService"
+		class="com.thinkive.fxc.ismp.bus.base.business.service.impl.SurveyAnswerResultServiceImpl"
+		parent="com.thinkive.fxc.ismp.businessCommonService">
+		<property name="surveyAnswerResultDao" ref="com.thinkive.fxc.ismp.surveyAnswerResultDao" />
+	</bean>
+	<!-- 证书BUS服务类 -->
+	<bean id="com.thinkive.fxc.ismp.certTBASService"
+		class="com.thinkive.fxc.ismp.bus.base.business.service.impl.CertTBASServiceImpl">
+	</bean>
+
+	<!-- 证书托管BUS服务类 -->
+	<bean id="com.thinkive.fxc.ismp.certCofferTBASSService"
+		class="com.thinkive.fxc.ismp.bus.base.business.service.impl.CertCofferTBASSServiceImpl">
+	</bean>
+
+	<!-- 证书管理服务类 -->
+	<bean id="com.thinkive.fxc.ismp.certManageService"
+		class="com.thinkive.fxc.ismp.bus.base.business.service.impl.CertManageServiceImpl">
+	</bean>
+
+	<!-- 协议服务类 -->
+	<bean id="com.thinkive.fxc.ismp.agreementInfoDao"
+		class="com.thinkive.fxc.ismp.bus.base.basicdata.dao.impl.AgreementInfoDaoImpl" />
+	<bean id="com.thinkive.fxc.ismp.agreeMentService"
+		class="com.thinkive.fxc.ismp.bus.base.basicdata.service.impl.AgreeMentServiceImpl">
+		<property name="agreementInfoDao" ref="com.thinkive.fxc.ismp.agreementInfoDao" />
+	</bean>
+
+	<!-- 协议记录服务类 -->
+	<bean id="com.thinkive.fxc.ismp.agreeRecordDao"
+		class="com.thinkive.fxc.ismp.bus.base.business.dao.impl.AgreeRecordDaoImpl" />
+	<bean id="com.thinkive.fxc.ismp.agreeRecordService"
+		class="com.thinkive.fxc.ismp.bus.base.business.service.impl.AgreeRecordServiceImpl"
+		parent="com.thinkive.fxc.ismp.businessCommonService">
+		<property name="agreeRecordDao" ref="com.thinkive.fxc.ismp.agreeRecordDao" />
+	</bean>
+
+	<!-- 选择帐号记录服务类 -->
+	<bean id="com.thinkive.fxc.ismp.choiceAccountRecordDao"
+		class="com.thinkive.fxc.ismp.bus.base.business.dao.impl.ChoiceAccountRecordDaoImpl" />
+	<bean id="com.thinkive.fxc.ismp.choiceAccountRecordService"
+		class="com.thinkive.fxc.ismp.bus.base.business.service.impl.ChoiceAccountRecordServiceImpl">
+		<property name="choiceAccountRecordDao" ref="com.thinkive.fxc.ismp.choiceAccountRecordDao" />
+	</bean>
+
+	<!-- 影像资料记录服务类 -->
+	<bean id="com.thinkive.fxc.ismp.imageRecordDao"
+		class="com.thinkive.fxc.ismp.bus.base.business.dao.impl.ImageRecordDaoImpl" />
+	<bean id="com.thinkive.fxc.ismp.imageRecordService"
+		class="com.thinkive.fxc.ismp.bus.base.business.service.impl.ImageRecordServiceImpl">
+		<property name="imageRecordDao" ref="com.thinkive.fxc.ismp.imageRecordDao" />
+	</bean>
+
+	<!-- 影像资料信息确认服务类 -->
+	<bean id="com.thinkive.fxc.ismp.imageInformationDao"
+		class="com.thinkive.fxc.ismp.bus.base.business.dao.impl.ImageInformationDaoImpl" />
+	<bean id="com.thinkive.fxc.ismp.imageInformationService"
+		class="com.thinkive.fxc.ismp.bus.base.business.service.impl.ImageInformationServiceImpl">
+		<property name="imageInformationDao" ref="com.thinkive.fxc.ismp.imageInformationDao" />
+	</bean>
+
+	<!-- 影像资料信息确认服务类 -->
+	<bean id="com.thinkive.fxc.ismp.auditTaskInfoDao"
+		class="com.thinkive.fxc.ismp.bus.base.business.dao.impl.AuditTaskInfoDaoImpl" />
+	<bean id="com.thinkive.fxc.ismp.auditTaskInfoService"
+		class="com.thinkive.fxc.ismp.bus.base.business.service.impl.AuditTaskInfoServiceImpl">
+		<property name="auditTaskInfoDao" ref="com.thinkive.fxc.ismp.auditTaskInfoDao" />
+	</bean>
+
+	<!-- 跑批任务服务类 -->
+	<bean id="com.thinkive.fxc.ismp.ppTaskDao"
+		class="com.thinkive.fxc.ismp.bus.base.business.dao.impl.PpTaskDaoImpl" />
+	<bean id="com.thinkive.fxc.ismp.ppTaskService"
+		class="com.thinkive.fxc.ismp.bus.base.business.service.impl.PpTaskServiceImpl">
+		<property name="ppTaskDao" ref="com.thinkive.fxc.ismp.ppTaskDao" />
+	</bean>
+
+	<!-- 第二联系人操作记录服务类 -->
+	<bean id="com.thinkive.fxc.ismp.linkmanRecordDao"
+		class="com.thinkive.fxc.ismp.bus.base.business.dao.impl.LinkmanRecordDaoImpl" />
+	<bean id="com.thinkive.fxc.ismp.linkmanRecordService"
+		class="com.thinkive.fxc.ismp.bus.base.business.service.impl.LinkmanRecordServiceImpl">
+		<property name="linkmanRecordDao" ref="com.thinkive.fxc.ismp.linkmanRecordDao" />
+	</bean>
+
+	<!-- 公安信息服务类 -->
+	<bean id="com.thinkive.fxc.ismp.citizenInfoDao"
+		class="com.thinkive.fxc.ismp.bus.base.business.dao.impl.CitizenInfoDaoImpl" />
+	<bean id="com.thinkive.fxc.ismp.citizenInfoService"
+		class="com.thinkive.fxc.ismp.bus.base.business.service.impl.CitizenInfoServiceImpl">
+		<property name="citizenInfoDao" ref="com.thinkive.fxc.ismp.citizenInfoDao" />
+	</bean>
+
+	<!-- 文件上传服务类 -->
+	<bean id="com.thinkive.fxc.ismp.fileUploadService"
+		class="com.thinkive.fxc.ismp.bus.base.business.service.impl.FileUploadServiceImpl">
+	</bean>
+
+	<!-- 公安校验日志服务类 -->
+	<bean id="com.thinkive.fxc.ismp.chkidnoLogDao"
+		class="com.thinkive.fxc.ismp.bus.base.basicdata.dao.impl.ChkidnoLogDaoImpl" />
+	<bean id="com.thinkive.fxc.ismp.chkidnoLogService"
+		class="com.thinkive.fxc.ismp.bus.base.basicdata.service.impl.ChkidnoLogServiceImpl">
+		<property name="chkidnoLogDao" ref="com.thinkive.fxc.ismp.chkidnoLogDao" />
+	</bean>
+	<!-- 省/市数据服务类 -->
+	<bean id="com.thinkive.fxc.ismp.provinceCityDao"
+		class="com.thinkive.fxc.ismp.bus.base.basicdata.dao.impl.ProvinceCityDaoImpl" />
+	<bean id="com.thinkive.fxc.ismp.provinceService"
+		class="com.thinkive.fxc.ismp.bus.base.basicdata.service.impl.ProvinceCityServiceImpl">
+		<property name="provinceCityDao" ref="com.thinkive.fxc.ismp.provinceCityDao" />
+	</bean>
+	
+	<!-- 操作流水-->
+	<bean id="com.thinkive.fxc.ismp.operationStreamDao"
+		class="com.thinkive.fxc.ismp.bus.base.basicdata.dao.impl.OperationStreamDaoImpl" />
+	<bean id="com.thinkive.fxc.ismp.operationStreamService"
+		class="com.thinkive.fxc.ismp.bus.base.basicdata.service.impl.OperationStreamServiceImpl">
+		<property name="operationStreamDao" ref="com.thinkive.fxc.ismp.operationStreamDao" />
+	</bean>
+	
+	<!-- 协议流水 -->
+	<bean id="com.thinkive.fxc.ismp.protocolpipeliningBao"
+		class="com.thinkive.fxc.ismp.bus.base.basicdata.dao.impl.ProtocolPipeliningDaoImpl" />
+	<bean id="com.thinkive.fxc.ismp.protocolPipeliningService"
+		class="com.thinkive.fxc.ismp.bus.base.basicdata.service.impl.ProtocolPipeliningServiceImpl">
+		<property name="protocolpipeliningBao" ref="com.thinkive.fxc.ismp.protocolpipeliningBao" />
+	</bean>
+	
+	<!-- 问卷流水 -->
+	<bean id="com.thinkive.fxc.ismp.questionnaireflowDao"
+		class="com.thinkive.fxc.ismp.bus.base.basicdata.dao.impl.QuestionnaireFlowDaoImpl" />
+	<bean id="com.thinkive.fxc.ismp.questionnaireFlowService"
+		class="com.thinkive.fxc.ismp.bus.base.basicdata.service.impl.QuestionnaireFlowServiceImpl">
+		<property name="questionnaireflowDao" ref="com.thinkive.fxc.ismp.questionnaireflowDao" />
+	</bean>
+   
+    <!--协议操作 -->
+	<bean id="com.thinkive.fxc.ismp.protocolDao"
+		class="com.thinkive.fxc.ismp.bus.base.business.dao.impl.ProtocolDaoImpl" />
+	<bean id="com.thinkive.fxc.ismp.protocolService"
+		class="com.thinkive.fxc.ismp.bus.base.business.service.impl.ProtocolServiceImpl">
+		<property name="protocolDao" ref="com.thinkive.fxc.ismp.protocolDao" />
+	</bean>
+	
+	 <!--匹配操作 -->
+	<bean id="com.thinkive.fxc.ismp.proprietyBao"
+		class="com.thinkive.fxc.ismp.bus.base.basicdata.dao.impl.ProprietyDaoImpl" />
+	<bean id="com.thinkive.fxc.ismp.proprietyService"
+		class="com.thinkive.fxc.ismp.bus.base.basicdata.service.impl.ProprietyServiceImpl">
+		<property name="proprietyBao" ref="com.thinkive.fxc.ismp.proprietyBao" />
+	</bean>
+</beans>

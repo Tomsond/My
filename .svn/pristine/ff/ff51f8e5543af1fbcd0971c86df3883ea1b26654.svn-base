@@ -1,0 +1,69 @@
+package com.thinkive.fxc.ismp.bus.base.basicdata.dao.impl;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.StringUtil;
+import com.thinkive.fxc.ismp.bus.base.basicdata.contants.BaseTableConstants;
+import com.thinkive.fxc.ismp.bus.base.basicdata.dao.BranchInfoDao;
+import com.thinkive.fxc.ismp.bus.base.basicdata.model.BranchInfoModel;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseDao;
+import com.thinkive.fxc.ismp.bus.base.constants.SystemConstants;
+import com.thinkive.fxc.ismp.bus.base.util.ModelUtil;
+
+/**
+ * @描述: 公共-营业部信息表(T_FXC_BRANCH_INFO) 数据层接口实现类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 尹杰民
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月18日 下午4:49:14
+ */
+public class BranchInfoDaoImpl extends ISMPBaseDao implements BranchInfoDao
+{
+    
+    @Override
+    public BranchInfoModel add(BranchInfoModel branchInfoModel) throws Exception
+    {
+        String id = this.getSeqValue(SystemConstants.DB_ISMP,BaseTableConstants.T_FXC_BRANCH_INFO);
+        branchInfoModel.setId(Long.valueOf(id));
+        branchInfoModel.setCreateDate(new Date());
+        this.getJdbcTemplate().insert(BaseTableConstants.T_FXC_BRANCH_INFO, branchInfoModel);
+        return branchInfoModel;
+    }
+    
+    @Override
+    public int update(BranchInfoModel branchInfoModel) throws Exception
+    {
+        Long id = branchInfoModel.getId();
+        branchInfoModel.setUpdateDate(new Date());
+        return this.getJdbcTemplate().update(BaseTableConstants.T_FXC_BRANCH_INFO, branchInfoModel, "ID", id);
+    }
+    
+    @Override
+    public BranchInfoModel queryByBranchNo(String branchNo, String isDisplay) throws Exception
+    {
+        StringBuilder sql = new StringBuilder();
+        List<String> paramList = new ArrayList<String>();
+        sql.append(" SELECT ID, BRANCH_NAME, BRANCH_NO, ORDER_NUM, IS_DISPLAY, REGION_NO, PROVINCE_NO");
+        sql.append(", CITY_NO, ADDRESS, BRANCH_TEL, INTRO, LAT, LOT, CREATE_DATE, CREATE_BY, UPDATE_DATE, UPDATE_BY, COMMISSION");
+        sql.append(" FROM ");
+        sql.append(BaseTableConstants.T_FXC_BRANCH_INFO);
+        sql.append(" WHERE 1=1 ");
+        if ( StringUtil.isNotEmpty(branchNo) )
+        {
+            sql.append(" AND BRANCH_NO = ? ");
+            paramList.add(branchNo);
+        }
+        if ( StringUtil.isNotEmpty(isDisplay) )
+        {
+            sql.append(" AND IS_DISPLAY = ? ");
+            paramList.add(isDisplay);
+        }
+        DataRow queryResult = this.getJdbcTemplate().queryMap(sql.toString(), paramList.toArray());
+        return ModelUtil.packInfo(queryResult, BranchInfoModel.class);
+    }
+    
+}

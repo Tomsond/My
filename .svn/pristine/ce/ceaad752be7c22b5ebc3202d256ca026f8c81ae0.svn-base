@@ -1,0 +1,88 @@
+package com.thinkive.fxc.ismp.bus.business.gem.function;
+
+import java.util.List;
+import java.util.Map;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.function.IsmpFlowBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.business.model.BusinessEntityModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.ChoiceAccountRecordModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.LinkmanRecordModel;
+import com.thinkive.fxc.ismp.bus.base.business.service.BusinessEntityService;
+import com.thinkive.fxc.ismp.bus.base.business.service.ChoiceAccountRecordService;
+import com.thinkive.fxc.ismp.bus.base.business.service.LinkmanRecordService;
+import com.thinkive.fxc.ismp.bus.base.business.service.SignAndVerifyService;
+import com.thinkive.fxc.ismp.bus.base.business.utils.ModularNodeUtil;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.server.ResultVo;
+
+/**
+ * @描述: 创业板转签--选择股东帐号,并提交应急联系人信息
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年9月26日 下午2:27:33
+ */
+public class Function1004030 extends IsmpFlowBaseFunction
+{
+	
+	private String trdaccount;//深A帐号  逗号分割
+	
+	private LinkmanRecordModel linkmanRecordModel;
+	
+	private String jsondata;//签名json字符串
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public ResultVo execute() throws Exception
+	{
+		initVar();
+		
+		Map<String, Object> nodeProperty = ModularNodeUtil.checkChoiceAccountAndSignNodeProperty(nodePropertyConfigModelList);
+		Map<String, DataRow> signParamsMap = (Map<String, DataRow>) nodeProperty.get("signParamsMap");
+		
+		SignAndVerifyService signAndVerifyService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_SIGNANDVERIFY, SignAndVerifyService.class);
+		signAndVerifyService.verifyAndSave(userId, businessEntityAndConfigVO.getId(), nodeId, jsondata, signParamsMap);
+		
+		LinkmanRecordService linkmanRecordService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_LINKMANRECORD, LinkmanRecordService.class);
+		linkmanRecordModel.setBusinessId(businessEntityAndConfigVO.getId());
+		linkmanRecordModel.setNodeId(nodeId);
+		linkmanRecordService.add(linkmanRecordModel);
+		
+		ChoiceAccountRecordService choiceAccountRecordService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_CHOICEACCOUNTRECORD, ChoiceAccountRecordService.class);
+		List<ChoiceAccountRecordModel> choiceAccountRecordModels = choiceAccountRecordService.addBatchByAccounts(trdaccount, businessEntityAndConfigVO.getId(), nodeId,
+				DictionaryConstants.CHOICEACCOUNT_DEALRESULT_NOTSTART);
+		
+		BusinessEntityService businessEntityService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_BUSINESSENTITY, BusinessEntityService.class);
+		
+		BusinessEntityModel updateBusinessEntityModel = new BusinessEntityModel();
+		updateBusinessEntityModel.setId(businessEntityAndConfigVO.getId());
+		updateBusinessEntityModel.setNodeId(submitBprocNodeConfigAndDefineVO.getNextBpNodeId());
+		updateBusinessEntityModel.setOpSource(opSource);
+		updateBusinessEntityModel.setIp(ip);
+		updateBusinessEntityModel.setOpStation(opStation);
+		updateBusinessEntityModel.setBusinessCode(businessCode);
+		businessEntityService.changeFlowNodeAndAddPpTask(updateBusinessEntityModel, nodeId);
+		
+		resultVo.setResult("choiceAccountRecordModels", choiceAccountRecordModels);
+		return resultVo;
+	}
+	
+	private void initVar()
+	{
+		jsondata = this.getAndCheckBlankStrParam("jsondata", ErrorCodeCheckInput.BLANK_FORMAT_SIGNJSON);
+		trdaccount = this.getAndCheckBlankStrParam("trdaccount", ErrorCodeCheckInput.BLANK_TRDACCOUNT);
+		String emergencyName = this.getAndCheckBlankStrParam("emergency_name", ErrorCodeCheckInput.BLANK_EMERGENCY_NAME);
+		String emergencyMobile = this.getAndCheckBlankStrParam("emergency_mobile", ErrorCodeCheckInput.BLANK_EMERGENCY_MOBILE);
+		String emergencyRelation = this.getAndCheckBlankStrParam("emergency_relation", ErrorCodeCheckInput.BLANK_EMERGENCY_RELATION);
+		linkmanRecordModel = new LinkmanRecordModel();
+		linkmanRecordModel.setlinkmanName(emergencyName);
+		linkmanRecordModel.setLinkmanMobile(emergencyMobile);
+		linkmanRecordModel.setLinkmanRelation(emergencyRelation);
+	}
+	
+}

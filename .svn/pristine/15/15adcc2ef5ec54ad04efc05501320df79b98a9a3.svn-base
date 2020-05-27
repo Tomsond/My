@@ -1,0 +1,35 @@
+package com.thinkive.fxc.ismp.bus.business.entrust.dao;
+
+import java.util.List;
+
+import com.thinkive.fxc.ismp.bus.business.entrust.model.EntrustModel;
+
+/**
+ * @描述: 委托方式配置(T_ISMP_ENTRUST)数据层接口
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0.0 
+ * @创建时间: 2016年9月5日 下午5:40:37
+ */
+public interface EntrustDao
+{
+    
+   /**
+    * @描述：条件查询委托方式配置
+    * @作者：田源
+    * @时间：2016年9月5日 下午5:40:34
+    * @param entrustModel
+    * @return List<EntrustModel>
+    */
+    public List<EntrustModel> queryByParams(EntrustModel entrustModel);
+    
+    /**
+     * @描述：根据委托方式编号查询委托方式配置
+     * @作者：田源
+     * @时间：2016年9月5日 下午5:42:32
+     * @param entrustCode
+     * @return EntrustModel
+     */
+    public EntrustModel queryByEntrustCode(String entrustCode);
+}

@@ -1,0 +1,70 @@
+package com.thinkive.fxc.ismp.bus.business.fundaccount.function;
+
+import java.util.List;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessConstants;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.model.BusinessEntityModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.ChoiceAccountRecordModel;
+import com.thinkive.fxc.ismp.bus.base.business.service.BusinessEntityService;
+import com.thinkive.fxc.ismp.bus.base.business.service.ChoiceAccountRecordService;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.server.ResultVo;
+
+/**
+ * @描述: 查询基金开户业务数据
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年9月19日 下午11:15:55
+ */
+public class Function1004189 extends ISMPBaseFunction
+{
+	
+	private Long userId;
+	
+	@Override
+	public ResultVo execute() throws Exception
+	{
+		initVar();
+		ResultVo resultVo = new ResultVo();
+		//step3:获取业务实例信息
+		BusinessEntityService businessEntityService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_BUSINESSENTITY, BusinessEntityService.class);
+		BusinessEntityModel businessEntityModel = businessEntityService.queryNotCompleteByUserIdAndBusinessCode(userId, BusinessConstants.BUSINESS_OPENFUNDACCOUNT);
+		
+		if (null == businessEntityModel)
+		{
+			businessEntityModel = new BusinessEntityModel();
+			businessEntityModel.set("query_flag", DictionaryConstants.BOL_FALSE);
+		}
+		//有业务办理数据，直接查询业务办理结果
+		else
+		{
+			businessEntityModel.set("query_flag", DictionaryConstants.BOL_TRUE);
+			ChoiceAccountRecordService choiceAccountRecordService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_CHOICEACCOUNTRECORD, ChoiceAccountRecordService.class);
+			List<ChoiceAccountRecordModel> accountList = choiceAccountRecordService.queryByBusinessId(businessEntityModel.getId());
+			resultVo.setResult("accountList", accountList);
+		}
+		
+		resultVo.setResult("defaultDate", new DataRow());
+		resultVo.setResult("businessInfo", businessEntityModel);
+		resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+		resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+		return resultVo;
+	}
+	
+	/**
+	 * @描述：获取业务入参
+	 * @作者：刘恺
+	 * @时间：2016年8月23日 下午8:55:24
+	 */
+	private void initVar()
+	{
+		userId = this.formatLongParam(this.getAndCheckBlankStrParam("user_id", ErrorCodeCheckInput.BLANK_USERID), ErrorCodeCheckInput.LONG_FORMAT_ERROR);
+	}
+}

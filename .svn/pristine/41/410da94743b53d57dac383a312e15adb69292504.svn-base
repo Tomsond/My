@@ -1,0 +1,13 @@
+package com.thinkive.fxc.ismp.bus.base.basicdata.dao;
+
+import com.thinkive.fxc.ismp.bus.base.basicdata.model.QuestionnaireFlowModel;
+
+public interface QuestionnaireFlowDao {
+
+	/**
+	 * 插入操作流水记录
+	 * @param modeel
+	 * @return
+	 */
+	public int questionnaireFlowInsert(QuestionnaireFlowModel modeel) throws Exception;
+}

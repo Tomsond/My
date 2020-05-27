@@ -1,0 +1,247 @@
+package com.thinkive.fxc.ismp.bus.business.assets.thirdbank.service;
+
+import java.util.List;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.fxc.ismp.bus.base.basicdata.model.ThirdBankModel;
+import com.thinkive.fxc.ismp.bus.base.basicdata.vo.ThirdBankInfoVo;
+import com.thinkive.fxc.ismp.bus.base.business.vo.UserInfoVo;
+import com.thinkive.fxc.ismp.bus.business.assets.thirdbank.model.ThirdBankExtendModel;
+import com.thinkive.fxc.ismp.bus.business.assets.thirdbank.model.UserBankBindModel;
+import com.thinkive.fxc.ismp.bus.business.assets.thirdbank.vo.ThirdBankBusinessInfoVo;
+
+/**
+ * @描述: 三方存管同步服务层接口
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月24日 下午1:34:50
+ */
+public interface ThirdBankService
+{
+	
+	/**
+	 * @描述：根据用户编号userId删除用户三方存管数据
+	 * @作者：田源
+	 * @时间：2016年8月24日 上午11:22:20
+	 * @param userId
+	 */
+	public void deleteByUserId(Long userId);
+	
+	/**
+	 * @描述：添加或者更新用户三方存管数据，数据库添加或修改成功返回true,否则返回false
+	 * @作者：田源
+	 * @时间：2016年8月24日 下午2:10:14
+	 * @param data
+	 */
+	public Boolean addOrUpdateUserBankBind(DataRow data);
+	
+	/**
+	 * @描述：根据卡号account和用户编号userId查询
+	 * @作者：田源
+	 * @时间：2016年8月26日 下午3:09:16
+	 * @param account
+	 * @param userId
+	 * @return UserBankBindModel
+	 */
+	public UserBankBindModel queryByAccountAndUserId(String account, Long userId);
+	
+	/**
+	 * @描述：根据银行编号bankNo查询对应银行的三方存管方式
+	 * @作者：田源
+	 * @时间：2016年8月26日 下午5:06:53
+	 * @param bankNo
+	 * @return ThirdBankModel
+	 */
+	public ThirdBankModel queryThirdBankModelByBankNo(String bankNo);
+	
+	/**
+	 * @描述：根据参数查询三方存管业务和拓展信息,目前支持参数id,user_id,nodeId,isComplete,opType,fundAccount,参数可任意组装
+	 * @作者：田源
+	 * @时间：2016年8月29日 下午2:03:02
+	 * @param thirdBankBusinessInfoVo
+	 * @return List<ThirdBankBusinessInfoVo>
+	 */
+	public List<ThirdBankBusinessInfoVo> queryByParams(ThirdBankBusinessInfoVo thirdBankBusinessInfoVo);
+	
+	/**
+	 * @描述：根据用户ID和资金账号，获取取消成功后未正常绑定的三方存管业务流程数据
+	 * @作者：田源
+	 * @时间：2016年9月1日 下午2:53:45
+	 * @param userId
+	 * @param fundAccount
+	 * @return List<ThirdBankBusinessInfoVo>
+	 */
+	public List<ThirdBankBusinessInfoVo> queryCancelSuccNoBindInfo(Long userId, String fundAccount);
+	
+	/**
+	 * @描述：添加三方存管业务办理信息,返回添加成功的业务实例主键
+	 * @作者：田源
+	 * @时间：2016年8月29日 下午4:13:11
+	 * @param thirdBankBusinessInfoVo
+	 * @return Long
+	 */
+	public Long addThirdBankBusinessInfoVo(ThirdBankBusinessInfoVo thirdBankBusinessInfoVo) throws Exception;
+	
+	/**
+	 * @描述：根据bankCode和fundAccount和userId查询用户三方存管数据(三个参数都必传)
+	 * @作者：田源
+	 * @时间：2016年8月31日 下午2:24:00
+	 * @param bankCode 银行机构代码
+	 * @param fundAccount 资金账号
+	 * @param userId 用户编号
+	 * @return UserBankBindModel
+	 */
+	public UserBankBindModel queryByBankCodeAndFundAccountAndUserId(String bankCode, String fundAccount, Long userId);
+	
+	/**
+	 * @描述：标识完成三方存管修改业务中，取消成功但绑定失败的业务办理数据 ,返回更新成功记录数
+	 * @作者：田源
+	 * @时间：2016年9月1日 下午4:52:08
+	 * @param business_id
+	 * @return int
+	 */
+	public int completeCancelBindErrorInfo(Long businessId);
+	
+	/**
+	 * @描述：根据业务实例ID来查询三方存管业务办理信息
+	 * @作者：田源
+	 * @时间：2016年9月2日 下午1:51:19
+	 * @param businessId
+	 * @return ThirdBankBusinessInfoVo
+	 */
+	public ThirdBankBusinessInfoVo queryByBusinessId(Long businessId);
+	public DataRow queryThirdbankByBusinessId(Long businessId);
+	/**
+	 * @描述： 更新三方存管业务办理信息预指定错误次数
+	 * @作者：田源
+	 * @时间：2016年9月2日 下午3:59:11
+	 * @param businessId
+	 * @param bindErrorCount
+	 * @return int
+	 */
+	public int updateBindErrorCount(Long businessId, int bindErrorCount);
+	
+	/**
+	 * @描述：更新三方存管业务办理信息
+	 * @作者：田源
+	 * @时间：2016年9月2日 下午5:07:23
+	 * @param thirdBankBusinessInfoVo
+	 * @return Boolean
+	 * @throws Exception
+	 */
+	public Boolean updateThirdBankBusinessInfoVo(ThirdBankBusinessInfoVo thirdBankBusinessInfoVo) throws Exception;
+	
+	/**
+	 * @描述：根据业务类型获取匹配的银行类型
+	 * @作者：谢能琥
+	 * @时间：2016年11月8日下午5:10:22
+	 * @param bindtype
+	 * @param ispwd
+	 * @param business_code
+	 * @return
+	 * @throws Exception
+	 */
+	public List<ThirdBankInfoVo> queryByBindTypeAndIsPwd(String bindtype, String ispwd);
+	
+	/**
+	 * @描述：添加用户已绑定的三方存管
+	 * @作者：刘恺
+	 * @时间：2017年2月21日 上午9:52:05
+	 * @param data
+	 * @return
+	 */
+	public UserBankBindModel addUserBankBind(DataRow data);
+	
+	/**
+	 * @描述：通过ID获取三方存管配置方式
+	 * @作者：刘恺
+	 * @时间：2017年2月22日 下午1:48:00
+	 * @param id
+	 * @return
+	 */
+	public ThirdBankModel queryThirdBankModelById(Long id);
+	
+	/**
+	 * 描述: 注销存管银行时检测条件
+	 * 说明：	1.查询存管银行当天是否有交易记录
+	 * 		2.查询存管银行是否有正在办理的业务
+	 * 		3.查询存管银行资金余额是否为0
+	 * 		4.查询存管银行利息基数是否有0
+	 * 作者：刘恺
+	 * 时间：2016年1月6日 下午5:04:50
+	 * @param op_account
+	 * @param fund_account
+	 * @param thirdInput
+	 * @return
+	 */
+	public DataRow cancelCheck(String op_account, String fund_account, DataRow thirdInput) throws Exception;
+	
+	/**
+	 * @描述：校验绑定三方存管是否需要密码和卡号
+	 * @作者：刘恺
+	 * @时间：2017年2月23日 下午2:44:15
+	 * @param thirdBankModel
+	 * @param card_num
+	 * @param cardPassword
+	 */
+	public void checkBindBankInfo(ThirdBankModel thirdBankModel, String card_num, String cardPassword);
+	
+	/**
+	 * @描述：校验交易时间
+	 * @作者：刘恺
+	 * @时间：2017年2月22日 上午11:20:54
+	 */
+	public void checkTradeTime();
+	
+	/**
+	 * @描述：校验三方存管总数是否超额
+	 * @作者：刘恺
+	 * @时间：2017年2月22日 上午11:12:13
+	 * @throws Exception
+	 */
+	/**
+	 * @描述：
+	 * @作者：刘恺
+	 * @时间：2017年2月23日 下午2:57:31
+	 * @param userInfoVo
+	 * @param opType 操作方式 0：注销，1：绑定，2：直接变更，01：注销后绑定
+	 * @throws Exception
+	 */
+	public void checkBankCount(UserInfoVo userInfoVo,String opType) throws Exception;
+	
+	/**
+	 * @描述：校验当前需要绑定的银行卡是否已经存在
+	 * @作者：刘恺
+	 * @时间：2017年2月22日 上午11:20:54
+	 */
+	public void checkCardExit(String cardNum, Long userId);
+
+	/**
+	 * @描述:  查询客户已绑定的主卡的信息
+	 * @Param: [userId]
+	 * @return:
+	 * @Author: xuzong
+	 * @Date: 2018/10/10
+	 */
+	UserBankBindModel queryUserBindMainCard(Long userId, String fund_account);
+
+	/** 
+	 * @描述: 查询已经绑定成功的存管银行信息
+	 * @Param: [userId, fundAccount] 
+	 * @return:  
+	 * @Author: xuzong
+	 * @Date: 2018/10/25 
+	 */ 
+	List<ThirdBankBusinessInfoVo> querySuccBindInfo(Long userId, String fundAccount);
+	
+	/**
+     * 
+     * @描述：修改或更新三方存管业务拓展信息,返回成功更新记录数
+     * @作者：李智凡
+     * @时间：2019年4月23日 下午6:28:27
+     * @param thirdBankExtendModel
+     */
+     void addOrUpdateThirdBankModel(ThirdBankExtendModel thirdBankExtendModel ) throws Exception;
+}

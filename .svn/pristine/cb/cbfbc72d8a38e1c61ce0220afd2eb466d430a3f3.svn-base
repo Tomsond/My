@@ -1,0 +1,393 @@
+package com.thinkive.fxc.ismp.bus.business.zq.service.impl;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.jdbc.session.Session;
+import com.thinkive.base.jdbc.session.SessionFactory;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessConstants;
+import com.thinkive.fxc.ismp.bus.base.business.dao.AgreeRecordDao;
+import com.thinkive.fxc.ismp.bus.base.business.dao.AuditTaskInfoDao;
+import com.thinkive.fxc.ismp.bus.base.business.dao.ChoiceAccountRecordDao;
+import com.thinkive.fxc.ismp.bus.base.business.dao.PpTaskDao;
+import com.thinkive.fxc.ismp.bus.base.business.dao.ProcNodeDefineDao;
+import com.thinkive.fxc.ismp.bus.base.business.model.AgreeRecordModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.AuditTaskInfoModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.BusinessEntityModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.ChoiceAccountRecordModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.PpTaskModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.ProcNodeDefineModel;
+import com.thinkive.fxc.ismp.bus.base.business.vo.UserInfoVo;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.SystemConstants;
+import com.thinkive.fxc.ismp.bus.business.service.impl.BusinessCommonServiceImpl;
+import com.thinkive.fxc.ismp.bus.business.util.DataFormatUtils;
+import com.thinkive.fxc.ismp.bus.business.zq.constants.ZqConstants;
+import com.thinkive.fxc.ismp.bus.business.zq.dao.ZqDao;
+import com.thinkive.fxc.ismp.bus.business.zq.service.ZqService;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdDictionaryConstants;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdInterfaceConstant;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdTBASConstants;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdInterface;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdTrdAccountService;
+
+/**
+ * @描述: 债券合格投资者开通服务接口实现类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0.0 
+ * @创建时间: 2016年9月19日 下午4:41:26
+ */
+
+@SuppressWarnings("unused")
+public class ZqServiceImpl extends BusinessCommonServiceImpl implements ZqService{
+	
+private ProcNodeDefineDao procNodeDefineDao;
+    
+    private PpTaskDao ppTaskDao;
+    
+    private ChoiceAccountRecordDao choiceAccountRecordDao;
+    
+    private AgreeRecordDao agreeRecordDao;
+    
+    private ZqDao zqDao;
+    
+    private AuditTaskInfoDao auditTaskInfoDao;
+    
+    public void setAuditTaskInfoDao(AuditTaskInfoDao auditTaskInfoDao)
+    {
+        this.auditTaskInfoDao = auditTaskInfoDao;
+    }
+    
+    public void setAgreeRecordDao(AgreeRecordDao agreeRecordDao)
+    {
+        this.agreeRecordDao = agreeRecordDao;
+    }
+    
+    public void setProcNodeDefineDao(ProcNodeDefineDao procNodeDefineDao)
+    {
+        this.procNodeDefineDao = procNodeDefineDao;
+    }
+    
+    public void setPpTaskDao(PpTaskDao ppTaskDao)
+    {
+        this.ppTaskDao = ppTaskDao;
+    }
+    
+    public void setChoiceAccountRecordDao(ChoiceAccountRecordDao choiceAccountRecordDao)
+    {
+        this.choiceAccountRecordDao = choiceAccountRecordDao;
+    }
+	
+    public void setZqDao(ZqDao zqDao)
+    {
+        this.zqDao = zqDao;
+    }
+
+
+    @Override
+    public void updateEntiyAddPpTask(BusinessEntityModel businessEntityModel, String nodeId) throws Exception
+    {
+        Session session = null;
+        try
+        {
+            //创建session，开启事务
+            session = SessionFactory.getSession(SystemConstants.DB_ISMP);
+            session.beginTrans();
+            
+            //step1：修改业务办理实例
+            businessEntityModel.setDealResult(DictionaryConstants.DEAL_RESULT_NEEDPP);
+            this.updateBusinessEntityModel(businessEntityModel, session);
+            
+            Long businessId = businessEntityModel.getId();
+            String ip = businessEntityModel.getIp();
+            String opSource = businessEntityModel.getOpSource();
+            String opStation = businessEntityModel.getOpStation();
+            
+            //step2：新增业务节点记录
+            this.addFlowNodeModel(businessId, nodeId, ip, opSource, opStation, session);
+            
+            //step3：添加节点操作记录
+            this.addNodeLogModel(businessId, nodeId, ip, opSource, opStation, session);
+            
+            //step4：添加跑批任务、
+            PpTaskModel ppTaskModel = new PpTaskModel();
+            ppTaskModel.setBusinessId(businessId);
+            ppTaskModel.setIsLoop(DictionaryConstants.BOL_FALSE);
+            ppTaskModel.setTaskName(businessEntityModel.getBusinessCode());
+            ppTaskModel.setTaskStatus(DictionaryConstants.PP_TASK_STATUS_EFFECTIVE);
+            ppTaskModel.setExecStatus(DictionaryConstants.PP_TASK_EXEC_STATUS_NODEAL);
+            ppTaskDao.add(ppTaskModel, session);
+            
+            //提交事务
+            session.commitTrans();
+        }
+        catch (Exception e)
+        {
+            if (session != null)
+            {
+                session.rollbackTrans();
+            }
+            throw e;
+        }
+        finally
+        {
+            if (session != null)
+            {
+                session.close();
+            }
+        }
+        
+    }
+
+    @Override
+    public void saveTrdAccount(String[] trdAccounts, BusinessEntityModel businessEntityModel, String nodeId,
+            List<ChoiceAccountRecordModel> choiceAccountRecordModels) throws Exception
+    {
+        Session session = null;
+        try
+        {
+            //创建session，开启事务
+            session = SessionFactory.getSession(SystemConstants.DB_ISMP);
+            session.beginTrans();
+            
+            this.updateBusinessEntityModel(businessEntityModel, session);
+            
+            Long businessId = businessEntityModel.getId();
+            String ip = businessEntityModel.getIp();
+            String opSource = businessEntityModel.getOpSource();
+            String opStation = businessEntityModel.getOpStation();
+            
+           //批量添加账号选择记录
+            choiceAccountRecordDao.deleteByBusinessIdAndNodeId(businessId, nodeId, session);
+            for (String trdAccount : trdAccounts)
+            {
+                String[] accountStkbd = trdAccount.split("\\|");
+                
+                ChoiceAccountRecordModel choiceAccountRecordModel = new ChoiceAccountRecordModel();
+                choiceAccountRecordModel.setBusinessId(businessId);
+                choiceAccountRecordModel.setNodeId(nodeId);
+                choiceAccountRecordModel.setTrdAccount(accountStkbd[0]);
+                if(accountStkbd.length > 1){
+                    choiceAccountRecordModel.setStkbd(accountStkbd[1]);
+                }
+                choiceAccountRecordModel.setState(DictionaryConstants.CHOICEACCOUNT_DEALRESULT_NOTSTART);
+                choiceAccountRecordModels.add(choiceAccountRecordModel);
+            }
+            choiceAccountRecordDao.addBatch(choiceAccountRecordModels, session);
+            
+            //step2：新增业务节点记录
+            this.addFlowNodeModel(businessId, nodeId, ip, opSource, opStation, session);
+            
+            //step3：添加节点操作记录
+            this.addNodeLogModel(businessId, nodeId, ip, opSource, opStation, session);
+            
+            
+            //提交事务
+            session.commitTrans();
+        }
+        catch (Exception e)
+        {
+            if (session != null)
+            {
+                session.rollbackTrans();
+            }
+            throw e;
+        }
+        finally
+        {
+            if (session != null)
+            {
+                session.close();
+            }
+        }
+    }
+
+    
+    @Override
+    public BusinessEntityModel queryOrAddBusinessInfo(Long userId, String nodeId, String opSource, String opStation, String ip) throws Exception
+    {
+        String businessCode = ZqConstants.BUSINESS_CODE;
+        
+        //查询用户当前有没有正在办理的港股通业务
+        BusinessEntityModel businessEntityModel = businessEntityDao.querNotCompleteByUserIdAndBusinessCode(userId, businessCode);
+        
+        //如果没有正在办理的业务，就新增一个业务实例
+        if (null == businessEntityModel)
+        {
+            Session session = null;
+            try
+            {
+                //创建session，开启事务
+                session = SessionFactory.getSession(SystemConstants.DB_ISMP);
+                session.beginTrans();
+                
+                businessEntityModel = new BusinessEntityModel(userId, businessCode, nodeId, DictionaryConstants.BOL_FALSE, null, opSource, opStation, ip);
+                
+                //新增科创板业务实例
+                businessEntityModel = this.addBusinessEntityModel(businessEntityModel, session);
+                Long businessId = businessEntityModel.getId();
+                
+                // 查询用户是否是第一次办理科创板 业务，如果用户之前做过科创板业务，则默认用户所有流程都通过
+                List<BusinessEntityModel> list = businessEntityDao.queryByParams(userId, businessCode, DictionaryConstants.BOL_TRUE);
+                if (null != list && list.size() > 0)
+                {
+                    //查询到港股通业务流程节点，然后循环向业务办理流程节点记录表和业务办理节点操作记录表中循环插入记录
+                    List<ProcNodeDefineModel> procNodeDefineModels = procNodeDefineDao.queryByBusinessType(businessCode);//获取科创板业务流程节点
+                    if (null != procNodeDefineModels)
+                    {
+                        for (ProcNodeDefineModel procNodeDefineModel : procNodeDefineModels)
+                        {
+                            String nodeid = procNodeDefineModel.getNodeId();
+                            //新增业务办理流程节点记录
+                            this.addFlowNodeModel(businessId, nodeid, ip, opSource, opStation, session);
+                            
+                            //新增业务办理节点操作记录
+                            this.addNodeLogModel(businessId, nodeid, ip, opSource, opStation, session);
+                            
+                        }
+                        
+                    }
+                }
+                session.commitTrans();
+            }
+            catch (Exception e)
+            {
+                if (session != null)
+                {
+                    session.rollbackTrans();
+                }
+                throw e;
+            }
+            finally
+            {
+                if (session != null)
+                {
+                    session.close();
+                }
+            }
+        }
+        return businessEntityModel;
+    }
+    
+    
+    @Override
+    public void UpdateZqNode(Long businessId, String nodeId, String opSource, String opStation, String ip) throws Exception
+    {
+        Session session = null;
+        try
+        {
+            //创建session，开启事务
+            session = SessionFactory.getSession(SystemConstants.DB_ISMP);
+            session.beginTrans();
+            
+            //更新业务实例当前节点
+            BusinessEntityModel businessEntityModel = new BusinessEntityModel();
+            businessEntityModel.setId(businessId);
+            businessEntityModel.setNodeId(nodeId);
+            this.updateBusinessEntityModel(businessEntityModel, session);
+            
+            //更新节点记录
+            this.addOrUpdateFlowNodeModel(businessId, nodeId, ip, opSource, opStation, session);
+            
+            //添加节点记录操作日志
+            this.addNodeLogModel(businessId, nodeId, ip, opSource, opStation, session);
+            
+            session.commitTrans();
+        }
+        catch (Exception e)
+        {
+            if (session != null)
+            {
+                session.rollbackTrans();
+            }
+            throw e;
+        }
+        finally
+        {
+            if (session != null)
+            {
+                session.close();
+            }
+        }
+    }
+    
+    @Override
+    public void updateEntityAndAuditTask(BusinessEntityModel businessEntityModel, String nodeId) throws Exception
+    {
+        Session session = null;
+        try
+        {
+            //创建session，开启事务
+            session = SessionFactory.getSession(SystemConstants.DB_ISMP);
+            session.beginTrans();
+            
+            //step1：更新业务办理实例
+            businessEntityModel.setDealResult(DictionaryConstants.DEAL_RESULT_NEEDAUTIT);
+            this.updateBusinessEntityModel(businessEntityModel, session);
+            
+            Long businessId = businessEntityModel.getId();
+            String ip = businessEntityModel.getIp();
+            String opSource = businessEntityModel.getOpSource();
+            String opStation = businessEntityModel.getOpStation();
+            
+            //step2：新增业务节点记录
+            this.addFlowNodeModel(businessId, nodeId, ip, opSource, opStation, session);
+            
+            //step3：添加节点操作记录
+            this.addNodeLogModel(businessId, nodeId, ip, opSource, opStation, session);
+            
+            //step4：添加审核任务
+            AuditTaskInfoModel auditTaskInfoModel = new AuditTaskInfoModel();
+            auditTaskInfoModel.setBusinessId(businessId);
+            auditTaskInfoModel.setUserId(businessEntityModel.getUserId());
+            auditTaskInfoModel.setBusinessType(businessEntityModel.getBusinessCode());
+            auditTaskInfoModel.setState(DictionaryConstants.BUSINESS_AUDIT_STATE_NODEAL);
+            auditTaskInfoDao.addTask(auditTaskInfoModel, session);
+            
+            
+            //提交事务
+            session.commitTrans();
+        }
+        catch (Exception e)
+        {
+            if (session != null)
+            {
+                session.rollbackTrans();
+            }
+            throw e;
+        }
+        finally
+        {
+            if (session != null)
+            {
+                session.close();
+            }
+        }
+    }
+
+    @Override
+    public void insertPDF(AgreeRecordModel agreeRecordModel) throws Exception
+    {
+         agreeRecordDao.add(agreeRecordModel);
+    }
+
+    @Override
+    public List<AgreeRecordModel> queryPDF(long businessId, String zqKnowledge) throws Exception
+    {
+        return zqDao.queryPDF(businessId, zqKnowledge);
+    }
+
+    @Override
+    public int updatePDF(AgreeRecordModel agreeRecordModel) throws Exception
+    {
+        return zqDao.updatePDF(agreeRecordModel);
+    }
+    
+	
+}

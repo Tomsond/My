@@ -1,0 +1,36 @@
+package com.thinkive.fxc.ismp.bus.base.basicdata.dao;
+
+import java.util.List;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.fxc.ismp.bus.base.basicdata.model.ServicetimeModel;
+
+/**
+ * @描述: 公共-中登服务时间表(T_FXC_SERVICETIME)数据层接口
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月25日 下午11:12:50
+ */
+public interface ServicetimeDao
+{
+	
+	/**
+	 * @描述：根据服务类型查询服务时间列表
+	 * @作者：刘恺
+	 * @时间：2016年8月25日 下午11:12:35
+	 * @param serviceType
+	 * @return
+	 * @throws Exception
+	 */
+	public List<ServicetimeModel> queryByServiceType(String serviceType);
+	
+	
+	/**
+	 * 检查当前是不是交易时间
+	 * @return
+	 * @throws Exception
+	 */
+	public DataRow getTradeTime() throws Exception;
+}

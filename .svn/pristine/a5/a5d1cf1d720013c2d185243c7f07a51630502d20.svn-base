@@ -1,0 +1,33 @@
+package com.thinkive.fxc.ismp.bus.business.certificatetest;
+
+import com.thinkive.fxc.ismp.bus.BaseTest;
+import com.thinkive.fxc.ismp.bus.business.certificate.business.Function1004185;
+import com.thinkive.server.Function;
+
+/**
+ * 描述: 股东代码卡查询测试
+ * 版权: Copyright (c) 2012 
+ * 公司: 思迪科技 
+ * 作者: 李炜
+ * 版本: 1.0 
+ * 创建日期: May 10, 2013 
+ * 创建时间: 5:12:09 PM
+ */
+public class Function1004185Test extends BaseTest
+{
+	
+	public void testInvoke()
+	{
+		
+		getRequest().addFieldValue("user_id", "1");
+		String jsondata = "[{\"protocol_id\":\"1\",\"protocol_dcsign\":\"MIIDpwYJKoZIhvcNAQcCoIIDmDCCA5QCAQExCzAJBgUrDgMCGgUAMA8GCSqGSIb3DQEHAaACBACgggJYMIICVDCCAb2gAwIBAgIQAY8gAPP0NvHFv58mQHoYATANBgkqhkiG9w0BAQUFADBZMRkwFwYDVQQKHhBZKVoBi9pP4f8IbUuL1f8JMRswGQYDVQQLHhJZKVoBi9pP4f8IbUuL1f8JkOgxHzAdBgNVBAMeFlkpWgGL2k/h/whtS4vV/wloOQBDAEEwHhcNMDkxMDIyMDAwMDAwWhcNMTkxMDE5MjM1OTU5WjBZMRkwFwYDVQQKHhBZKVoBi9pP4f8IbUuL1f8JMRswGQYDVQQLHhJZKVoBi9pP4f8IbUuL1f8JkOgxHzAdBgNVBAMeFlkpWgGL2k/h/whtS4vV/wloOQBDAEEwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBALhBrgNxh6snbnilmnHlhmo4pvcQnVNIshG5TfdKh5KV2m4DnJnfvtc3GuieaFKkq0xSsO2IJyL3p9u6Mn2SdCmNFioOK9bTA+3rNn8UPR1VUCUwcnCdjLnH6mFjoEWHqcFaxJ57ZTGt5/SQ4vc16mOTuXAKWgSfH8m2jbIr1v6zAgMBAAGjHTAbMAwGA1UdEwQFMAMBAf8wCwYDVR0PBAQDAgEGMA0GCSqGSIb3DQEBBQUAA4GBAKwBQzYB6DfhESA/wVPP67DPkeZ4dl0fys1puarJBP/8/g7o4Aw8vtEM+t5P5/rfvqWfzyH/FLIiQzErZvcPqIotgv5hf27aXiXB9m4Nrg8lS3CFZ4i1lNJEV0d1SzxaxZFRmYYv1lFiO0oEFOlZOqzcg8Twct8/4Ah/pUxiDn1QMYIBEzCCAQ8CAQEwbTBZMRkwFwYDVQQKHhBZKVoBi9pP4f8IbUuL1f8JMRswGQYDVQQLHhJZKVoBi9pP4f8IbUuL1f8JkOgxHzAdBgNVBAMeFlkpWgGL2k/h/whtS4vV/wloOQBDAEECEAGPIADz9Dbxxb+fJkB6GAEwCQYFKw4DAhoFADANBgkqhkiG9w0BAQEFAASBgAdP4OGFVmIr2kNLdcByeagPfUl4FjzWGeuO2oXFC1BhA63wnQgZhvxogGHz8z42smRETivDipY7WW2TUuqb5G/UPkXULIIZQOBNo5F5kdnAGANSRPujzot1mW5GBrGOY386fbfTAZNOhYYMZfX+NIOZHN/LynquxE5S4CfoYLMs\",\"summary\":\"ddddddddddddddddddddddddd\"}]";
+		getRequest().addFieldValue("jsondata", jsondata);
+		getRequest().addFieldValue("cert_type", "0");
+		getRequest().addFieldValue("checksign", "1");
+		
+		Function function = new Function1004185();
+		function.invoke(getContext());
+		System.out.println("结果数据为：" + getResponse().getData());
+	}
+	
+}

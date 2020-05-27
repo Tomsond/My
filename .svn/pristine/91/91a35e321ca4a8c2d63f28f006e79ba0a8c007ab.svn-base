@@ -1,0 +1,140 @@
+package com.thinkive.fxc.ismp.bus.base.basicdata.contants;
+
+/**
+ * @描述: 公共基础表名常量类
+ * @版权: Copyright (c) 2016 
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0 
+ * @创建时间: 2016年8月12日 上午10:19:28
+ */
+public class BaseTableConstants
+{
+
+    /**
+     * 公共-问卷主题表
+     */
+    public static final String T_FXC_SURVEY_SUBJECT = "T_FXC_SURVEY_SUBJECT";
+    
+    /**
+     * 公共--协议信息表
+     */
+    public static final String T_FXC_AGREEMENT_INFO    = "T_FXC_AGREEMENT_INFO";
+    
+    /**
+     * 公共-协议内容表
+     */
+    public static final String T_FXC_AGREEMENT_CONTENT = "T_FXC_AGREEMENT_CONTENT";
+    
+    /**
+     * 公共-营业部扩展信息表
+     */
+    public static final String T_FXC_BRANCH_EXTINFO = "T_FXC_BRANCH_EXTINFO";
+
+    /**
+     * 公共-营业部信息表
+     */
+    public static final String T_FXC_BRANCH_INFO = "T_FXC_BRANCH_INFO";
+    
+    /**
+     * 公共-营业部业务权限表
+     */
+    public static final String T_FXC_BUSINESS_RIGHTS = "T_FXC_BUSINESS_RIGHTS";
+    
+    /**
+     * 公共-单向视频操作流水日志
+     */
+    public static final String T_FXC_ONEWAYVIDEO_LOG = "T_FXC_ONEWAYVIDEO_LOG";
+    
+    /**
+     * 公共-相似度阀值配置表
+     */
+    public static final String T_FXC_SIMILARITY_CONFIG = "T_FXC_SIMILARITY_CONFIG";
+
+    /**
+     *  公共-系统配置表
+     */
+    public static final String T_FXC_SYS_CONFIG = "T_FXC_SYS_CONFIG";
+    
+    /**
+     * 公共--交易日信息表
+     */
+    public static final String T_FXC_TRADEDATE = "T_FXC_TRADEDATE";
+
+    /**
+     * 公共-服务时间表
+     */
+    public static final String T_FXC_SERVICETIME = "T_FXC_SERVICETIME";
+    
+    /**
+     * 公共-问卷问题表
+     */
+    public static final String T_FXC_SURVEY_QUESTION = "T_FXC_SURVEY_QUESTION";
+    
+    /**
+     * 公共-问卷答案表
+     */
+    public static final String T_FXC_SURVEY_ANSWER = "T_FXC_SURVEY_ANSWER";
+    
+    /**
+     * 公共-测评问卷等级定义表
+     */
+    public static final String T_FXC_SURVEY_DEFINE = "T_FXC_SURVEY_DEFINE";
+    
+    /**
+     * 公共-省份信息表
+     */
+    public static final String T_FXC_PROVINCE = "T_FXC_PROVINCE";
+
+    /**
+     * 公共-城市信息表
+     */
+    public static final String T_FXC_CITY = "T_FXC_CITY";
+
+    /**
+     * 公共-区域信息表
+     */
+    public static final String T_FXC_REGION = "T_FXC_REGION";
+
+    /**
+     * 公共-银行信息表
+     */
+    public static final Object T_FXC_BANK_INFO = "T_FXC_BANK_INFO";
+    
+    /**
+     * 公共-三方存管银行信息
+     */
+    public static final Object T_FXC_THIRD_BANK = "T_FXC_THIRD_BANK";
+
+    /**
+     * 公共--公安校验日志表
+     */
+    public static final String T_FXC_CHKIDNO_LOG = "T_FXC_CHKIDNO_LOG";
+
+    /**
+     * 公共-公安校验信息存放表
+     */
+    public static final String T_FXC_IDNO_INFO = "T_FXC_IDNO_INFO";
+    
+    /**
+     * 操作流水表
+     */
+    public static final String  T_ISMP_OPERATIONSTREAM= "T_ISMP_OPERATIONSTREAM";
+    
+    
+    /**
+     * 协议流水表
+     */
+    public static final String T_ISMP_PROTOCOLPIPELINING = "T_ISMP_PROTOCOLPIPELINING";
+    
+    /**
+     * 问卷流水表
+     */
+    public static final String T_ISMP_QUESTIONNAIREFLOW = "T_ISMP_QUESTIONNAIREFLOW";
+
+    /**
+     * 适当性匹配表
+     */
+    public static final String T_ISMP_BUSINESS_PROPRIETY = "T_ISMP_BUSINESS_PROPRIETY";
+
+}

@@ -1,0 +1,72 @@
+package com.thinkive.fxc.ismp.bus.base.business.function;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.business.vo.UserInfoVo;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.business.util.DataFormatUtils;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdDictionaryConstants;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdTBASConstants;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdInterface;
+import com.thinkive.server.ResultVo;
+
+/**
+ * @描述: 查询第三方问卷结果
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年9月24日 上午10:56:20
+ */
+public class Function1004196 extends ISMPBaseFunction
+{
+	
+	private Long userId;
+	
+	private String fundAccount;
+	
+	private String subId;
+	
+	@Override
+	public ResultVo execute() throws Exception
+	{
+		initVar();
+		
+		ResultVo resultVo = new ResultVo();
+		ThirdInterface thirdInterface = (ThirdInterface) SpringHelper.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDINTERFACE);
+		UserInfoService userInfoService = (UserInfoService) SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO);
+		UserInfoVo userInfo = userInfoService.queryAndCheckUserByUserIdAndAccount(userId, fundAccount);
+		DataRow thirdInput = DataFormatUtils.packThirdInput(userInfo);
+		thirdInput.set("survey_sn", subId);
+		DataRow QuestionnaireDr = thirdInterface.getQuestionnaire(thirdInput);
+		DataRow outPut = packOutPut(QuestionnaireDr);
+		resultVo.setResult("fxcp", outPut);
+		return resultVo;
+	}
+	
+	private DataRow packOutPut(DataRow data)
+	{
+		DataRow outPut = new DataRow();
+		outPut.set("upddate", data.getString("upddate")); //更新时间
+		outPut.set("risklevel", data.getString("risklevel")); //等级 		例如： A B C D
+		outPut.set("subitemname", data.getString("subitemname")); //级别名称  	例如：积极型
+		outPut.set("riskvalue", data.getString("riskvalue")); //分数		例如：98
+		outPut.set("status", data.getString("status")); //状态
+		return outPut;
+	}
+	
+	/**
+	 * @描述：获取业务入参
+	 * @作者：刘恺
+	 * @时间：2016年8月23日 下午8:55:24
+	 */
+	private void initVar()
+	{
+		userId = this.formatLongParam(this.getAndCheckBlankStrParam("user_id", ErrorCodeCheckInput.BLANK_USERID), ErrorCodeCheckInput.LONG_FORMAT_ERROR);
+		subId = this.getStrParameter("sub_id", ThirdTBASConstants.SNO_FXCP); //大标题序号  -1查询全部 1为风险问卷 2：港股通适当性测评
+		fundAccount = this.getAndCheckBlankStrParam("fundid", ErrorCodeCheckInput.BLANK_FUNDACCOUNT);
+	}
+}

@@ -1,0 +1,63 @@
+package com.thinkive.fxc.ismp.bus.base.business.dao.impl;
+
+import java.util.Date;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.jdbc.session.Session;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessTableConstants;
+import com.thinkive.fxc.ismp.bus.base.business.dao.PpTaskDao;
+import com.thinkive.fxc.ismp.bus.base.business.model.PpTaskModel;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseDao;
+import com.thinkive.fxc.ismp.bus.base.constants.SystemConstants;
+import com.thinkive.fxc.ismp.bus.base.util.ModelUtil;
+
+/**
+ * @描述: 跑批任务表  T_ISMP_PP_TASK 接口实现类
+ * @版权: Copyright (c) 2016 
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 尹杰民
+ * @版本: 2.0 
+ * @创建时间: 2016年8月16日 上午10:42:45
+ */
+public class PpTaskDaoImpl extends ISMPBaseDao implements PpTaskDao
+{
+	
+	@Override
+	public PpTaskModel add(PpTaskModel ppTaskModel)
+	{
+		String taskId = getSeqValue(SystemConstants.DB_ISMP,BusinessTableConstants.T_ISMP_PP_TASK);
+		ppTaskModel.setTaskId(Long.valueOf(taskId));
+		ppTaskModel.setCreateDate(new Date());
+		this.getJdbcTemplate().insert(BusinessTableConstants.T_ISMP_PP_TASK, ppTaskModel);
+		return ppTaskModel;
+	}
+	
+	@Override
+	public PpTaskModel add(PpTaskModel ppTaskModel, Session session) throws Exception
+	{
+		String taskId = getSeqValue(SystemConstants.DB_ISMP,BusinessTableConstants.T_ISMP_PP_TASK);
+		ppTaskModel.setTaskId(Long.valueOf(taskId));
+		ppTaskModel.setCreateDate(new Date());
+		session.insert(BusinessTableConstants.T_ISMP_PP_TASK, ppTaskModel);
+		return ppTaskModel;
+	}
+	
+	@Override
+	public int update(PpTaskModel ppTaskModel)
+	{
+		ppTaskModel.setUpdateDate(new Date());
+		return this.getJdbcTemplate().update(BusinessTableConstants.T_ISMP_PP_TASK, ppTaskModel, "TASK_ID", ppTaskModel.getTaskId());
+	}
+	
+	@Override
+	public PpTaskModel queryByBusiId(Long busiId)
+	{
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT TASK_ID, BUSINESS_ID, EXEC_STATUS, TASK_STATUS, TASK_NAME, TASK_DESC, PLAN_LOAD_DATE");
+		sql.append(", IS_LOOP, MACHINE_FLAG, CREATE_DATE, UPDATE_DATE  FROM ");
+		sql.append(BusinessTableConstants.T_ISMP_PP_TASK).append(" WHERE BUSINESS_ID = ? ");
+		DataRow queryResult = this.getJdbcTemplate().queryMap(sql.toString(), new Object[] { busiId });
+		return ModelUtil.packInfo(queryResult, PpTaskModel.class);
+	}
+	
+}

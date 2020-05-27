@@ -1,0 +1,159 @@
+package com.thinkive.fxc.ismp.bus.business.mark;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.DateHelper;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.base.util.StringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.business.vo.UserInfoVo;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.business.util.DataFormatUtils;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdDictionaryConstants;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdInterfaceConstant;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdTBASConstants;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdInterface;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdTrdAccountService;
+import com.thinkive.server.InvokeException;
+import com.thinkive.server.ResultVo;
+
+
+/**
+ * 作者：MIKE
+ * 公司：深圳市思迪信息技术股份公司
+ * 日期时间：2017年6月3日 上午11:25:57
+ * 说明：适当性前置准入条件判断类
+ */
+public class Function1004504 extends ISMPBaseFunction
+{
+	private Long userId;
+	
+	private UserInfoService userInfoService;
+	
+	private ThirdInterface thirdInterface;
+	@Override
+	public ResultVo execute() throws Exception
+	{
+		initVar();
+		ResultVo resultVo = new ResultVo();
+		userInfoService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO, UserInfoService.class);
+		UserInfoVo userInfoVo = userInfoService.queryAndCheckUserByUserIdAndType(userId, ThirdInterfaceConstant.USER_ACCOUNT_TYPE_ZQ);
+
+		String userdataFlag = DictionaryConstants.BOL_FALSE;//身份信息是否全 0全 1不全 默认0
+		String certificatesFlag = DictionaryConstants.BOL_FALSE;//身份证是否过期 0否 1是 默认0
+		String riskassessmentFlag = DictionaryConstants.BOL_FALSE;//风险测评是否过期0否 1是 默认0
+		String electronicsignatureFlag = DictionaryConstants.BOL_FALSE;//电子签名约定书是否签署 0签署 1未签署 默认0
+		String control_person = userInfoVo.getString("control_person");
+		String benefit_person = userInfoVo.getString("benefit_person");
+		String address = userInfoVo.getString("address");
+		String occupation = userInfoVo.getString("occupation");
+		String education = userInfoVo.getString("education");
+		String credit_record = userInfoVo.getString("credit_record");
+		String validity_end = userInfoVo.getString("validity_end");
+		if(StringHelper.isEmpty(userInfoVo.getName())||
+				StringHelper.isEmpty(userInfoVo.getMobile())||
+				StringHelper.isEmpty(control_person)||
+				StringHelper.isEmpty(benefit_person)||
+				StringHelper.isEmpty(userInfoVo.getIdentityNum())||
+				StringHelper.isEmpty(userInfoVo.getPapersAddr())||
+				StringHelper.isEmpty(validity_end)||
+				StringHelper.isEmpty(address)||
+				StringHelper.isEmpty(occupation)||
+				StringHelper.isEmpty(education)||
+				StringHelper.isEmpty(credit_record)){
+			userdataFlag = DictionaryConstants.BOL_TRUE;
+		}
+		String timeDate = DateHelper.formatDate(new Date(),"yyyyMMdd");
+		DataRow datarow = userInfoService.certificatesFlag(userId, timeDate);
+		if(datarow==null){
+			 certificatesFlag = DictionaryConstants.BOL_TRUE;
+		}
+		
+		thirdInterface = SpringHelper.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDINTERFACE, ThirdInterface.class);
+		//查询风险测评结果
+	    DataRow fxcpInput = DataFormatUtils.packThirdInput(userInfoVo);
+		fxcpInput.set("user_id", userId);
+		fxcpInput.set("survey_sn", ThirdTBASConstants.SNO_FXCP);
+		DataRow FxcpDr = thirdInterface.getQuestionnaire(fxcpInput);
+		DataRow fxcpInfo = packFxcp(FxcpDr);
+		if(fxcpInfo.getString("status").equals("0")||!StringHelper.isNotEmpty(fxcpInfo.getString("subitemname"))){//0-无效 1-有效
+			riskassessmentFlag = DictionaryConstants.BOL_TRUE;
+		}
+		
+		//查询第三方协议权限
+		ThirdInterface thirdInterface = SpringHelper.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDINTERFACE, ThirdInterface.class);
+		DataRow thirdInput = DataFormatUtils.packThirdInput(userInfoVo);
+		List<DataRow> result = thirdInterface.queryAgreement(thirdInput);
+		if(result.get(0).getString("sign_flag").equals("0")){
+			electronicsignatureFlag = DictionaryConstants.BOL_TRUE;
+		}
+		
+		
+		//风险名单
+		 DataRow thirdParam = DataFormatUtils.packThirdInput(userInfoVo);
+	        thirdParam.set("branch_no", thirdParam.getString("branchno"));//营业部
+	        thirdParam.set("money_type", ThirdInterfaceConstant.MONEY_TYPE_RMB);//币种
+	         //获取柜台帐号
+	        ThirdTrdAccountService thirdTrdAccountService = SpringHelper.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDTRDACCOUNT, ThirdTrdAccountService.class);
+	        Map<String, Object> accountInfo = thirdTrdAccountService.queryAndCheckGtAllAccountState(userInfoVo, true);
+	        List<DataRow> accountList = (List<DataRow>) accountInfo.get("accountList");
+	        //String accountState = (String) accountInfo.get("accountState");
+	        if(accountList != null && accountList.size() > 0)
+	        {
+	            String ymt_code = accountList.get(0).getString("ymt_code");
+	            //重点监控账户检查
+	            thirdParam.set("ymt_code", ymt_code);//一码通
+	            thirdParam.set("exchange_type", "0");//交易类别  0-资金， G-沪HK,S-深HK
+	            if(StringHelper.isNotBlank(ymt_code))
+	            {
+	                DataRow zdjkjc = thirdInterface.funcExtacctMonitoracctCheck(thirdParam);
+	                logger.info("重点监控账户检查返回结果："+zdjkjc);
+	                String userRisk = zdjkjc.getString("deal_flag");//处理标志 0-列为风险名单，不允许继续业务；1没有列为风险名单-允许继续业务。
+	                if ( userRisk.equals("0") )
+	                {
+	                   throw new InvokeException("您属于交易所重点监控名单，请临柜办理",100450401);
+	                }
+	            }
+	            
+	        }
+	        
+		DataRow data = new DataRow();
+		data.set("userdataFlag", userdataFlag);
+		data.set("certificatesFlag", certificatesFlag);
+		data.set("riskassessmentFlag", riskassessmentFlag);
+		data.set("electronicsignatureFlag", electronicsignatureFlag);
+		resultVo.setResult(data);
+		resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+		resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+		return resultVo;
+	}
+	
+	private DataRow packFxcp(DataRow data)
+	{
+		DataRow outPut = new DataRow();
+		if (data == null)
+		{
+			outPut.set("query_flag", DictionaryConstants.BOL_TRUE);
+			return outPut;
+		}
+		data.set("query_flag", DictionaryConstants.BOL_TRUE);
+		outPut.set("upddate", data.getString("upddate")); //更新时间
+		outPut.set("risklevel", data.getString("risklevel")); //等级 		例如： A B C D
+		outPut.set("subitemname", data.getString("subitemname")); //级别名称  	例如：积极型
+		outPut.set("riskvalue", data.getString("riskvalue")); //分数		例如：98
+		outPut.set("status", data.getString("status")); //状态
+		outPut.set("risk_end_date", data.getString("risk_end_date"));
+		return outPut;
+	}
+	
+	private void initVar()
+	{
+		userId = this.formatLongParam(this.getAndCheckBlankStrParam("user_id", ErrorCodeCheckInput.BLANK_USERID), ErrorCodeCheckInput.LONG_FORMAT_ERROR);
+	}	
+}

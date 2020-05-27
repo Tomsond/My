@@ -1,0 +1,73 @@
+package com.thinkive.fxc.ismp.bus.base.business.constants;
+
+/**
+ * @描述: 影像资料节点属性定义
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月19日 上午10:19:35
+ */
+public class ImageNodePropertyConstants
+{
+	
+	/**
+	 * @描述:由于单个节点可能匹配多个协议，所以节点属性的key值，需要前缀来分辨这些影像对应的属性,前缀中${index}最后用添加的影像组下标替换
+	 * @例子：
+	 *       如果某个节点有2个协议需要签署，那么在配置协议时，节点属性key-value如下
+	 *       img|207|thirdmediacode = 1001;
+	 *       img|207|needocr = 1;
+	 *       img_2_third_media_code = 2005;
+	 *       img_2_need_ocr = 1;
+	 * @节点类型:影像资料
+	 */
+	public static final String PROPERTY_KEY_IMG_PREFIX = "img";
+	
+	/**
+	 * @描述:影像资料编号
+	 * @关联数据:对应数据字典fxc_media_type类型
+	 * @节点类型:影像资料
+	 */
+	public static final String PROPERTY_KEY_MEDIA_CODE = "mediacode";
+	
+	/**
+	 * @描述:第三方系统中对应的影像资料编号
+	 * @节点类型:影像资料
+	 */
+	public static final String PROPERTY_KEY_THIRD_MEDIA_CODE = "thirdmediacode";
+	
+	/**
+	 * @描述:是否OCR识别
+	 * @可选值:0-不识别，1-识别
+	 * @节点类型:影像资料
+	 */
+	public static final String PROPERTY_KEY_THIRD_NEED_OCR = "needocr";
+	
+	/**
+	 * @描述:是否需要用户确认
+	 * @可选值:0-否，1-是
+	 * @节点类型:影像资料
+	 */
+	public static final String PROPERTY_KEY_THIRD_NEED_CONFIRM = "needconfirm";
+	
+	/**
+	 * @描述:是否需要公安校验
+	 * @可选值:0-否，1-是
+	 * @节点类型:影像资料
+	 */
+	public static final String PROPERTY_KEY_NEED_POLICE_CHECK = "needpolicecheck";
+	
+	/**
+	 * @描述:公安校验方式
+	 * @可选值:0-否，1-是
+	 * @节点类型:影像资料
+	 */
+	public static final String PROPERTY_KEY_POLICE_CHECK_TYPE = "policechecktype";
+	
+	/**
+	 * @描述:存储类型
+	 * @可选值:0-数据库，1-本地磁盘，2-文件服务器
+	 * @节点类型:影像资料
+	 */
+	public static final String PROPERTY_KEY_SIVE_TYPE = "sivetype";
+}

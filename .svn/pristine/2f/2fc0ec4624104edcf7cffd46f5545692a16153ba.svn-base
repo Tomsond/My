@@ -1,0 +1,57 @@
+package com.thinkive.fxc.ismp.bus.business.assets.zhth.function;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.business.vo.UserInfoVo;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.business.util.DataFormatUtils;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdDictionaryConstants;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdInterfaceConstant;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdInterface;
+import com.thinkive.server.InvokeException;
+import com.thinkive.server.ResultVo;
+
+/**
+ * @描述: 主副资金账号变更（获取资金账号信息）
+ * @版权: Copyright (c) 2016
+ * @公司: 思迪科技
+ * @作者: 谢能琥
+ * @版本: 1.0
+ * @创建日期: 2016年11月8日
+ * @创建时间: 上午9:47:52
+ */
+public class Function1004801 extends ISMPBaseFunction
+{
+	
+	private Long userId;
+	
+	@Override
+	public ResultVo execute() throws InvokeException, Exception
+	{
+		initVar();
+		UserInfoService userInfoService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO, UserInfoService.class);
+		//1、校验用户资金账号是否正常
+		UserInfoVo userInfoVo = userInfoService.queryAndCheckUserByUserIdAndType(userId, ThirdInterfaceConstant.USER_ACCOUNT_TYPE_ZQ);
+		
+		ThirdInterface thirdInterface = SpringHelper.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDINTERFACE, ThirdInterface.class);
+		DataRow thirdInput = DataFormatUtils.packThirdInput(userInfoVo);
+		ResultVo resultVo = new ResultVo();
+		
+		//查询用户证券资金账号
+		resultVo.setResult("accounts", thirdInterface.queryZJAccount(thirdInput));
+		
+		resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+		resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+		return resultVo;
+	}
+	
+	private void initVar()
+	{
+		userId = this.formatLongParam(this.getAndCheckBlankStrParam("user_id", ErrorCodeCheckInput.BLANK_USERID), ErrorCodeCheckInput.LONG_FORMAT_ERROR);
+	}
+	
+}

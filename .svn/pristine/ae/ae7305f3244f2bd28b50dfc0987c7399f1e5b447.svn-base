@@ -1,0 +1,54 @@
+package com.thinkive.fxc.ismp.bus.base.basicdata.dao.impl;
+
+import java.util.Date;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.fxc.ismp.bus.base.basicdata.contants.BaseTableConstants;
+import com.thinkive.fxc.ismp.bus.base.basicdata.dao.AgreementContentDao;
+import com.thinkive.fxc.ismp.bus.base.basicdata.model.AgrementContentModel;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseDao;
+import com.thinkive.fxc.ismp.bus.base.constants.SystemConstants;
+import com.thinkive.fxc.ismp.bus.base.util.ModelUtil;
+
+/**
+ * @描述: 公共-协议内容表(T_FXC_AGREEMENT_CONTENT)数据层接口实现类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 尹杰民
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月18日 下午3:30:10
+ */
+public class AgreementContentDaoImpl extends ISMPBaseDao implements AgreementContentDao
+{
+    
+    @Override
+    public AgrementContentModel add(AgrementContentModel agrementContentModel) throws Exception
+    {
+        String id = getSeqValue(SystemConstants.DB_ISMP,BaseTableConstants.T_FXC_AGREEMENT_CONTENT);
+        agrementContentModel.setId(Long.valueOf(id));
+        agrementContentModel.setCreateDate(new Date());
+        this.getJdbcTemplate().insert(BaseTableConstants.T_FXC_AGREEMENT_CONTENT, agrementContentModel);
+        return agrementContentModel;
+    }
+    
+    @Override
+    public int update(AgrementContentModel agrementContentModel) throws Exception
+    {
+        Long id = agrementContentModel.getId();
+        agrementContentModel.setUpdateDate(new Date());
+        return this.getJdbcTemplate()
+                .update(BaseTableConstants.T_FXC_AGREEMENT_CONTENT, agrementContentModel, "ID", id);
+    }
+    
+    @Override
+    public AgrementContentModel queryByParams(String agreeNo, String agreeStatus) throws Exception
+    {
+        StringBuilder sql = new StringBuilder();
+        sql.append(" SELECT ID, AGREE_NO, AGREE_VERSION, AGREE_STATUS, AGREE_MD5, AGREE_BRIEF,AGREE_CONTENT, CREATE_DATE,  CREATE_BY, UPDATE_DATE, UPDATE_BY ");
+        sql.append(" FROM ");
+        sql.append(BaseTableConstants.T_FXC_AGREEMENT_CONTENT);
+        sql.append(" WHERE AGREE_NO= ? AND  AGREE_STATUS = ? ");
+        DataRow queryResult = getJdbcTemplate().queryMap(sql.toString(), new Object[] { agreeNo, agreeStatus });
+        return ModelUtil.packInfo(queryResult, AgrementContentModel.class);
+    }
+}

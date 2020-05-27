@@ -1,0 +1,57 @@
+package com.thinkive.fxc.ismp.bus.base.basicdata.service;
+
+import com.thinkive.base.jdbc.DataRow;
+
+/**
+ * @描述: 交易时间服务类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月25日 下午10:11:48
+ */
+public interface TradeTimeService
+{
+	
+	/**
+	 * @描述：检查当前是否是中登交易时间
+	 * @作者：刘恺
+	 * @时间：2016年8月25日 下午10:13:48
+	 * @return
+	 */
+	public boolean checkZdTradeTime();
+	
+	/**
+	 * @描述：检查当前是否是银行交易时间
+	 * @作者：刘恺
+	 * @时间：2017年2月22日 上午10:33:11
+	 * @return
+	 */
+	public boolean checkBankTradeTime();
+	
+	
+	/**
+	 * @描述：检查当前是否是交易日
+	 * @作者：MIKE
+	 * @时间：2017年12月19日 上午10:33:11
+	 * @return
+	 */
+	public DataRow checkTradingDay();
+	
+	
+	/**
+	 * 检查当前是不是交易时间
+	 * @return
+	 * @throws Exception
+	 */
+	public DataRow getTradeTime() throws Exception;
+	
+	/**
+	 * @描述: 检查当前是否是中登交易时间
+	 *       读取数据字典配置的交易时间
+	 * @作者: 农仕冰
+	 * @时间: 2019年10月16日 下午4:09:53
+	 * @return
+	 */
+	public boolean checkZdTradeTimeOfEnum() throws Exception;;
+}

@@ -1,0 +1,94 @@
+package com.thinkive.fxc.ismp.bus.base.business.dao;
+
+import java.util.List;
+
+import com.thinkive.base.jdbc.session.Session;
+import com.thinkive.fxc.ismp.bus.base.business.model.AgreeRecordModel;
+
+/**
+ * @描述:  协议签署记录表<p>t_ismp_agree_record</p> 数据层接口
+ * @版权: Copyright (c) 2016 
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 尹杰民
+ * @版本: 2.0 
+ * @创建时间: 2016年8月15日 下午2:40:49
+ */
+public interface AgreeRecordDao
+{
+	
+	/**
+	* @描述: 新增签署列表信息
+	* @作者: 尹杰民
+	* @时间：2016年8月17日 下午3:59:13
+	* @param  agreeRecordModel
+	* @return AgreeRecordModel    
+	* @
+	 */
+	public AgreeRecordModel add(AgreeRecordModel agreeRecordModel);
+	
+	/** 
+	* @描述: 更新签署列表信息
+	* @作者: 尹杰民
+	* @时间：2016年8月17日 下午3:59:13
+	* @param  agreeRecordModel
+	* @return AgreeRecordModel    
+	* @
+	*/
+	public int update(AgreeRecordModel agreeRecordModel);
+	
+	/**
+	 * @描述：批量添加签署日志（需要控制事务）
+	 * @作者：刘恺
+	 * @时间：2016年9月2日 下午3:05:02
+	 * @param agreeRecordModels
+	 */
+	public void addBatch(List<AgreeRecordModel> agreeRecordModels, Session session) throws Exception;
+	
+	/**
+	 * @描述：根据业务编号和节点编号删除记录（需要控制事务）
+	 * @作者：刘恺
+	 * @时间：2016年9月2日 下午4:01:59
+	 * @param businessId
+	 * @param nodeId
+	 * @param session
+	 * @throws Exception
+	 */
+	public void deleteByBusinessIdAndNodeId(Long businessId, String nodeId, Session session) throws Exception;
+	
+	/**
+	 * @描述：批量添加签署日志
+	 * @作者：刘恺
+	 * @时间：2016年9月3日 上午11:06:15
+	 * @param agreeRecordModels
+	 */
+	public void addBatch(List<AgreeRecordModel> agreeRecordModels);
+	
+	/** 
+	* @描述: 根据id查询签署列表信息
+	* @作者: 尹杰民
+	* @时间：2016年8月17日 下午3:59:13
+	* @param  id
+	* @return AgreeRecordModel    
+	* @
+	*/
+	//public AgreeRecordModel queryById(Long id) ;
+	
+	/** 
+	* @描述: 删除签署列表
+	* @作者: 尹杰民
+	* @时间：2016年8月17日 下午3:59:13
+	* @param  id
+	* @return int    
+	* @
+	*/
+	//public int delete(Long id) ;
+	/**
+	 * @描述: 单条插入
+	 * @作者: 农仕冰
+	 * @时间: 2019年7月10日 上午11:30:21
+	 * @param agreeRecordModel
+	 * @param session
+	 * @throws Exception
+	 */
+	public void addBatch(AgreeRecordModel agreeRecordModel, Session session) throws Exception;
+}

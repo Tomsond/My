@@ -1,0 +1,46 @@
+package com.thinkive.fxc.ismp.bus.base.business.service;
+
+import java.util.Date;
+
+import com.thinkive.fxc.ismp.bus.base.business.model.UserLoginLogModel;
+
+/**
+ * @描述: 用户登录日志表服务层接口
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月26日 上午9:49:37
+ */
+public interface UserLoginLogService
+{
+    
+    /**
+     * @描述：增加用户登录日志
+     * @作者：田源
+     * @时间：2016年8月26日 上午9:51:30
+     * @param userId 用户ID
+     * @param logingType 登录方式
+     * @param opSource 操作渠道 (  0：pc/web，2： Android平板客户端，3： Android手机客户端，4：  iPhone客户端)
+     * @return UserLoginLogModel
+     */
+    public UserLoginLogModel add(Long userId,String logingType,String opSource);
+    
+    /**
+     * @描述：获取用户最后登录时间
+     * @作者：田源
+     * @时间：2016年8月26日 上午10:04:36
+     * @param userId
+     * @return Date
+     */
+    public Date queryLastLogDate(Long userId);
+    
+    /**
+     * @描述：增加用户登录日志
+     * @作者：MIKE
+     * @时间：2017年12月26日 上午9:51:30
+     * @return UserLoginLogModel
+     */
+    public UserLoginLogModel addLog(UserLoginLogModel userLoginLogModel);
+    
+}

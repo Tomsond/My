@@ -1,0 +1,47 @@
+package com.thinkive.fxc.ismp.bus.third.service.impl;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdDataService;
+
+/**
+ * @描述: 第三方数据服务实现类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月26日 上午10:30:41
+ */
+public class ThirdDataServiceImpl implements ThirdDataService
+{
+	
+	@Override
+	public boolean checkBlacklist(DataRow checkInput)
+	{
+		//TODO 融资融券预约，查询黑名单方法未实现
+		return true;
+	}
+	
+	@Override
+	public boolean checkShareholder(DataRow checkInput)
+	{
+		//TODO 融资融券预约，查询持股人信息方法未实现
+		return true;
+	}
+	
+	@Override
+	public DataRow getAmountLimit(DataRow input)
+	{
+		//TODO 融资融券预约，计算额度方法未实现
+		DataRow amountData = new DataRow();
+		amountData.set("initial_amount", "30000");
+		amountData.set("max_amount", "100000");
+		return amountData;
+	}
+	
+	@Override
+	public Double getCompositeScore(DataRow input)
+	{
+		//TODO 融资融券预约，计算综合评分方法未实现
+		return 70D;
+	}
+}

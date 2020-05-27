@@ -1,0 +1,78 @@
+package com.thinkive.fxc.ismp.bus.base.business.service.impl;
+
+import java.util.List;
+
+import com.thinkive.fxc.ismp.bus.base.business.dao.SurveyAnswerResultDao;
+import com.thinkive.fxc.ismp.bus.base.business.model.SurveyAnswerResultModel;
+import com.thinkive.fxc.ismp.bus.base.business.service.SurveyAnswerResultService;
+import com.thinkive.fxc.ismp.bus.business.service.impl.BusinessCommonServiceImpl;
+
+/**
+ * @描述: 业务问卷答案记录服务实现类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月29日 下午5:09:54
+ */
+public class SurveyAnswerResultServiceImpl extends BusinessCommonServiceImpl implements SurveyAnswerResultService
+{
+	
+	private SurveyAnswerResultDao surveyAnswerResultDao;
+	
+	public void setSurveyAnswerResultDao(SurveyAnswerResultDao surveyAnswerResultDao)
+	{
+		this.surveyAnswerResultDao = surveyAnswerResultDao;
+	}
+	
+	@Override
+	public void addOrUpdateAnswer(Long businessId, Long subId, String nodeId, String subValue, String valueLevel, String valueName) throws Exception
+	{
+		SurveyAnswerResultModel surveyAnswerResultModel = new SurveyAnswerResultModel();
+		surveyAnswerResultModel.setBusinessId(businessId);
+		surveyAnswerResultModel.setNodeId(nodeId);
+		surveyAnswerResultModel.setSubId(subId);
+		surveyAnswerResultModel.setSubValue(subValue);
+		surveyAnswerResultModel.setValueLevel(valueLevel);
+		surveyAnswerResultModel.setValueName(valueName);
+		int count = surveyAnswerResultDao.update(surveyAnswerResultModel);
+		if (0 == count)
+		{
+			surveyAnswerResultDao.add(surveyAnswerResultModel);
+		}
+	}
+	
+	@Override
+	public List<SurveyAnswerResultModel> queryByParams(SurveyAnswerResultModel surveyAnswerResultModel)
+	{
+		return surveyAnswerResultDao.queryByParams(surveyAnswerResultModel);
+	}
+	
+	@Override
+	public SurveyAnswerResultModel queryByBusinessIdAndNodeId(Long businessId, String nodeId)
+	{
+		SurveyAnswerResultModel surveyAnswerResultModel = new SurveyAnswerResultModel();
+		surveyAnswerResultModel.setBusinessId(businessId);
+		surveyAnswerResultModel.setNodeId(nodeId);
+		List<SurveyAnswerResultModel> list = surveyAnswerResultDao.queryByParams(surveyAnswerResultModel);
+		if (list == null)
+		{
+			return null;
+		}
+		return list.get(0);
+	}
+	
+	@Override
+	public List<SurveyAnswerResultModel> queryByBusinessId(Long businessId)
+	{
+		SurveyAnswerResultModel surveyAnswerResultModel = new SurveyAnswerResultModel();
+		surveyAnswerResultModel.setBusinessId(businessId);
+		return surveyAnswerResultDao.queryByParams(surveyAnswerResultModel);
+	}
+	
+	@Override
+	public int update(SurveyAnswerResultModel surveyAnswerResultModel)
+	{
+		return surveyAnswerResultDao.update(surveyAnswerResultModel);
+	}
+}

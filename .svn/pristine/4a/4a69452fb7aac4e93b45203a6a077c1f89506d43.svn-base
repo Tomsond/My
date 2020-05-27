@@ -1,0 +1,85 @@
+package com.thinkive.fxc.ismp.bus.business.gem.function;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.function.IsmpFlowBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.business.model.BusinessEntityModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.ChoiceAccountRecordModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.LinkmanRecordModel;
+import com.thinkive.fxc.ismp.bus.base.business.service.BusinessEntityService;
+import com.thinkive.fxc.ismp.bus.base.business.service.LinkmanRecordService;
+import com.thinkive.fxc.ismp.bus.base.business.service.SignAndVerifyService;
+import com.thinkive.fxc.ismp.bus.base.business.utils.ModularNodeUtil;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.server.ResultVo;
+
+/**
+ * @描述: 创业板转签--选择股东帐号,并提交应急联系人信息
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年9月26日 下午2:27:33
+ */
+public class Function1004029 extends IsmpFlowBaseFunction
+{
+	
+	private String trdaccount;//沪A帐号  逗号分割
+	
+	private LinkmanRecordModel linkmanRecordModel;
+	
+	private String jsondata;//签名json字符串
+	
+	@Override
+	public ResultVo execute() throws Exception
+	{
+		initVar();
+		
+		//获取节点属性组
+		Map<String, DataRow> signParamsMap = ModularNodeUtil.checkAndReturnSignNodeProperty(nodePropertyConfigModelList);
+		
+		//提交的所有协议
+		SignAndVerifyService signAndVerifyService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_SIGNANDVERIFY, SignAndVerifyService.class);
+		List<Map<String, String>> allSignList = signAndVerifyService.verifySignTextAndSubmitThird(jsondata, signParamsMap);
+		
+		//选择的帐号开通结果
+		List<ChoiceAccountRecordModel> choiceAccountRecordModels = new ArrayList<ChoiceAccountRecordModel>();
+		String[] trdaccountArr = trdaccount.split(",");
+		for (String item : trdaccountArr)
+		{
+			ChoiceAccountRecordModel choiceAccountRecordModel = new ChoiceAccountRecordModel();
+			choiceAccountRecordModel.setState(DictionaryConstants.CHOICEACCOUNT_DEALRESULT_NOTSTART);
+			choiceAccountRecordModel.setTrdAccount(item);
+			choiceAccountRecordModels.add(choiceAccountRecordModel);
+		}
+		
+		BusinessEntityService businessEntityService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_BUSINESSENTITY, BusinessEntityService.class);
+		BusinessEntityModel businessEntityModel = getNewBusinessEntity();
+		businessEntityModel.setNodeId(submitBprocNodeConfigAndDefineVO.getNextBpNodeId());
+		businessEntityService.addEntityAndAgreeAndAccountAndPpTask(businessEntityModel, submitBprocNodeConfigAndDefineVO.getNodeId(), allSignList, choiceAccountRecordModels,"");
+		LinkmanRecordService linkmanRecordService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_LINKMANRECORD, LinkmanRecordService.class);
+		linkmanRecordModel.setBusinessId(businessEntityModel.getId());
+		linkmanRecordModel.setNodeId(nodeId);
+		linkmanRecordService.add(linkmanRecordModel);
+		return resultVo;
+	}
+	
+	private void initVar()
+	{
+		jsondata = this.getAndCheckBlankStrParam("jsondata", ErrorCodeCheckInput.BLANK_FORMAT_SIGNJSON);
+		trdaccount = this.getAndCheckBlankStrParam("trdaccount", ErrorCodeCheckInput.BLANK_TRDACCOUNT);
+		String emergencyName = this.getAndCheckBlankStrParam("emergency_name", ErrorCodeCheckInput.BLANK_EMERGENCY_NAME);
+		String emergencyMobile = this.getAndCheckBlankStrParam("emergency_mobile", ErrorCodeCheckInput.BLANK_EMERGENCY_MOBILE);
+		String emergencyRelation = this.getAndCheckBlankStrParam("emergency_relation", ErrorCodeCheckInput.BLANK_EMERGENCY_RELATION);
+		linkmanRecordModel = new LinkmanRecordModel();
+		linkmanRecordModel.setlinkmanName(emergencyName);
+		linkmanRecordModel.setLinkmanMobile(emergencyMobile);
+		linkmanRecordModel.setLinkmanRelation(emergencyRelation);
+	}
+}

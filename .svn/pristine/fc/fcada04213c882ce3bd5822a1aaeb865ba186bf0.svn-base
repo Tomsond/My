@@ -1,0 +1,269 @@
+package com.thinkive.fxc.ismp.bus.third.constants;
+
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * @描述: 第三方数据在我们系统中的数据字典（和第三方接口本身不一样）
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月25日 下午1:51:28
+ */
+public class ThirdInterfaceConstant
+{
+	
+	/**
+	 * 交易版块 深圳Ａ股
+	 */
+	public static final String STKBD_SZA = "00";
+	
+	/**
+	 * 交易版块 深圳Ｂ股
+	 */
+	public static final String STKBD_SZB = "01";
+	
+	/**
+	 * 交易版块 商品期货 上海
+	 */
+	public static final String STKBD_SPQHSH = "02";
+	
+	/**
+	 * 交易版块 商品期货 大连
+	 */
+	public static final String STKBD_SPQHDL = "03";
+	
+	/**
+	 * 交易版块 商品期货 郑州
+	 */
+	public static final String STKBD_SPQHZZ = "04";
+	
+	/**
+	 * 交易版块 股指期货 中国金融期货交易所
+	 */
+	public static final String STKBD_SPQHZGJR = "05";
+	
+	/**
+	 * 交易版块 上海Ａ股
+	 */
+	public static final String STKBD_SHA = "10";
+	
+	/**
+	 * 交易版块 上海Ｂ股
+	 */
+	public static final String STKBD_SHB = "11";
+	
+	/**
+	 * 基金代码.深开基金
+	 */
+	public static final String TACODE_SZKJ = "99";
+	
+	/**
+	 * 基金代码.沪开基金
+	 */
+	public static final String TACODE_SHKJ = "98";
+	
+	/**
+	 * 创业板
+	 */
+	public static final String STKBD_CYB = "C";
+	
+	/**
+	 * 港股通
+	 */
+	public static final String STKBD_GGT = "G";
+	
+	//3=机构信用帐户, 2=个人信用帐户, 1=机构帐户, 0=个人帐户, 7=产品基金账户, 6=产品普通账户, 5=机构基金帐户, 4=个人基金帐户, 9=境外账户, 8=产品信用账户
+	/**
+	 * 个人帐户
+	 */
+	public static final String TRDACCTEXCLS_STOCK_1 = "0";
+	
+	/**
+	 * 1=机构帐户
+	 */
+	public static final String TRDACCTEXCLS_STOCK_2 = "1";
+	
+	/**
+	 * 个人信用帐户
+	 */
+	public static final String TRDACCTEXCLS_CREDIT_1 = "2";
+	
+	/**
+	 * 3=机构信用帐户
+	 */
+	public static final String TRDACCTEXCLS_CREDIT_2 = "3";
+	
+	/**
+	 * 个人基金帐户
+	 */
+	public static final String TRDACCTEXCLS_FUNC_1 = "4";
+	
+	/**
+	 * 机构基金帐户
+	 */
+	public static final String TRDACCTEXCLS_FUNC_2 = "5";
+	
+	/**
+	 * 操作渠道
+	 */
+	public static final String OPENCUSTOMER_CHANNELS = "09";
+	
+	/**
+	 * 影像上传LBM_ID
+	 */
+	public static final String LBM_ID = "L1100721";
+	
+	/**
+	 * 资产账户级别
+	 */
+	public static final String CUACCT_LVL = "0";
+	
+	/**
+	 * 资产账户组别
+	 */
+	public static final String CUACCT_GRP = "0";
+	
+	/**
+	 * 预约开户方式 [非现场开户]
+	 */
+	public static final String APPT_CHNL = "4";
+	
+	/**
+	 * 客户分组
+	 */
+	public static final String CUST_GRP = "0";
+	
+	/**
+	 * 默认反洗钱等级 “低”(根据字典aml_lvl获取)
+	 */
+	public static final String DEFALULT_AML_LVL = "0";
+	
+	/**
+	 * 默认规范标识 “规范客户”(根据字典criterion获取，没有传空)
+	 */
+	public static final String DEFALULT_CRITERION = "";
+	
+	/**
+	 * 默认证件卡校验标志 “通过” (根据字典idcard_check_flag获取)
+	 */
+	public static final String DEFALULT_IDCARD_CHECK_FLAG = "1";
+	
+	/**
+	 * 默认风险因素
+	 */
+	public static final String DEFALULT_RISK_FACTOR = "";
+	
+	/**
+	 * 三方绑定后休眠时间(单位，毫秒)
+	 */
+	public static final int TPBANK_SLEEP_TIMES = 3000;
+	
+	//邱联琼增加
+	
+	/**
+	 * STKEX[证券交易所]={2=股转系统, 1=上海交易所, 0=深圳交易所}
+	 */
+	public static final String STKEX_SZ = "0";
+	
+	public static final String STKEX_SH = "1";
+	
+	/**
+	 * SZACCT_EXTYPE1[股东类别]={00=A股账户, 01=基金账户, 02=B股账户, 03=信用证券账户},
+	 */
+	public static final String SZACCT_EXTYPE = "00";
+	
+	/**
+	* T_ISMP_USER_CAPITAL_ACCOUNT表TYPE字段-理财账户
+	*/
+	public static final String USER_ACCOUNT_TYPE_LC = "1";
+	
+	/**
+	 * T_ISMP_USER_CAPITAL_ACCOUNT表TYPE字段-期货账户
+	 */
+	public static final String USER_ACCOUNT_TYPE_QH = "2";
+	
+	/**
+	 * T_ISMP_USER_CAPITAL_ACCOUNT表TYPE字段-信用账户
+	 */
+	public static final String USER_ACCOUNT_TYPE_XY = "3";
+	
+	/**
+	 * T_ISMP_USER_CAPITAL_ACCOUNT表TYPE字段-证券账户
+	 */
+	public static final String USER_ACCOUNT_TYPE_ZQ = "4";
+	
+	
+	public static final Map<String, String> MAP_ACCOUNT_TYPE_NAME = new HashMap<String, String>();
+	
+	/**
+	* 交易账户类型  
+	*/
+	public static final String TRDACCT_EXCLS_GRGD = "0"; //个人股东账户
+	
+	public static final String TRDACCT_EXCLS_JGGD = "1"; //机构股东账户
+	
+	public static final String TRDACCT_EXCLS_GRXY = "2"; //个人信用账户
+	
+	public static final String TRDACCT_EXCLS_JGXY = "3"; //机构信用帐户
+	
+	public static final String TRDACCT_EXCLS_GRJJ = "4"; //个人基金账户----场内基金 封闭式基金
+	
+	public static final String TRDACCT_EXCLS_JGJJ = "5"; //机构基金帐户
+	
+	public static final String TRDACCT_EXCLS_CPPT = "6"; //产品普通账户
+	
+	public static final String TRDACCT_EXCLS_CPJJ = "7"; //产品基金账户
+	
+	public static final String TRDACCT_EXCLS_CPXY = "8"; //产品信用账户
+	
+	public static final String TRDACCT_EXCLS_JWZH = "9"; //境外账户
+	
+	public static final String TRDACCT_EXCLS_ZDTA = "10"; //中登TA账户帐户 ---中登场外基金
+	
+	public static final String TRDACCT_EXCLS_ZJTA = "4"; //自建TA账户---券商自己代理的场外基金
+	
+	public static final String TRDACCT_EXCLS_DSFTA = "11"; //第三方TA账户
+	
+	public static final String TRDACCT_EXCLS_SPQH = "12"; //商品期货
+	
+	public static final String TRDACCT_EXCLS_GZQH = "13"; //固执期货
+	
+	public static final Map<String, String> ACCOUNT_TRDACCT = new HashMap<String, String>();
+	
+	/**
+	 * 交易账户类型  
+	 */
+	public static final String MONEY_TYPE_RMB = "0"; //货币类型 0：人民币
+	
+	public static final String MONEY_TYPE_HK = "1"; //货币类型 1：港币
+	
+	public static final String MONEY_TYPE_DOLLAR = "2"; //货币类型 2：美元
+	
+	static
+	{
+		ACCOUNT_TRDACCT.put(TRDACCT_EXCLS_GRGD, USER_ACCOUNT_TYPE_ZQ);
+		ACCOUNT_TRDACCT.put(TRDACCT_EXCLS_JGGD, USER_ACCOUNT_TYPE_ZQ);
+		ACCOUNT_TRDACCT.put(TRDACCT_EXCLS_CPPT, USER_ACCOUNT_TYPE_ZQ);
+		
+		ACCOUNT_TRDACCT.put(TRDACCT_EXCLS_GRXY, USER_ACCOUNT_TYPE_XY);
+		ACCOUNT_TRDACCT.put(TRDACCT_EXCLS_JGXY, USER_ACCOUNT_TYPE_XY);
+		ACCOUNT_TRDACCT.put(TRDACCT_EXCLS_CPXY, USER_ACCOUNT_TYPE_XY);
+		
+		ACCOUNT_TRDACCT.put(TRDACCT_EXCLS_GRJJ, USER_ACCOUNT_TYPE_LC);
+		ACCOUNT_TRDACCT.put(TRDACCT_EXCLS_JGJJ, USER_ACCOUNT_TYPE_LC);
+		ACCOUNT_TRDACCT.put(TRDACCT_EXCLS_CPJJ, USER_ACCOUNT_TYPE_LC);
+		ACCOUNT_TRDACCT.put(TRDACCT_EXCLS_ZDTA, USER_ACCOUNT_TYPE_LC);
+		ACCOUNT_TRDACCT.put(TRDACCT_EXCLS_ZJTA, USER_ACCOUNT_TYPE_LC);
+		ACCOUNT_TRDACCT.put(TRDACCT_EXCLS_DSFTA, USER_ACCOUNT_TYPE_LC);
+		
+		ACCOUNT_TRDACCT.put(TRDACCT_EXCLS_SPQH, USER_ACCOUNT_TYPE_QH);
+		ACCOUNT_TRDACCT.put(TRDACCT_EXCLS_GZQH, USER_ACCOUNT_TYPE_QH);
+		
+		MAP_ACCOUNT_TYPE_NAME.put(USER_ACCOUNT_TYPE_LC, "理财账户");
+		MAP_ACCOUNT_TYPE_NAME.put(USER_ACCOUNT_TYPE_QH, "期货账户");
+		MAP_ACCOUNT_TYPE_NAME.put(USER_ACCOUNT_TYPE_XY, "信用账户");
+		MAP_ACCOUNT_TYPE_NAME.put(USER_ACCOUNT_TYPE_ZQ, "证券账户");
+	}
+}

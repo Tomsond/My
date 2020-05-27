@@ -1,0 +1,292 @@
+package com.thinkive.fxc.ismp.bus.base.business.model;
+
+import java.sql.Timestamp;
+import java.util.Date;
+
+import com.thinkive.base.jdbc.DataRow;
+
+/**
+ * @描述: 身份证信息确认记录表(t_ismp_image_information)模型
+ * @版权: Copyright (c) 2016 
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0 
+ * @创建时间: 2016年8月12日 下午4:31:53
+ */
+public class ImageInformationModel extends DataRow
+{
+	
+	private static final long serialVersionUID = -4293904837325790113L;
+	
+	private static final String ID = "id";
+	
+	private static final String BUSINESS_ID = "business_id";
+	
+	private static final String NODE_ID = "node_id";
+	
+	private static final String NAME = "name";
+	
+	private static final String IDENTITY_NUM = "identity_num";
+	
+	private static final String PAPERS_ADDR = "papers_addr";
+	
+	private static final String SEX = "sex";
+	
+	private static final String ADDRESS = "address";
+	
+	private static final String BIRTHDAY = "birthday";
+	
+	private static final String SIGN_OFFICE = "sign_office";
+	
+	private static final String VALIDITY_BEGIN = "validity_begin";
+	
+	private static final String VALIDITY_END = "validity_end";
+	
+	private static final String ETHNICNAME = "ethnicname";
+	
+	private static final String CREATE_DATE = "create_date ";
+	
+	private static final String UPDATE_DATE = "update_date ";
+	
+	/**
+	 * 获取自增主键
+	 */
+	public Long getId()
+	{
+		return getLong(ID);
+	}
+	
+	/**
+	 * 设置自增主键
+	 */
+	public void setId(Long id)
+	{
+		set(ID, id);
+	}
+	
+	/**
+	 * 获取业务办理实体ID
+	 */
+	public Long getBusinessId()
+	{
+		return getLong(BUSINESS_ID);
+	}
+	
+	/**
+	 * 设置业务办理实体ID
+	 */
+	public void setBusinessId(Long businessId)
+	{
+		set(BUSINESS_ID, businessId);
+	}
+	
+	/**
+	 * 获取节点英文标识
+	 */
+	public String getNodeId()
+	{
+		return getString(NODE_ID);
+	}
+	
+	/**
+	 * 设置节点英文标识
+	 */
+	public void setNodeId(String nodeId)
+	{
+		set(NODE_ID, nodeId);
+	}
+	
+	/**
+	 * 获取姓名
+	 */
+	public String getName()
+	{
+		return getString(NAME);
+	}
+	
+	/**
+	 * 设置姓名
+	 */
+	public void setName(String name)
+	{
+		set(NAME, name);
+	}
+	
+	/**
+	 * 获取身份证号码
+	 */
+	public String getIdentityNum()
+	{
+		return getString(IDENTITY_NUM);
+	}
+	
+	/**
+	 * 设置身份证号码
+	 */
+	public void setIdentityNum(String identityNum)
+	{
+		set(IDENTITY_NUM, identityNum);
+	}
+	
+	/**
+	 * 获取证件签发机构
+	 */
+	public String getSignOffice()
+	{
+		return getString(SIGN_OFFICE);
+	}
+	
+	/**
+	 * 设置证件签发机构
+	 */
+	public void setSignOffice(String signOffice)
+	{
+		set(SIGN_OFFICE, signOffice);
+	}
+	
+	/**
+	 * 获取证件签发地址
+	 */
+	public String getPapersAddr()
+	{
+		return getString(PAPERS_ADDR);
+	}
+	
+	/**
+	 * 设置证件签发地址
+	 */
+	public void setPapersAddr(String papersAddr)
+	{
+		set(PAPERS_ADDR, papersAddr);
+	}
+	
+	/**
+	 * 获取通信住址
+	 */
+	public String getAddress()
+	{
+		return getString(ADDRESS);
+	}
+	
+	/**
+	 * 设置通信住址
+	 */
+	public void setAddress(String address)
+	{
+		set(ADDRESS, address);
+	}
+	
+	/**
+	 * 获取生日
+	 */
+	public String getBirthday()
+	{
+		return getString(BIRTHDAY);
+	}
+	
+	/**
+	 * 设置生日
+	 */
+	public void setBirthday(String birthday)
+	{
+		set(BIRTHDAY, birthday);
+	}
+	
+	/**
+	 * 获取性别
+	 */
+	public String getSex()
+	{
+		return getString(SEX);
+	}
+	
+	/**
+	 * 设置性别
+	 */
+	public void setSex(String sex)
+	{
+		set(SEX, sex);
+	}
+	
+	/**
+	 * 获取民族
+	 */
+	public String getEthnicName()
+	{
+		return getString(ETHNICNAME);
+	}
+	
+	/**
+	 * 设置民族
+	 */
+	public void setEthnicName(String ethnicName)
+	{
+		set(ETHNICNAME, ethnicName);
+	}
+	
+	/**
+	 * 获取证件有效期开始
+	 */
+	public String getValidityBegin()
+	{
+		return getString(VALIDITY_BEGIN);
+	}
+	
+	/**
+	 * 设置证件有效期开始
+	 */
+	public void setValidityBegin(String validityBegin)
+	{
+		set(VALIDITY_BEGIN, validityBegin);
+	}
+	
+	/**
+	 * 获取证件有效期结束
+	 */
+	public String getValidityEnd()
+	{
+		return getString(VALIDITY_END);
+	}
+	
+	/**
+	 * 设置证件有效期结束
+	 */
+	public void setValidityEnd(String validityEnd)
+	{
+		set(VALIDITY_END, validityEnd);
+	}
+	
+	/**
+	 * 获取创建时间
+	 */
+	public Date getCreateDate()
+	{
+		return (Date) get(CREATE_DATE);
+	}
+	
+	/**
+	 * 设置创建时间
+	 */
+	public void setCreateDate(Date createDate)
+	{
+		Timestamp timestamp = new Timestamp(createDate.getTime());
+		set(CREATE_DATE, timestamp);
+	}
+	
+	/**
+	 * 获取更新时间
+	 */
+	public Date getUpdateDate()
+	{
+		return (Date) get(UPDATE_DATE);
+	}
+	
+	/**
+	 * 设置更新时间
+	 */
+	public void setUpdateDate(Date updateDate)
+	{
+		Timestamp timestamp = new Timestamp(updateDate.getTime());
+		set(UPDATE_DATE, timestamp);
+	}
+}

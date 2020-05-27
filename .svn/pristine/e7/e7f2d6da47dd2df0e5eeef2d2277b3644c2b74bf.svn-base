@@ -1,0 +1,223 @@
+package com.thinkive.fxc.ismp.bus.base.basicdata.model;
+
+import java.sql.Timestamp;
+import java.util.Date;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.DateHelper;
+
+/**
+ * 作者：MIKE
+ * 公司：深圳市思迪信息技术股份公司
+ * 日期时间：2017年6月2日 下午4:46:41
+ * 说明：操作流水表数据字典定义类
+ */
+public class OperationStreamModel extends DataRow
+{
+    
+    private static final long serialVersionUID = 6702715830919886101L;
+    private static final String ID = "id";
+    private static final String FUNDACCOUNT = "fundaccount";
+    private static final String NAME = "name"; 
+    private static final String USER_ID= "user_id"; 
+    private static final String TYPE="type";
+	private static final String REQUEST_DATA="request_data";
+	private static final String RESPONSE_DATA="response_data";
+	private static final String REQUEST_TIME="request_time";
+	private static final String DEVICE_ID="device_id";
+	private static final String APP_VERSION_NUMBER="app_version_number";
+	private static final String IP="ip";
+	private static final String XDTX="xdtx";
+	private static final String MAC="mac";
+	private static final String CREATE_DATE="create_date";
+	private static final String UPDATE_DATE="update_date";
+	private static final String BUSSINESS_CODE = "business_code";
+	private static final String BUSSINESS_ID= "business_id";
+	
+    /**
+     * 获取自增主键
+     */
+    public Long getId() {
+        return getLong(ID);
+    }
+
+    /**
+     * 设置自增主键
+     */
+    public void setId(Long id) {
+        set(ID, id);
+    }
+    
+    /**
+     * 获取用户帐号
+     */
+    public String getAccount() {
+        return getString(FUNDACCOUNT);
+    }
+
+    /**
+     * 设置用户帐号
+     */
+    public void setAccount(String account) {
+        set(FUNDACCOUNT, account);
+    }
+    
+    /**
+     * 获取用户名称
+     */
+    public String getName() {
+        return getString(NAME);
+    }
+    
+    
+    /**
+     * 设置用户名称
+     */
+    public void setName(String name) {
+        set(NAME, name);
+    }
+   
+
+    public String getUserid() {
+        return getString(USER_ID);
+    }
+    
+    public void setUserid(Long userid) {
+        set(USER_ID, userid);
+    }
+    
+    
+    public String getType() {
+        return getString(TYPE);
+    }
+
+   
+    public void setType(String type) {
+        set(TYPE, type);
+    }
+    
+   
+    public String getRequestdata() {
+        return getString(REQUEST_DATA);
+    }
+
+    public void setRequestdata(String request_data) {
+        set(REQUEST_DATA, request_data);
+    }
+    
+    /**
+     * 获取创建时间
+     */
+    public Date getCreateDate() {
+       return (Date)get(CREATE_DATE);
+    }
+
+    /**
+     * 设置创建时间
+     */
+    public void setCreateDate(Date createDate) {
+    	Timestamp timestamp = new Timestamp(createDate.getTime());
+        set(CREATE_DATE, timestamp);
+    }
+    
+    /**
+     * 获取更新时间
+     */
+    public Date getUpdateDate() {
+       return (Date)get(UPDATE_DATE);
+    }
+
+    /**
+     * 设置更新时间
+     */
+    public void setUpdateDate(Date updateDate) {
+    	Timestamp timestamp = new Timestamp(updateDate.getTime());
+        set(UPDATE_DATE, timestamp);
+    }
+    
+   
+    public String getResponsedata() {
+        return getString(RESPONSE_DATA);
+    }
+
+   
+    public void setResponsedata(String response_data) {
+        set(RESPONSE_DATA, response_data);
+    }  
+    
+    
+    public Date getRequesttime() {
+        return (Date) get(REQUEST_TIME);
+    }
+
+   
+    public void setRequesttime(Date request_time) {
+    	Timestamp timestamp = new Timestamp(request_time.getTime());
+        set(REQUEST_TIME, timestamp);
+    }
+    
+    public String getDeviceid() {
+        return getString(DEVICE_ID);
+    }
+
+   
+    public void setDeviceid(String device_id) {
+        set(DEVICE_ID, device_id);
+    }
+    
+    public String getAppversionnumber() {
+        return getString(APP_VERSION_NUMBER);
+    }
+
+   
+    public void setAppversionnumber(String app_version_number) {
+        set(APP_VERSION_NUMBER, app_version_number);
+    }
+    
+    public String getIp() {
+        return getString(IP);
+    }
+
+   
+    public void setIp(String ip) {
+        set(IP, ip);
+    }
+    
+    public String getXdtx() {
+        return getString(XDTX);
+    }
+
+   
+    public void setXdtx(String xdtx) {
+        set(XDTX, xdtx);
+    }
+    
+    
+    public String getMac() {
+        return getString(MAC);
+    }
+
+   
+    public void setMac(String mac) {
+        set(MAC, mac);
+    }
+    
+    public String getbusinesscode() {
+        return getString(BUSSINESS_CODE);
+    }
+
+    
+    public void setbusinesscode(String business_code) {
+        set(BUSSINESS_CODE, business_code);
+    }
+    
+    public String getbusinessid() {
+        return getString(BUSSINESS_ID);
+    }
+
+    
+    public void setbusinessid(String business_id) {
+        set(BUSSINESS_ID, business_id);
+    }
+}
+

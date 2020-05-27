@@ -1,0 +1,64 @@
+package com.thinkive.fxc.ismp.bus.business.rzrq.preMarginTrading.constant;
+
+/**
+ * @描述: 业务相关错误编号
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月25日 下午9:30:11
+ */
+public final class ErrorCodeBusiness
+{
+	
+	public static int BLACKLIST = -100453701;//黑名单
+	
+	public static int SHAREHOLDER = -100453702;//股东
+	
+	public static int ALLOPENED = -100453703;//融资融券帐号已全部开通
+	
+	public static int RISKFAIL = -100454001;//风险测评未通过
+	
+	public static int YWZCCPFAIL = -100454101;//业务知识测评未通过
+	
+	public static int MAXAMOUNT = -100454501;//融资融券额度大于最高额度
+	
+	public static int MINAMOUNT = -100454502;//融资融券额度小于最低最高额度
+	
+	public static int IDNOERROR = -100454601;//身份证和柜台不匹配
+	
+	public static int NOMOBILE = -100454801;//预留手机号不存在
+	
+	public static int ERRORMOBILE = -100454802;//预留手机号不存在
+	
+	public static int LOGIN_FUNDACCOUNTOROWD_ERROR = -100490301;//资金帐号或密码错误
+	
+	public static int LOGIN_LOGINPWDERROTIME_LEAVE = -100490302;//密码错误剩余次数
+	
+	public static int LOGIN_LOGINPWDERROTIME_NOTIME = -100490303;//密码错误生意次数已用完
+	
+	public static int LOGIN_QUERYTHIRDUSERINFO_FAIL = -100490304;//查询用户基本信息失败
+	
+	public static int IDCARDUP_GTCART_ISEIGHTEEN = -100490801;//柜台身份证为18位，不需要升位  
+	
+	public static int LOGIN_LOGINPWDERROTIME_STATE = -100490305;//帐号已冻结
+	
+	public static int LOGIN_LOGINPWDERROTIME_TRDACCT_EXCLS = -100490306;//账户类型为机构户类型，不能登录
+	
+	public static int LOGIN_LOGINPWDERROTIME_IDENTITY_TYPE = -100490307;//账户证件类型非身份证类型
+	
+	public static int LOGIN_LOGINPWDERROTIME_OPERWAYITEM = -100490308;//帐号未开通手机委托方式权限
+	
+	public static int LOGIN_LOGINPWDERROTIME_MONEY_TYPE = -100490309;//帐号非人民币资金帐号已销户或
+	
+	public static int LOGIN_LOGINPWDERROTIME_MONEY_TYPE_XH = -100490310;//帐号已销户
+	
+	public static int LOGIN_LOGINPWDERROTIME_NULL = -100490311;//帐号信息不存在
+	
+	public static int USER_INFO_CHECK_ID_CARD = -100490312;//输入的用户名称、证件号信息与柜台信息不一致
+	
+	public static int LOGIN_PWDTY_RSA = -100490313;//私匙不能为空
+	
+	public static int LOGIN_PWDVALUE = -100490314;//解密失败
+	
+}

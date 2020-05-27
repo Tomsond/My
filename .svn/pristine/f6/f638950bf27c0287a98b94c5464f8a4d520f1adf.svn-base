@@ -1,0 +1,106 @@
+package com.thinkive.fxc.ismp.bus.business.zqCancel.function;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.business.vo.UserInfoVo;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.business.util.DataFormatUtils;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdDictionaryConstants;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdInterfaceConstant;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdInterface;
+import com.thinkive.server.InvokeException;
+import com.thinkive.server.ResultVo;
+import com.thinkive.server.util.SpringUtil;
+/**
+ * @描述: 债券合格投资者权限取消 -检查选择的账户在途交易
+ * @版权: Copyright (c) 2019 
+ * @公司: 思迪科技 
+ * @作者: 江昶
+ * @版本: 1.0 
+ * @创建日期: 2019年12月7日 
+ * @创建时间: 下午5:27:45
+ */
+public class Function1004253  extends ISMPBaseFunction{
+	
+	private long userId;
+	
+	private String trdaccount;//股东户多个用“,” 分隔,格式：股东户|市场
+
+	@SuppressWarnings({ "deprecation" })
+    @Override
+	public ResultVo execute() throws InvokeException, Exception {
+	    
+	    String onWayTradeFlag = DictionaryConstants.BOL_FALSE;//是否有在途交易  0无，1有
+		
+		//step1.校验入参
+		checkInput();
+		
+		ResultVo resultVo = new ResultVo();
+		
+		//step2:查询用户基本信息和用户账号信息
+		UserInfoService userInfoService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO, UserInfoService.class);
+		UserInfoVo userInfoVo = userInfoService.queryAndCheckUserByUserIdAndType(userId, ThirdInterfaceConstant.USER_ACCOUNT_TYPE_ZQ);
+		ThirdInterface thirdInterface = SpringUtil.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDINTERFACE, ThirdInterface.class);
+		DataRow thirdInput = DataFormatUtils.packThirdInput(userInfoVo);
+		List<DataRow> checkList = new ArrayList<DataRow>();
+		
+		String[] trdAccounts = trdaccount.split(",");
+		for (String trdaccts : trdAccounts)
+        {
+		    onWayTradeFlag = DictionaryConstants.BOL_FALSE;
+		    
+		    String[] accountStkbd = trdaccts.split("\\|");
+		    if(accountStkbd.length != 2){
+		        throw new InvokeException(-1,"股东账户入参信息不全");
+		    }
+		    String trdacct = accountStkbd[0];
+		    thirdInput.set("trdacct", trdacct);//股东户
+		    thirdInput.set("exchange_type", "1");
+		    if(accountStkbd[1].equals(ThirdInterfaceConstant.STKBD_SZA)){
+		        thirdInput.set("exchange_type", "2");//交易类别  1沪A 2深A
+		    }
+	        /**校验是否有在途交易*/
+	        List<DataRow> wayList = thirdInterface.isOnWayTrade(thirdInput);
+	        if(wayList != null && wayList.size() > 0)
+	        {
+	            for(DataRow wayData : wayList)
+	            {
+	                if(trdacct.equals(wayData.getString("trdacct")))
+	                {
+	                    onWayTradeFlag = DictionaryConstants.BOL_TRUE;
+	                }
+	            }
+	        }
+            
+            DataRow other = new DataRow();
+            other.set("trdacct", trdacct);//股东户
+            other.set("stkbd", accountStkbd[1]);//市场
+            other.set("onWayTradeFlag", onWayTradeFlag);//是否有在途交易  0无，1有
+            checkList.add(other);
+        }
+            
+        resultVo.setResult("checkInfo", checkList);
+		resultVo.setErrorNo(0);
+		resultVo.setErrorMsg("调用成功");
+		return resultVo;
+	}
+	
+	/**
+	 * @描述：获取入参并校验
+	 * @作者：农仕冰
+	 * @时间：2019年9月24日 下午14:22
+	 * @throws Exception
+	 */
+	private void checkInput() throws Exception{
+		userId = Long.valueOf(this.getAndCheckBlankStrParam("user_id", ErrorCodeCheckInput.BLANK_USERID));
+		trdaccount = this.getAndCheckBlankStrParam("trdaccount", ErrorCodeCheckInput.BLANK_TRDACCOUNT);
+	}
+
+}

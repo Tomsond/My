@@ -1,0 +1,26 @@
+package com.thinkive.fxc.ismp.bus.base.business.service.impl;
+
+import com.thinkive.fxc.ismp.bus.base.business.dao.PpTaskDao;
+import com.thinkive.fxc.ismp.bus.base.business.model.PpTaskModel;
+import com.thinkive.fxc.ismp.bus.base.business.service.PpTaskService;
+
+public class PpTaskServiceImpl implements PpTaskService
+{
+
+    private PpTaskDao ppTaskDao;
+    
+
+    public void setPpTaskDao(PpTaskDao ppTaskDao)
+    {
+        this.ppTaskDao = ppTaskDao;
+    }
+
+
+
+    @Override
+    public PpTaskModel add(PpTaskModel ppTaskModel)
+    {
+        return ppTaskDao.add(ppTaskModel);
+    }
+    
+}

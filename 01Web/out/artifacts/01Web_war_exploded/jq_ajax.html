@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>jquery_ajax</title>
+    <script type="text/javascript" src="jquery-1.11.0.min.js"></script>
+    <script type="text/javascript">
+        function f1() {
+            $.get(
+                "/01Web/AjaxServlet1",//url地址
+                {"name":"lisi","age":23}//参数
+                ,function(data){ //data代表的就是json格式的那个对象
+                    alert(data.name);} //回调
+                ,"json"
+            );
+        }
+        function f2() {
+            $.ajax({
+                url: "/01Web/AjaxServlet1",
+                async:true,
+                type:"Get",
+                data:{"name":"tom","age":12},
+                success:function (data) {
+                    alert(data.name);
+                },
+                error:function (data) {
+                    alert("请求失败");
+                },
+                dataType:"json"
+        });
+        }
+    </script>
+</head>
+<body>
+<h1>演示jquery的Ajax</h1>
+<input type="button" value="get/post方式访问" onclick="f1()"/><span id="span1"></span>
+<input type="button" value=".ajax方式访问" onclick="f2()"/><span id="span2"></span>
+</body>
+</html>

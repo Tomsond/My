@@ -1,0 +1,44 @@
+package com.thinkive.fxc.ismp.bus.base.business.service;
+
+import java.util.List;
+
+import com.thinkive.fxc.ismp.bus.base.business.model.ImageInformationModel;
+
+/**
+ * @描述: 影像资料信息确认服务类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年9月11日 下午4:47:43
+ */
+public interface ImageInformationService
+{
+	
+	/**
+	 * @描述：添加影像资料信息确认记录
+	 * @作者：刘恺
+	 * @时间：2016年9月11日 下午4:50:01
+	 * @param imageInformationModel
+	 * @return
+	 */
+	public ImageInformationModel add(ImageInformationModel imageInformationModel);
+	
+	/**
+	 * @描述：添加或者更新影像资料信息确认记录
+	 * @作者：刘恺
+	 * @创建时间: 2017年3月29日 下午3:03:38
+	 * @param imageInformationModel
+	 * @return
+	 */
+	public ImageInformationModel addOrUpdate(ImageInformationModel imageInformationModel);
+	
+	/**
+	 * @描述：根据业务实例编号和节点编号查询信息确认记录信息
+	 * @作者：刘恺
+	 * @创建时间: 2017年3月29日 下午3:05:46
+	 * @param imageInformationModel
+	 * @return
+	 */
+	public List<ImageInformationModel> queryByParams(Long businessId, String nodeId);
+}

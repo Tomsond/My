@@ -1,0 +1,207 @@
+package com.thinkive.fxc.ismp.bus.business.increaseAccount.function;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.base.util.StringHelper;
+import com.thinkive.fxc.ismp.bus.base.basicdata.contants.BasicServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.basicdata.service.TradeTimeService;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.business.vo.UserInfoVo;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.business.util.DataFormatUtils;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdDictionaryConstants;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdInterfaceConstant;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdTBASConstants;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdInterface;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdTrdAccountService;
+import com.thinkive.server.ResultVo;
+import com.thinkive.server.util.SpringUtil;
+
+/**
+ * @描述: 增开----获取用户证券帐号状态
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年11月14日 上午10:20:26
+ */
+public class Function1004300 extends ISMPBaseFunction
+{
+	
+	private Long userId;//用户编号
+	
+	private ThirdInterface thirdInterface;
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public ResultVo execute() throws Exception
+	{
+		initVar();
+		
+		ResultVo resultVo = new ResultVo();
+		UserInfoService userInfoService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO, UserInfoService.class);
+		UserInfoVo userInfo = userInfoService.queryAndCheckUserByUserIdAndType(userId, ThirdInterfaceConstant.USER_ACCOUNT_TYPE_ZQ);
+		
+		DataRow thirdInput = DataFormatUtils.packThirdInput(userInfo);
+        thirdInput.set("branch_no", thirdInput.getString("branchno"));//营业部
+        thirdInput.set("money_type", ThirdInterfaceConstant.MONEY_TYPE_RMB);//货币类型
+        
+        thirdInterface = SpringUtil.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDINTERFACE, ThirdInterface.class);
+		
+		TradeTimeService tradeTimeService = SpringHelper.getBean(BasicServiceBeanIdConstants.SERVICE_ID_TRADETIME, TradeTimeService.class);
+		boolean isTradeTime = tradeTimeService.checkZdTradeTimeOfEnum();
+		
+		List<DataRow> accountList = getAccount(isTradeTime, userInfo);
+		
+		Map<String, Object> checkResult = checkZQAccountExist(accountList);
+		
+		DataRow state = (DataRow) checkResult.get("state");
+		List<DataRow> account = (List<DataRow>) checkResult.get("account");
+		
+		state.set("isTradeTime", isTradeTime ? DictionaryConstants.BOL_TRUE : DictionaryConstants.BOL_FALSE);
+		
+		 //三方存管账户状态
+        String thirdBankFlag = "0";
+        DataRow sfcg_account_status = new DataRow();
+        DataRow thirdBankData = thirdInterface.queryThirdBankStatus(thirdInput);
+        logger.info("三方存管账户状态返回结果："+thirdBankData);
+        if(thirdBankData != null && thirdBankData.size() > 0)
+        {
+            thirdBankFlag = thirdBankData.getString("bkaccount_status");//0:正常  其他不正常
+            logger.info("thirdBankFlag: "+thirdBankFlag);
+        }
+        if ( DictionaryConstants.BOL_FALSE.equals(thirdBankFlag))
+        {
+            sfcg_account_status.set("sfcg_account_status",DictionaryConstants.BOL_FALSE);//0正常
+            
+        }else{
+            sfcg_account_status.set("sfcg_account_status",DictionaryConstants.BOL_TRUE);
+        }
+        
+		
+		resultVo.setResult("state", state);
+		resultVo.setResult("accountlist", account);
+		resultVo.setResult("sfcg_account_status", sfcg_account_status);
+		resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+		resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+		return resultVo;
+	}
+	
+	private List<DataRow> getAccount(boolean isTradeTime, UserInfoVo userInfo) throws Exception
+	{
+		List<DataRow> accountList = null;
+		ThirdTrdAccountService thirdTrdAccountService = SpringHelper.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDTRDACCOUNT, ThirdTrdAccountService.class);
+		if (!isTradeTime)
+		{
+			accountList = thirdTrdAccountService.queryThirdTraAccount(userInfo, ThirdTBASConstants.THIRDINTERFACE_QUERYTYPE_GT);
+		}
+		else
+		{
+			accountList = thirdTrdAccountService.queryThirdTraAccount(userInfo, ThirdTBASConstants.THIRDINTERFACE_QUERYTYPE_GTANDZD);
+		}
+		return accountList;
+	}
+	
+	//获取信用帐号开通和绑定状态
+	private Map<String, Object> checkZQAccountExist(List<DataRow> accountList) throws Exception
+	{
+		Map<String, Object> accountAndState = new HashMap<String, Object>();
+		List<DataRow> account = new ArrayList<DataRow>();
+		DataRow state = new DataRow();
+		String hasSZAaccount = DictionaryConstants.BOL_FALSE; //是否已开通深圳A证券帐号
+		String hasSHAaccount = DictionaryConstants.BOL_FALSE; //是否已开通上海A证券帐号
+		String hasSHKJaccount = DictionaryConstants.BOL_FALSE; //是否已开通沪开基金帐号
+		String hasSZKJaccount = DictionaryConstants.BOL_FALSE; //是否已开通深开基金帐号
+		String hasAccount = DictionaryConstants.BOL_FALSE;//资金帐号下是否有开通帐号
+		String hasYmt = DictionaryConstants.BOL_FALSE;//是否有一码通帐号
+		int szaAmount = 0;//深A帐号数量
+		int shaAmount = 0;//沪A帐号数量
+		
+		if (accountList != null && accountList.size() > 0)
+		{
+			for (DataRow item : accountList)
+			{
+				if (!StringHelper.isBlank(item.getString("ymt_code")) && DictionaryConstants.BOL_FALSE.equals(hasYmt))
+				{
+					hasYmt = DictionaryConstants.BOL_TRUE;
+				}
+				
+				if (ThirdInterfaceConstant.STKBD_SZA.equals(item.getString("stkbd")) && ThirdInterfaceConstant.TRDACCT_EXCLS_GRGD.equals(item.getString("trdacct_excls")))
+				{
+					//在券商有深A证券帐号
+					if (!ThirdTBASConstants.TRDACCOUNT_STATE_NOBIND.equals(item.getString("bind_state")))
+					{
+						hasSZAaccount = DictionaryConstants.BOL_TRUE;
+						hasAccount = DictionaryConstants.BOL_TRUE;
+					}
+					//过滤注销的账户
+					if ( !("4").equals(item.getString("state")) )
+                    {
+					    szaAmount++;
+                    }
+					account.add(item);
+				}
+				if (ThirdInterfaceConstant.STKBD_SHA.equals(item.getString("stkbd")) && ThirdInterfaceConstant.TRDACCT_EXCLS_GRGD.equals(item.getString("trdacct_excls")))
+				{
+					//在券商有沪A证券帐号
+					if (!ThirdTBASConstants.TRDACCOUNT_STATE_NOBIND.equals(item.getString("bind_state")))
+					{
+						hasSHAaccount = DictionaryConstants.BOL_TRUE;
+						hasAccount = DictionaryConstants.BOL_TRUE;
+					}
+					//过滤注销的账户
+					if ( !("4").equals(item.getString("state")) )
+                    {
+                        shaAmount++;
+                    }
+					account.add(item);
+				}
+				//在券商有深开基金
+				if (!ThirdTBASConstants.TRDACCOUNT_STATE_NOBIND.equals(item.getString("bind_state")) && ThirdInterfaceConstant.STKBD_SZA.equals(item.getString("stkbd"))
+						&& ThirdInterfaceConstant.TRDACCT_EXCLS_GRJJ.equals(item.getString("trdacct_excls")))
+				{
+					hasSZKJaccount = DictionaryConstants.BOL_TRUE;
+					hasAccount = DictionaryConstants.BOL_TRUE;
+					account.add(item);
+				}
+				//在券商有沪开基金
+				if (!ThirdTBASConstants.TRDACCOUNT_STATE_NOBIND.equals(item.getString("bind_state")) && ThirdInterfaceConstant.STKBD_SHA.equals(item.getString("stkbd"))
+						&& ThirdInterfaceConstant.TRDACCT_EXCLS_GRJJ.equals(item.getString("trdacct_excls")))
+				{//有沪开场内基金
+					hasSHKJaccount = DictionaryConstants.BOL_TRUE;
+					hasAccount = DictionaryConstants.BOL_TRUE;
+					account.add(item);
+				}
+			}
+		}
+		state.set("hasSZAaccount", hasSZAaccount);
+		state.set("hasSHAaccount", hasSHAaccount);
+		state.set("hasSZKJaccount", hasSZKJaccount);
+		state.set("hasSHKJaccount", hasSHKJaccount);
+		state.set("hasAccount", hasAccount);
+		state.set("hasYmt", hasYmt);
+		state.set("szaAmount", szaAmount);
+		state.set("shaAmount", shaAmount);
+		accountAndState.put("state", state);
+		accountAndState.put("account", account);
+		return accountAndState;
+	}
+	
+	/**
+	 * @描述：获取业务入参
+	 * @作者：刘恺
+	 * @时间：2016年8月23日 下午8:55:24
+	 */
+	private void initVar()
+	{
+		userId = this.formatLongParam(this.getAndCheckBlankStrParam("user_id", ErrorCodeCheckInput.BLANK_USERID), ErrorCodeCheckInput.LONG_FORMAT_ERROR);
+	}
+}

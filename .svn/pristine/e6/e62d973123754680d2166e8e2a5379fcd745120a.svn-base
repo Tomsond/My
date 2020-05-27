@@ -1,0 +1,125 @@
+package com.thinkive.fxc.ismp.bus.third.service;
+
+import java.util.List;
+import java.util.Map;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.fxc.ismp.bus.base.business.vo.UserInfoVo;
+
+/**
+ * @描述: 第三方接口交易帐号服务类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月25日 下午1:48:26
+ */
+public interface ThirdTrdAccountService
+{
+	
+	/**
+	 * @描述：根据交易市场、帐号类型、用户基本信息查询第三方交易帐号
+	 * @作者：刘恺
+	 * @时间：2016年8月25日 下午6:43:18
+	 * @param stkbd			交易市场
+	 * @param trdacct_excls	帐号类型
+	 * @param userInfoVo	用户信息
+	 * @param queryType		查询类型 0：柜台，1：中登，2：柜台+中登
+	 * @return
+	 * @throws Exception
+	 */
+	public List<DataRow> queryThirdTraAccount(String stkbd, String trdacct_excls, UserInfoVo userInfoVo, String queryType) throws Exception;
+	
+	/**
+	 * @描述：根据帐号类型、用户基本信息查询第三方交易帐号
+	 * @作者：刘恺
+	 * @时间：2016年8月25日 下午11:53:16
+	 * @param trdacct_excls
+	 * @param userInfoVo
+	 * @param queryType
+	 * @return
+	 * @throws Exception
+	 */
+	public List<DataRow> queryThirdTraAccountByTrdacctExcls(String trdacct_excls, UserInfoVo userInfoVo, String queryType) throws Exception;
+	
+	/**
+	 * @描述：根据交易市场、用户基本信息查询第三方交易帐号
+	 * @作者：刘恺
+	 * @时间：2016年8月25日 下午11:53:37
+	 * @param stkbd
+	 * @param userInfoVo
+	 * @param queryType
+	 * @return
+	 * @throws Exception
+	 */
+	public List<DataRow> queryThirdTraAccountByStkbd(String stkbd, UserInfoVo userInfoVo, String queryType) throws Exception;
+	
+	/**
+	 * @描述：查询所有市场下的所有类型的交易帐号
+	 * @作者：刘恺
+	 * @时间：2016年8月25日 下午11:54:00
+	 * @param userInfoVo
+	 * @param queryType
+	 * @return
+	 * @throws Exception
+	 */
+	public List<DataRow> queryThirdTraAccount(UserInfoVo userInfoVo, String queryType) throws Exception;
+	
+	/**
+	 * @描述：查询柜台深A股东户并校验帐号状态
+	 * @作者：刘恺
+	 * @时间：2016年8月26日 上午9:44:58
+	 * @param userInfoVo  
+	 * @return accountState：帐号状态，accountList：帐号列表
+	 */
+	public Map<String, Object> queryAndCheckGtSzaState(UserInfoVo userInfoVo);
+	
+	/**
+	 * @描述：校验深A股东户状态
+	 * @作者：刘恺
+	 * @时间：2016年8月26日 上午9:46:15
+	 * @param trdAccountList
+	 * @return
+	 */
+	public String checkSzaState(List<DataRow> trdAccountList);
+	
+	/**
+	 * @描述：查询柜台沪A股东户并校验帐号状态
+	 * @作者：刘恺
+	 * @时间：2016年8月26日 上午9:50:59
+	 * @param userInfoVo
+	 * @param newPointIsRight  新指定状态是否判断为已指定
+	 * @return accountState：帐号状态，accountList：帐号列表
+	 */
+	public Map<String, Object> queryAndCheckGtShaState(UserInfoVo userInfoVo, boolean newPointIsRight);
+	
+	/**
+	 * @描述：校验沪A股东户状态
+	 * @作者：刘恺
+	 * @时间：2016年8月26日 上午9:58:20
+	 * @param trdAccountList
+	 * @param newPointIsRight  新指定状态是否判断为已指定
+	 * @return
+	 */
+	public String checkGtShaState(List<DataRow> trdAccountList, boolean newPointIsRight);
+	
+	/**
+	 * @描述：查询柜台有所股东户并校验帐号状态
+	 * @作者：刘恺
+	 * @时间：2016年8月26日 上午10:03:40
+	 * @param userInfoVo
+	 * @param newPointIsRight  新指定状态是否判断为已指定
+	 * @return accountState：帐号状态，accountList：帐号列表
+	 */
+	public Map<String, Object> queryAndCheckGtAllAccountState(UserInfoVo userInfoVo, boolean newPointIsRight);
+	
+	/**
+	 * @描述：校验股东户帐号状态
+	 * @作者：刘恺
+	 * @时间：2016年8月26日 上午10:13:09
+	 * @param trdAccountList
+	 * @param newPointIsRight  新指定状态是否判断为已指定
+	 * @return
+	 */
+	public String checkGtAllAccountState(List<DataRow> trdAccountList, boolean newPointIsRight);
+}

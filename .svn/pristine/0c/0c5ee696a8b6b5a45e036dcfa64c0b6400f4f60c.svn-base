@@ -1,0 +1,21 @@
+package com.thinkive.fxc.ismp.bus.base.basicdata.dao.impl;
+
+import java.util.Date;
+
+import com.thinkive.fxc.ismp.bus.base.basicdata.contants.BaseTableConstants;
+import com.thinkive.fxc.ismp.bus.base.basicdata.dao.OperationStreamDao;
+import com.thinkive.fxc.ismp.bus.base.basicdata.model.OperationStreamModel;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseDao;
+
+public class OperationStreamDaoImpl extends ISMPBaseDao implements OperationStreamDao{
+
+	@Override
+	public int OperationStreamInsert(OperationStreamModel modeel) throws Exception{
+		    String branchId = getSeqValue(BaseTableConstants.T_ISMP_OPERATIONSTREAM);
+		    modeel.setId(Long.valueOf(branchId));
+		    modeel.setCreateDate(new Date());
+		    modeel.setUpdateDate(new Date());
+	        int count = this.getJdbcTemplate().insert(BaseTableConstants.T_ISMP_OPERATIONSTREAM, modeel);
+	        return count;
+	}
+}

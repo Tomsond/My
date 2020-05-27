@@ -1,0 +1,48 @@
+/**
+ * 
+ */
+package com.thinkive.fxc.ismp.bus.base.business.dao;
+
+import com.thinkive.fxc.ismp.bus.base.business.model.PpTaskLogModel;
+
+/**
+ * @描述: 跑批任务流程日志表 (T_ISMP_PP_TASK_LOG)DAO层
+ * @版权: Copyright (c) 2016 
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 尹杰民
+ * @版本: 2.0 
+ * @创建时间: 2016年8月16日 上午10:02:26
+ */
+public interface PpTaskLogDao
+{
+	
+	/** 
+	 * @描述: 新增跑批任务流程日志
+	 * @作者: 尹杰民
+	 * @时间：2016年8月17日 下午3:59:13
+	 * @param ppTaskLogModel
+	 * @
+	 * @return PpTaskLogModel
+	*/
+	public PpTaskLogModel add(PpTaskLogModel ppTaskLogModel);
+	
+	/** 
+	 * @描述:  更新 跑批流程日志
+	 * @作者: 尹杰民
+	 * @时间：2016年8月17日 下午3:59:13
+	 * @param ppTaskLogModel
+	 * @
+	 * @return int
+	*/
+	public int update(PpTaskLogModel ppTaskLogModel);
+	
+	/**
+	 * @描述: 查询跑批流程日志
+	 * @作者: 尹杰民
+	 * @时间：2016年8月17日 下午3:59:13
+	 * @param taskId
+	 * @
+	 * @return PpTaskLogModel
+	 */
+	public PpTaskLogModel queryByTaskId(Long taskId);
+}

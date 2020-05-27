@@ -1,0 +1,126 @@
+package com.thinkive.fxc.ismp.bus.business.otc.function;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.thinkive.base.exception.BusinessException;
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.business.vo.UserInfoVo;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeSystem;
+import com.thinkive.fxc.ismp.bus.business.otc.constants.OtcConstants;
+import com.thinkive.fxc.ismp.bus.business.otc.model.OtcInfo;
+import com.thinkive.fxc.ismp.bus.business.otc.service.OtcOpenService;
+import com.thinkive.fxc.ismp.bus.business.util.DataFormatUtils;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdDictionaryConstants;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdInterfaceConstant;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdInterface;
+import com.thinkive.server.InvokeException;
+import com.thinkive.server.ResultVo;
+
+/**
+ * 描述: OTC---获取OTC帐号状态
+ * 版权: Copyright (c) 2010
+ * 公司: 思迪科技 
+ * 作者: 刘恺
+ * 版本: 1.0 
+ * 创建日期: 2014年11月20日 
+ * 创建时间: 下午5:28:05
+ */
+public class Function1004463 extends ISMPBaseFunction
+{
+	
+	private long userId;
+	
+	@Override
+	public ResultVo execute() throws Exception
+	{
+		//step1:获取人参并校验
+		initVar();
+		
+		//step2:查询用户基本信息和用户账号信息
+		UserInfoService userInfoService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO, UserInfoService.class);
+		UserInfoVo userInfoVo = userInfoService.queryAndCheckUserByUserIdAndType(userId, ThirdInterfaceConstant.USER_ACCOUNT_TYPE_ZQ);
+
+		//1.是否是重点监控名单之内的
+		DataRow input = new DataRow();
+		input.set("name",userInfoVo.getName());
+		input.set("identity_num",userInfoVo.getIdentityNum());
+		ThirdInterface thirdInterface = SpringHelper.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDINTERFACE, ThirdInterface.class);
+		thirdInterface.queryUserInfoByAccount(input);
+
+		List<OtcInfo> otcInfoList = getOtcInfo(userInfoVo);
+		
+		ResultVo resultVo = new ResultVo();
+		resultVo.setResult("otcinfolist", otcInfoList);
+		resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+		resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+		return resultVo;
+	}
+	
+	private void initVar() throws InvokeException
+	{
+		userId = Long.valueOf(this.getAndCheckBlankStrParam("user_id", ErrorCodeCheckInput.BLANK_USERID));
+	}
+	
+	private List<OtcInfo> getOtcInfo(UserInfoVo userInfo) throws Exception
+	{
+		ThirdInterface thirdInterface = SpringHelper.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDINTERFACE, ThirdInterface.class);
+
+		//获取已开通的OTC帐号
+		DataRow thirdInput = DataFormatUtils.packThirdInput(userInfo);
+		OtcOpenService otcOpenService = SpringHelper.getBean(OtcConstants.SERVICE_ID_OTCOPEN, OtcOpenService.class);
+		//查询数据库配置的OTC信息
+		List<OtcInfo> otcInfoList = otcOpenService.queryAllOtcInfo();
+
+//		List<OtcInfo> otcInfoList = thirdInterface.queryAllOTCInfo(thirdInput);
+		if (otcInfoList == null || otcInfoList.size() == 0)
+		{
+			throw new BusinessException(ErrorCodeSystem.OTC_UNOPEN_ANY);
+		}
+		
+
+
+		List<DataRow> openedOtcAccounts = thirdInterface.queryOTCAccount(thirdInput);
+		Map<String, DataRow> openedOtcAccountMap = new HashMap<String, DataRow>();
+		if (openedOtcAccounts != null)
+		{
+			for (DataRow openedOtcAccount : openedOtcAccounts)
+			{
+				openedOtcAccountMap.put(openedOtcAccount.getString("otc_code"), openedOtcAccount);
+			}
+		}
+		
+		//校验用户OTC是否开通
+		for (DataRow otcInfo : otcInfoList)
+		{
+
+			if (openedOtcAccountMap.containsKey(otcInfo.getString("otc_code")))
+			{
+				DataRow data = openedOtcAccountMap.get(otcInfo.getString("otc_code"));
+				otcInfo.set("open_flag", DictionaryConstants.BOL_TRUE);
+				otcInfo.set("client_id", data.getString("client_id"));
+				otcInfo.set("fund_account", data.getString("fund_account"));
+				otcInfo.set("trdaccount", data.getString("trans_acct"));//登记账号
+				otcInfo.set("trans_acct", data.getString("otc_acct"));//交易账号
+				otcInfo.set("otc_state", data.getString("otc_state"));//OTC状态
+				otcInfo.set("open_date", data.getString("open_date"));//开通时间
+			}else{
+				otcInfo.set("open_flag", DictionaryConstants.BOL_FALSE);
+				otcInfo.set("client_id",userInfo.getClientId());
+				otcInfo.set("fund_account", userInfo.getFundAccount());
+				otcInfo.set("trdaccount", "");//登记账号
+				otcInfo.set("trans_acct", "");//交易账号
+				otcInfo.set("otc_state", "");//OTC状态
+				otcInfo.set("open_date", "");//开通时间
+			}
+		}
+		return otcInfoList;
+	}
+}

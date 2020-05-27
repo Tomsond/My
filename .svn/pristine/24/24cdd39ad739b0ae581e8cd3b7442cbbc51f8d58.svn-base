@@ -1,0 +1,219 @@
+package com.thinkive.fxc.ismp.bus.base.business.model;
+
+import java.sql.Timestamp;
+import java.util.Date;
+
+import com.thinkive.base.jdbc.DataRow;
+
+/**
+ * @描述: 驳回信息（t_fxc_reject_record）
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2017年3月29日 下午1:57:13
+ */
+public class RejectRecordModel extends DataRow
+{
+	
+	private static final long serialVersionUID = -7629869565779445929L;
+	
+	private static final String ID = "id";//自增编号
+	
+	private static final String USER_ID = "user_id";//用户编号
+	
+	private static final String BUSINESS_ID = "business_id";//业务实例编号
+	
+	private static final String STEP_CHILDREN_NODE = "step_children_node";//驳回项子节点
+	
+	private static final String STEP = "step";//驳回步骤(NODE_ID)
+	
+	private static final String REJREASON = "rejreason";//驳回原因
+	
+	private static final String REVIEWER_SID = "reviewer_sid";//驳回人ID(t_plat_user.user_id)
+	
+	private static final String IS_FIX = "is_fix";//是否已修复：0，否；1，是
+	
+	private static final String REJECT_TYPE = "reject_type";//驳回类型（1：审核驳回；2：跑批驳回）
+	
+	private static final String CREATE_DATE = "create_date";
+	
+	private static final String UPDATE_DATE = "update_date";
+	
+	/**
+	 * 获取自增主键
+	 */
+	public Long getId()
+	{
+		return getLong(ID);
+	}
+	
+	/**
+	 * 设置自增主键
+	 */
+	public void setId(Long id)
+	{
+		set(ID, id);
+	}
+	
+	/**
+	 * 获取用户编号
+	 */
+	public Long getUserId()
+	{
+		return getLong(USER_ID);
+	}
+	
+	/**
+	 * 设置用户编号
+	 */
+	public void setUserId(Long userId)
+	{
+		set(USER_ID, userId);
+	}
+	
+	/**
+	 * 设置业务实例编号
+	 */
+	public void setBusinessId(Long businessId)
+	{
+		set(BUSINESS_ID, businessId);
+	}
+	
+	/**
+	 * 获取业务实例编号
+	 */
+	public Long getBusinessId()
+	{
+		return getLong(BUSINESS_ID);
+	}
+	
+	/**
+	 * 获取驳回项子节点
+	 */
+	public String getStepChildrenNode()
+	{
+		return getString(STEP_CHILDREN_NODE);
+	}
+	
+	/**
+	 * 设置驳回项子节点
+	 */
+	public void setStepChildrenNode(String stepChildrenNode)
+	{
+		set(STEP_CHILDREN_NODE, stepChildrenNode);
+	}
+	
+	/**
+	 * 获取驳回步骤
+	 */
+	public String getStep()
+	{
+		return getString(STEP);
+	}
+	
+	/**
+	 * 设置驳回步骤
+	 */
+	public void setStep(String step)
+	{
+		set(STEP, step);
+	}
+	
+	/**
+	 * 获取创建时间
+	 */
+	public Date getCreateDate()
+	{
+		return (Date) get(CREATE_DATE);
+	}
+	
+	/**
+	 * 设置创建时间
+	 */
+	public void setCreateDate(Date createDate)
+	{
+		Timestamp timestamp = new Timestamp(createDate.getTime());
+		set(CREATE_DATE, timestamp);
+	}
+	
+	/**
+	 * 获取更新时间
+	 */
+	public Date getUpdateDate()
+	{
+		return (Date) get(UPDATE_DATE);
+	}
+	
+	/**
+	 * 设置更新时间
+	 */
+	public void setUpdateDate(Date updateDate)
+	{
+		Timestamp timestamp = new Timestamp(updateDate.getTime());
+		set(UPDATE_DATE, timestamp);
+	}
+	
+	/**
+	 * 获取驳回原因
+	 */
+	public String getRejreason()
+	{
+		return getString(REJREASON);
+	}
+	
+	/**
+	 * 设置驳回原因
+	 */
+	public void setRejreason(String rejreason)
+	{
+		set(REJREASON, rejreason);
+	}
+	
+	/**
+	 * 获取驳回人ID
+	 */
+	public String getReviewerSid()
+	{
+		return getString(REVIEWER_SID);
+	}
+	
+	/**
+	 * 设置驳回人ID
+	 */
+	public void setReviewerSid(String reviewerSid)
+	{
+		set(REVIEWER_SID, reviewerSid);
+	}
+	
+	/**
+	 * 获取是否已修复
+	 */
+	public String getIsFix()
+	{
+		return getString(IS_FIX);
+	}
+	
+	/**
+	 * 设置是否已修复
+	 */
+	public void setIsFix(String isFix)
+	{
+		set(IS_FIX, isFix);
+	}
+	
+	/**
+	 * 获取驳回类型（1：审核驳回；2：跑批驳回）
+	 */
+	public String getRejectType()
+	{
+		return getString(REJECT_TYPE);
+	}
+	
+	/**
+	 */
+	public void setRejectType(String rejectType)
+	{
+		set(REJECT_TYPE, rejectType);
+	}
+}

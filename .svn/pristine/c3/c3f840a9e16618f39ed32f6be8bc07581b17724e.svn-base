@@ -1,0 +1,45 @@
+package com.thinkive.fxc.ismp.bus.business.certificate.service;
+
+import com.thinkive.fxc.ismp.bus.business.certificate.model.CertApplyInfo;
+
+/**
+ * 描述: 证书申请服务类
+ * 版权: Copyright (c) 2010
+ * 公司: 思迪科技 
+ * 作者: 刘恺
+ * 版本: 1.0 
+ * 创建日期: 2015年12月15日 
+ * 创建时间: 上午11:30:28
+ */
+public interface CertApplyInfoService
+{
+	
+	/**
+	 * 描述：根据用户ID，证书类型查询用户正在办理的业务数据
+	 * 作者：刘恺
+	 * 时间：2015年12月15日 上午11:31:32
+	 * @param user_id
+	 * @param cert_type
+	 * @param iscomplete
+	 * @return
+	 */
+	public CertApplyInfo queryByUIdAndCertType(String user_id, String cert_type, String iscomplete);
+	
+	/**
+	 * 描述：新增证书申请数据
+	 * 作者：刘恺
+	 * 时间：2015年12月15日 上午11:37:05
+	 * @param certApplyInfo
+	 * @return
+	 */
+	public CertApplyInfo add(CertApplyInfo certApplyInfo);
+	
+	/**
+	 * 描述：根据ID更新证书申请数据
+	 * 作者：刘恺
+	 * 时间：2015年12月15日 下午2:41:04
+	 * @param certApplyInfo
+	 * @return
+	 */
+	public CertApplyInfo updateById(CertApplyInfo certApplyInfo);
+}

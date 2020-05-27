@@ -1,0 +1,32 @@
+package com.thinkive.fxc.ismp.bus.base.business.dao.impl;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessTableConstants;
+import com.thinkive.fxc.ismp.bus.base.business.dao.BusiTypeDefineDao;
+import com.thinkive.fxc.ismp.bus.base.business.model.BusiTypeDefineModel;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseDao;
+import com.thinkive.fxc.ismp.bus.base.util.ModelUtil;
+
+/**
+ * @描述: 业务流程定义表(T_ISMP_BUSITYPE_DEFINE)数据层接口实现类
+ * @版权: Copyright (c) 2016 
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0 
+ * @创建时间: 2016年8月16日 上午9:45:07
+ */
+public class BusiTypeDefineDaoImpl extends ISMPBaseDao implements BusiTypeDefineDao
+{
+	
+	@Override
+	public BusiTypeDefineModel queryByParams(String businessType)
+	{
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT BTYPE_ID,BTYPE_NAME,BUSINESS_TYPE,REMARK FROM ");
+		sql.append(BusinessTableConstants.T_ISMP_BUSITYPE_DEFINE);
+		sql.append(" WHERE BUSINESSTYPE = ?");
+		DataRow queryResult = this.getJdbcTemplate().queryMap(sql.toString(), new Object[] { businessType });
+		return ModelUtil.packInfo(queryResult, BusiTypeDefineModel.class);
+	}
+	
+}

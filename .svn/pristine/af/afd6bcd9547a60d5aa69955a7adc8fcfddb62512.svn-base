@@ -1,0 +1,23 @@
+package com.thinkive.fxc.ismp.bus.business.rzrq.preMarginTrading.service;
+
+import com.thinkive.fxc.ismp.bus.business.rzrq.preMarginTrading.model.AdditionalInfo;
+
+/**
+ * 描述: 融资融券预约用户补充信息服务类接口
+ * 版权: Copyright (c) 2010
+ * 公司: 思迪科技 
+ * 作者: 刘恺
+ * 版本: 1.0 
+ * 创建日期: 2015年6月5日 
+ * 创建时间: 下午10:46:05
+ */
+public interface AdditionalService
+{
+	
+	/**
+	 * @描述：添加或修改用户的融资融券补充信息
+	 * @param user_id   用户ID
+	 * @return
+	 */
+	public AdditionalInfo insertOrUpdateUserAdditionalInfo(AdditionalInfo userAddiInfo) throws Exception;
+}

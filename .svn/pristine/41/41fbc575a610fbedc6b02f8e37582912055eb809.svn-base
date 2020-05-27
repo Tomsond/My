@@ -1,0 +1,77 @@
+package com.thinkive.fxc.ismp.bus.base.basicdata.model;
+
+import com.thinkive.base.jdbc.DataRow;
+
+/**
+ * @描述: 数据字典枚举值定义(T_PLAT_ENUM_VALUE)
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月26日 下午3:47:36
+ */
+public class EnumValueModel extends DataRow
+{
+	
+	private static final long serialVersionUID = -795489635911976248L;
+	
+	private final static String ID = "id"; //自增主键
+	
+	private final static String ENUM_NO = "enum_no"; //字典类型英文编号
+	
+	private final static String ITEM_NAME = "item_name"; //枚举名称
+	
+	private final static String ITEM_VALUE = "item_value"; //枚举值
+	
+	private final static String ORDERLINE = "orderline"; //排序值
+	
+	public Long getId()
+	{
+		return getLong(ID);
+	}
+	
+	public void setId(Long id)
+	{
+		set(ID, id);
+	}
+	
+	public String getEnumNo()
+	{
+		return getString(ENUM_NO);
+	}
+	
+	public void setEnumNo(String enumNo)
+	{
+		set(ENUM_NO, enumNo);
+	}
+	
+	public String getItemName()
+	{
+		return getString(ITEM_NAME);
+	}
+	
+	public void setItemName(String itemName)
+	{
+		set(ITEM_NAME, itemName);
+	}
+	
+	public String getItemValue()
+	{
+		return getString(ITEM_VALUE);
+	}
+	
+	public void setItemValue(String itemValue)
+	{
+		set(ITEM_VALUE, itemValue);
+	}
+	
+	public String getOrderLine()
+	{
+		return getString(ORDERLINE);
+	}
+	
+	public void setOrderLine(String orderLine)
+	{
+		set(ORDERLINE, orderLine);
+	}
+}

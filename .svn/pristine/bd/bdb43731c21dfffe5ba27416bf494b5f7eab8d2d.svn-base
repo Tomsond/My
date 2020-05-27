@@ -1,0 +1,303 @@
+package com.thinkive.fxc.ismp.bus.base.business.utils;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+
+import com.thinkive.base.exception.BusinessException;
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.fxc.ismp.bus.base.business.constants.AgreeNodePropertyConstants;
+import com.thinkive.fxc.ismp.bus.base.business.constants.ImageNodePropertyConstants;
+import com.thinkive.fxc.ismp.bus.base.business.constants.SurveyNodePropertyConstants;
+import com.thinkive.fxc.ismp.bus.base.business.model.NodePropertyConfigModel;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeSystem;
+
+/**
+ * @描述: 模块化节点工具类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月28日 下午1:16:11
+ */
+public class ModularNodeUtil
+{
+	
+	/**
+	 * @描述：检测问卷节点属性配置是否正确
+	 * @作者：刘恺
+	 * @时间：2016年8月28日 下午12:01:45
+	 * @param nodePropertyConfigModelList
+	 */
+	public static Map<String, String> checkSurveyNodeProperty(List<NodePropertyConfigModel> nodePropertyConfigModelList)
+	{
+		Map<String, String> params = getPatamsMap(nodePropertyConfigModelList);
+		//节点属性未配置
+		if (null == params)
+		{
+			throw new BusinessException(ErrorCodeSystem.FLOW_NODE_NO_PROPERTY);
+		}
+		//问卷提交方式不能为空
+		if (StringUtils.isBlank(params.get(SurveyNodePropertyConstants.PROPERTY_KEY_COMMIT_TYPE)))
+		{
+			throw new BusinessException(ErrorCodeSystem.NODE_PROPERTY_BLAK_COMMIT_TYPE);
+		}
+		//如果提交方式为---提交第三方，则第三方编号不能为空
+		if (DictionaryConstants.QUESTION_COMMIT_TYPE_THIRD.equals(params.get(SurveyNodePropertyConstants.PROPERTY_KEY_COMMIT_TYPE))
+				&& StringUtils.isBlank(params.get(SurveyNodePropertyConstants.PROPERTY_KEY_THIRD_CODE)))
+		{
+			throw new BusinessException(ErrorCodeSystem.NODE_PROPERTY_BLAK_THIRDCODE);
+		}
+		//如果提交方式为---提交本地数据库，则数据库编号不能为空
+		if (DictionaryConstants.QUESTION_COMMIT_TYPE_LOCAL.equals(params.get(SurveyNodePropertyConstants.PROPERTY_KEY_COMMIT_TYPE))
+				&& StringUtils.isBlank(params.get(SurveyNodePropertyConstants.PROPERTY_KEY_LOCAL_CODE)))
+		{
+			throw new BusinessException(ErrorCodeSystem.NODE_PROPERTY_BLAK_THIRDCODE);
+		}
+		//问卷来源不能为空
+		if (StringUtils.isBlank(params.get(SurveyNodePropertyConstants.PROPERTY_KEY_QUESTION_SOURCE)))
+		{
+			throw new BusinessException(ErrorCodeSystem.NODE_PROPERTY_BLAK_SOURCE);
+		}
+		//问卷来源为---第三方，则第三方编号不能为空
+		if (DictionaryConstants.QUESTION_SOURCE_THIRD.equals(params.get(SurveyNodePropertyConstants.PROPERTY_KEY_QUESTION_SOURCE))
+				&& StringUtils.isBlank(params.get(SurveyNodePropertyConstants.PROPERTY_KEY_THIRD_CODE)))
+		{
+			throw new BusinessException(ErrorCodeSystem.NODE_PROPERTY_BLAK_THIRDCODE);
+		}
+		//问卷来源为---本地数据库，则数据库编号不能为空
+		if (DictionaryConstants.QUESTION_COMMIT_TYPE_LOCAL.equals(params.get(SurveyNodePropertyConstants.PROPERTY_KEY_COMMIT_TYPE))
+				&& StringUtils.isBlank(params.get(SurveyNodePropertyConstants.PROPERTY_KEY_LOCAL_CODE)))
+		{
+			throw new BusinessException(ErrorCodeSystem.NODE_PROPERTY_BLAK_THIRDCODE);
+		}
+		//如果可以自动提交,则需要自动查询第三方接口问卷结果，那么问卷第三方编号不能为空、问卷来源必须是第三方
+		if (DictionaryConstants.BOL_TRUE.equals(params.get(SurveyNodePropertyConstants.PROPERTY_KEY_AUTO_CHECK)))
+		{
+			//自动校验问卷，第三方编号不能为空
+			if (StringUtils.isBlank(params.get(SurveyNodePropertyConstants.PROPERTY_KEY_QUESTION_SOURCE)))
+			{
+				throw new BusinessException(ErrorCodeSystem.SURVEYNODE_AUTO_CHECK_ERRORSOURCE);
+			}
+		}
+		return params;
+	}
+	
+	/**
+	 * @描述：检测选择帐号并签署协议节点配置
+	 * @作者：刘恺
+	 * @时间：2016年8月28日 下午12:01:45
+	 * @param nodePropertyConfigModelList
+	 */
+	public static Map<String, Object> checkChoiceAccountAndSignNodeProperty(List<NodePropertyConfigModel> nodePropertyConfigModelList)
+	{
+		//获取选择帐号属性
+		Map<String, String> params = getPatamsMap(nodePropertyConfigModelList);
+		//节点属性未配置
+		if (null == params)
+		{
+			throw new BusinessException(ErrorCodeSystem.FLOW_NODE_NO_PROPERTY);
+		}
+		//检查并返回协议签署节点属性
+		Map<String, DataRow> signMap = checkAndReturnSignNodeProperty(nodePropertyConfigModelList);
+		Map<String, Object> result = new HashMap<String, Object>();
+		result.put("choiceAccountParams", params);
+		result.put("signParamsMap", signMap);
+		return result;
+	}
+	
+	/**
+	 * @描述：检测签署协议节点配置
+	 * @作者：刘恺
+	 * @时间：2016年8月28日 下午12:01:45
+	 * @param nodePropertyConfigModelList
+	 */
+	public static Map<String, DataRow> checkAndReturnSignNodeProperty(List<NodePropertyConfigModel> nodePropertyConfigModelList)
+	{
+		Map<String, DataRow> signMap = getParamsGroupMap(nodePropertyConfigModelList, AgreeNodePropertyConstants.PROPERTY_KEY_AGREEPREFIX);
+		//节点属性未配置
+		if (signMap == null || signMap.isEmpty())
+		{
+			throw new BusinessException(ErrorCodeSystem.FLOW_NODE_NO_PROPERTY);
+		}
+		return signMap;
+	}
+	
+	/**
+	 * @描述：获取影像上传节点配置组
+	 * @作者：刘恺
+	 * @时间：2016年8月28日 下午12:01:45
+	 * @param nodePropertyConfigModelList
+	 */
+	public static Map<String, DataRow> getImageNodeProperty(List<NodePropertyConfigModel> nodePropertyConfigModelList)
+	{
+		Map<String, DataRow> imageNodePropertyMap = getParamsGroupMap(nodePropertyConfigModelList, ImageNodePropertyConstants.PROPERTY_KEY_IMG_PREFIX);
+		//节点属性未配置
+		if (imageNodePropertyMap == null || imageNodePropertyMap.isEmpty())
+		{
+			throw new BusinessException(ErrorCodeSystem.FLOW_NODE_NO_PROPERTY);
+		}
+		return imageNodePropertyMap;
+	}
+	
+	/**
+	 * @描述：获取节点属性组、节点需要上传的所有影像编号集合、是否需要身份校验
+	 * @作者：刘恺
+	 * @时间：2016年8月28日 下午12:01:45
+	 * @param nodePropertyConfigModelList
+	 */
+	public static Map<String, Object> getImgNodeProAndCodesAndNeedConfirm(List<NodePropertyConfigModel> nodePropertyConfigModelList)
+	{
+		if (nodePropertyConfigModelList == null || nodePropertyConfigModelList.isEmpty())
+		{
+			throw new BusinessException(ErrorCodeSystem.FLOW_NODE_NO_PROPERTY);
+		}
+		
+		//是否需要信息确认
+		String needCheckConfirm = DictionaryConstants.BOL_FALSE;
+		
+		//是否需要公安校验
+		String needPoliceCheck = DictionaryConstants.BOL_FALSE;
+		
+		//公安校验方式
+		String policeCheckType = "";
+		
+		//影像编号组
+		List<String> mediaCodeList = new ArrayList<String>();
+		
+		Map<String, DataRow> imageNodePropertyGroup = new HashMap<String, DataRow>();
+		for (NodePropertyConfigModel item : nodePropertyConfigModelList)
+		{
+			String key = item.getPropertyKey();
+			String value = item.getPropertyValue();
+			if (key.startsWith(ImageNodePropertyConstants.PROPERTY_KEY_IMG_PREFIX))
+			{
+				String[] arr = key.split("\\|");
+				String id = arr[1];
+				String param = arr[2];
+				DataRow paramMap = imageNodePropertyGroup.get(id);
+				if (paramMap == null)
+				{
+					paramMap = new DataRow();
+					paramMap.set("id", id);
+					imageNodePropertyGroup.put(id, paramMap);
+				}
+				paramMap.set(param, value);
+				
+				//如果属性为是否需要身份校验，且值为1：是
+				if (DictionaryConstants.BOL_FALSE.equals(needCheckConfirm) && (ImageNodePropertyConstants.PROPERTY_KEY_THIRD_NEED_CONFIRM.equals(param) && DictionaryConstants.BOL_TRUE.equals(value)))
+				{
+					needCheckConfirm = DictionaryConstants.BOL_TRUE;
+				}
+				//如果属性为是否需要公安校验，且值为1：是
+				if (DictionaryConstants.BOL_FALSE.equals(needPoliceCheck) && (ImageNodePropertyConstants.PROPERTY_KEY_NEED_POLICE_CHECK.equals(param) && DictionaryConstants.BOL_TRUE.equals(value)))
+				{
+					needPoliceCheck = DictionaryConstants.BOL_TRUE;
+				}
+				//公安校验方式
+				if (StringUtils.isBlank(policeCheckType) && (ImageNodePropertyConstants.PROPERTY_KEY_POLICE_CHECK_TYPE.equals(param)))
+				{
+					policeCheckType = value;
+				}
+				//统计节点需要上传的影像编号
+				if (!mediaCodeList.contains(id))
+				{
+					mediaCodeList.add(id);
+				}
+			}
+		}
+		
+		//节点属性未配置
+		if (imageNodePropertyGroup == null || imageNodePropertyGroup.isEmpty())
+		{
+			throw new BusinessException(ErrorCodeSystem.FLOW_NODE_NO_PROPERTY);
+		}
+		
+		Map<String, Object> reslut = new HashMap<String, Object>();
+		reslut.put("mediaCodeList", mediaCodeList);//需要上传的影像编号集合
+		reslut.put("needCheckConfirm", needCheckConfirm);//是否需要身份校验
+		reslut.put("needPoliceCheck", needPoliceCheck);//是否需要公安校验
+		reslut.put("policeCheckType", policeCheckType);//公安校验方式
+		reslut.put("imageNodePropertyGroup", imageNodePropertyGroup);//节点属性组
+		return reslut;
+	}
+	
+	/**
+	 * @描述：根据影像编号获取节点属性
+	 * @作者：刘恺
+	 * @时间：2016年8月28日 下午12:01:45
+	 * @param nodePropertyConfigModelList
+	 */
+	public static DataRow getUploadImgProperty(List<NodePropertyConfigModel> nodePropertyConfigModelList, String mediaCode)
+	{
+		Map<String, DataRow> imageParamsMap = getImageNodeProperty(nodePropertyConfigModelList);
+		//如果节点属性中不包含这个影像类型
+		if (!imageParamsMap.containsKey(mediaCode))
+		{
+			throw new BusinessException(ErrorCodeSystem.BUSINESS_UPLOADIMG_ERRORCODE);
+		}
+		return imageParamsMap.get(mediaCode);
+	}
+	
+	/**
+	 * @描述：根据节点属性列表解析节点属性Map
+	 * @作者：刘恺
+	 * @时间：2016年8月28日 下午12:08:58
+	 * @param nodePropertyConfigModelList
+	 * @return
+	 */
+	public static Map<String, String> getPatamsMap(List<NodePropertyConfigModel> nodePropertyConfigModelList)
+	{
+		if (nodePropertyConfigModelList == null || nodePropertyConfigModelList.isEmpty())
+		{
+			return null;
+		}
+		Map<String, String> params = new HashMap<String, String>();
+		for (NodePropertyConfigModel item : nodePropertyConfigModelList)
+		{
+			params.put(item.getPropertyKey(), item.getPropertyValue());
+		}
+		return params;
+	}
+	
+	/**
+	 * @描述：获取节点配置组
+	 * @作者：刘恺
+	 * @时间：2016年8月28日 下午12:08:58
+	 * @param nodePropertyConfigModelList
+	 * 
+	 * @return
+	 */
+	private static Map<String, DataRow> getParamsGroupMap(List<NodePropertyConfigModel> nodePropertyConfigModelList, String groupPrefix)
+	{
+		if (nodePropertyConfigModelList == null || nodePropertyConfigModelList.isEmpty())
+		{
+			return null;
+		}
+		Map<String, DataRow> groupMap = new HashMap<String, DataRow>();
+		for (NodePropertyConfigModel item : nodePropertyConfigModelList)
+		{
+			String key = item.getPropertyKey();
+			String value = item.getPropertyValue();
+			if (key.startsWith(groupPrefix))
+			{
+				String[] arr = key.split("\\|");
+				String id = arr[1];
+				String param = arr[2];
+				DataRow paramMap = groupMap.get(id);
+				if (paramMap == null)
+				{
+					paramMap = new DataRow();
+					paramMap.set("id", id);
+					groupMap.put(id, paramMap);
+				}
+				paramMap.set(param, value);
+			}
+		}
+		return groupMap;
+	}
+}

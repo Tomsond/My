@@ -1,0 +1,256 @@
+package com.thinkive.fxc.ismp.bus.base.business.model;
+
+import java.sql.Timestamp;
+import java.util.Date;
+
+import com.thinkive.base.jdbc.DataRow;
+
+/**
+ * @描述: 跑批任务流程表   T_ISMP_PP_TASK_FLOW
+ * @版权: Copyright (c) 2016 
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 尹杰民
+ * @版本: 2.0 
+ * @创建时间: 2016年8月15日 上午10:32:23
+ */
+public class PpTaskFlowModel extends DataRow
+{
+    
+    private static final long   serialVersionUID = 5375359953819726521L;
+    
+    private static final String FLOW_ID          = "flow_id";
+    
+    private static final String TASK_ID          = "task_id";
+    
+    private static final String FLOW_INDEX       = "flow_index";
+    
+    private static final String FLOW_NAME        = "flow_name";
+    
+    private static final String FLOW_DESC        = "flow_desc";
+    
+    private static final String EXEC_STATUS      = "exec_status";
+    
+    private static final String CREATE_DATE      = "create_date";
+    
+    private static final String UPDATE_DATE      = "update_date";
+    
+    private static final String IS_NEXT_FLOW     = "is_next_flow";
+    
+    private static final String RUN_TIMES        = "run_times";
+    
+    private static final String REMARK           = "remark";
+    
+    private static final String STOP_FLOW        = "stop_flow";
+    
+    private static final String F_FLOW_NO        = "f_flow_no";
+    
+    /**
+     * 获取流程编号
+     */
+    public Long getFlowId()
+    {
+        return getLong(FLOW_ID);
+    }
+    
+    /**
+     * 设置流程编号
+     */
+    public void setFlowId(Long flowId)
+    {
+        set(FLOW_ID, flowId);
+    }
+    
+    /**
+     * 获取任务编号
+     */
+    public Long getTaskId()
+    {
+        return getLong(TASK_ID);
+    }
+    
+    /**
+     * 设置任务编号
+     */
+    public void setTaskId(Long taskId)
+    {
+        set(TASK_ID, taskId);
+    }
+    
+    /**
+     * 获取流程步骤（第几步）
+     */
+    public Long getFlowIndex()
+    {
+        return getLong(FLOW_INDEX);
+    }
+    
+    /**
+     * 设置流程步骤（第几步）
+     */
+    public void setFlowIndex(Long flowIndex)
+    {
+        set(FLOW_INDEX, flowIndex);
+    }
+    
+    /**
+     * 获取流程名称
+     */
+    public String getFlowName()
+    {
+        return getString(FLOW_NAME);
+    }
+    
+    /**
+     * 设置流程名称
+     */
+    public void setFlowName(String flowName)
+    {
+        set(FLOW_NAME, flowName);
+    }
+    
+    /**
+     * 获取流程说明
+     */
+    public String getFlowDesc()
+    {
+        return getString(FLOW_DESC);
+    }
+    
+    /**
+     * 设置流程说明
+     */
+    public void setFlowDesc(String flowDesc)
+    {
+        set(FLOW_DESC, flowDesc);
+    }
+    
+    /**
+     * 获取执行状态
+     */
+    public String getExecStatus()
+    {
+        return getString(EXEC_STATUS);
+    }
+    
+    /**
+     * 设置执行状态
+     */
+    public void setExecStatus(String execStatus)
+    {
+        set(EXEC_STATUS, execStatus);
+    }
+    
+    /**
+     * 获取进入队列时间
+     */
+    public Date getCreateDate()
+    {
+       return (Date) get(CREATE_DATE);
+    }
+    
+    /**
+     * 设置进入队列时间
+     */
+    public void setCreateDate(Date createDate)
+    {
+        Timestamp timestamp=new Timestamp(createDate.getTime());
+        set(CREATE_DATE, timestamp);
+    }
+    
+    /**
+     * 获取最后更新时间
+     */
+    public Date getUpdateDate()
+    {
+        return (Date) get(UPDATE_DATE);
+    }
+    
+    /**
+     * 设置最后更新时间
+     */
+    public void setUpdateDate(Date updateDate)
+    {
+        Timestamp timestamp=new Timestamp(updateDate.getTime());
+        set(UPDATE_DATE, timestamp);
+    }
+    
+    /**
+     * 获取是否执行后面的流程
+     */
+    public String getIsNextFlow()
+    {
+        return getString(IS_NEXT_FLOW);
+    }
+    
+    /**
+     * 设置是否执行后面的流程
+     */
+    public void setIsNextFlow(String isNextFlow)
+    {
+        set(IS_NEXT_FLOW, isNextFlow);
+    }
+    
+    /**
+     * 获取运行次数
+     */
+    public String getRunTimes()
+    {
+        return getString(RUN_TIMES);
+    }
+    
+    /**
+     * 设置运行次数
+     */
+    public void setRunTimes(String runTimes)
+    {
+        set(RUN_TIMES, runTimes);
+    }
+    
+    /**
+     * 获取备注
+     */
+    public String getRemark()
+    {
+        return getString(REMARK);
+    }
+    
+    /**
+     * 设置备注
+     */
+    public void setRemark(String remark)
+    {
+        set(REMARK, remark);
+    }
+    
+    /**
+     * 获取停止流程
+     */
+    public String getStopFlow()
+    {
+        return getString(STOP_FLOW);
+    }
+    
+    /**
+     * 设置停止流程
+     */
+    public void setStopFlow(String stopFlow)
+    {
+        set(STOP_FLOW, stopFlow);
+    }
+    
+    /**
+     * 获取外部流水号
+     */
+    public String getFFlowNo()
+    {
+        return getString(F_FLOW_NO);
+    }
+    
+    /**
+     * 设置外部流水号
+     */
+    public void setFFlowNo(String fFlowNo)
+    {
+        set(F_FLOW_NO, fFlowNo);
+    }
+}

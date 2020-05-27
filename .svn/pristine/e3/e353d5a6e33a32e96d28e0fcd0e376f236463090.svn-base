@@ -1,0 +1,257 @@
+package com.thinkive.fxc.ismp.bus.base.business.vo;
+
+import java.sql.Timestamp;
+import java.util.Date;
+
+import com.thinkive.base.jdbc.DataRow;
+
+/**
+ * @描述: 用户业务办理信息记录视图
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0.0 
+ * @创建时间: 2016年9月23日 下午3:53:19
+ */
+public class BusinessInfoVo extends DataRow
+{
+
+    private static final long serialVersionUID = -4201940461963205398L;
+    
+    private static final String ID = "id";//业务编号
+    
+    private static final String USER_ID = "user_id";//用户编号
+    
+    private static final String BUSINESS_CODE = "business_code";//业务类型
+    
+    private static final String BUSINESS_NAME="business_name";//业务名称
+    
+    private static final String NODE_ID = "node_id";//节点标识
+    
+    private static final String AUDIT_STEP = "audit_step";//后台审核步骤
+    
+    private static final String ISCOMPLETE = "iscomplete";//是否完成
+    
+    private static final String DEAL_RESULT = "deal_result";//处理结果
+    
+    private static final String OP_SOURCE = "op_source";//客户端类型
+    
+    private static final String OP_STATION = "op_station";//操作站点
+    
+    private static final String IP = "ip";//IP地址
+    
+    private static final String CREATE_DATE = "create_date";//创建时间
+    
+    private static final String UPDATE_DATE = "update_date";//更新时间
+    
+    /**
+     * 获取自增主键
+     */
+    public long getId()
+    {
+        return getLong(ID);
+    }
+    
+    /**
+     * 设置自增主键
+     */
+    public void setId(long id)
+    {
+        set(ID, id);
+    }
+    
+    /**
+     *获取业务办理用户编号 
+     */
+    public Long getUserId()
+    {
+        return getLong(USER_ID);
+    }
+    
+    /**
+     *设置业务办理用户编号 
+     */
+    public void setUserId(Long userId)
+    {
+        set(USER_ID, userId);
+    }
+    
+    /**
+     *获取业务办理业务类型编号 
+     */
+    public String getBusinessCode()
+    {
+        return getString(BUSINESS_CODE);
+    }
+    
+    /**
+     *设置业务办理业务类型编号 
+     */
+    public void setBusinessCode(String businessCode)
+    {
+        set(BUSINESS_CODE, businessCode);
+    }
+    
+    /**
+     *获取业务办理业务类型名称 
+     */
+    public String getBusinessName()
+    {
+        return getString(BUSINESS_NAME);
+    }
+    
+    /**
+     *设置业务办理业务类型名称
+     */
+    public void setBusinessName(String businessName)
+    {
+        set(BUSINESS_NAME, businessName);
+    }
+    
+    /**
+     *获取业务办理当前步骤节点 
+     */
+    public String getNodeId()
+    {
+        return getString(NODE_ID);
+    }
+    
+    /**
+     *设置业务办理当前步骤节点
+     */
+    public void setNodeId(String nodeId)
+    {
+        set(NODE_ID, nodeId);
+    }
+    
+    /**
+     *获取业务办理当前步骤节点 
+     */
+    public String getAuditStep()
+    {
+        return getString(AUDIT_STEP);
+    }
+    
+    /**
+     *设置业务办理当前步骤节点
+     */
+    public void setAuditStep(String auditStep)
+    {
+        set(AUDIT_STEP, auditStep);
+    }
+    
+    /**
+     *获取业务办理当前步骤节点 
+     */
+    public String getIsComplete()
+    {
+        return getString(ISCOMPLETE);
+    }
+    
+    /**
+     *设置业务办理当前步骤节点
+     */
+    public void setIsComplete(String isComplete)
+    {
+        set(ISCOMPLETE, isComplete);
+    }
+    
+    /**
+     *获取业务办理业务办理结果
+     */
+    public String getDealResult()
+    {
+        return getString(DEAL_RESULT);
+    }
+    
+    /**
+     *设置业务办理业务办理结果
+     */
+    public void setDealResult(String dealResult)
+    {
+        set(DEAL_RESULT, dealResult);
+    }
+    
+    /**
+     *获取业务办理操作渠道
+     */
+    public String getOpSource()
+    {
+        return getString(OP_SOURCE);
+    }
+    
+    /**
+     *设置业务办理操作渠道
+     */
+    public void setOpSource(String opSource)
+    {
+        set(OP_SOURCE, opSource);
+    }
+    
+    /**
+     *获取业务办理操作站点
+     */
+    public String getOpStation()
+    {
+        return getString(OP_STATION);
+    }
+    
+    /**
+     *设置业务办理操作站点
+     */
+    public void setOpStation(String opStation)
+    {
+        set(OP_STATION, opStation);
+    }
+    
+    /**
+     *获取业务办理IP地址
+     */
+    public String getIp()
+    {
+        return getString(IP);
+    }
+    
+    /**
+     *设置业务办理IP地址
+     */
+    public void setIp(String ip)
+    {
+        set(IP, ip);
+    }
+    
+    /**
+     * 获取创建时间
+     */
+    public Date getCreateDate()
+    {
+        return (Date) get(CREATE_DATE);
+    }
+    
+    /**
+     * 设置创建时间
+     */
+    public void setCreateDate(Date createDate)
+    {
+        Timestamp timestamp = new Timestamp(createDate.getTime());
+        set(CREATE_DATE, timestamp);
+    }
+    
+    /**
+     * 获取更新时间
+     */
+    public Date getUpdateDate()
+    {
+        return (Date) get(UPDATE_DATE);
+    }
+    
+    /**
+     * 设置更新时间
+     */
+    public void setUpdateDate(Date updateDate)
+    {
+        Timestamp timestamp = new Timestamp(updateDate.getTime());
+        set(UPDATE_DATE, timestamp);
+    }
+    
+}

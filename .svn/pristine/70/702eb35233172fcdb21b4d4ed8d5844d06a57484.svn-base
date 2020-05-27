@@ -1,0 +1,61 @@
+package com.thinkive.fxc.ismp.bus.base.business.function;
+
+import java.util.List;
+
+import com.thinkive.base.exception.BusinessException;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.model.BusinessEntityModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.ChoiceAccountRecordModel;
+import com.thinkive.fxc.ismp.bus.base.business.service.BusinessEntityService;
+import com.thinkive.fxc.ismp.bus.base.business.service.ChoiceAccountRecordService;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeSystem;
+import com.thinkive.server.ResultVo;
+
+/**
+ * @描述: 根据业务编号也用户信息，查询帐号办理结果
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2017年2月25日 上午11:43:54
+ */
+public class Function1004924 extends ISMPBaseFunction
+{
+	
+	private long userId;//用户编号
+	
+	private long businessId;//业务实例编号
+	
+	private String nodeId;
+	
+	@Override
+	public ResultVo execute() throws Exception
+	{
+		initVar();
+		//查询业务办理实例
+		BusinessEntityService businessEntityService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_BUSINESSENTITY, BusinessEntityService.class);
+		BusinessEntityModel businessEntityModel = businessEntityService.queryByUserIdAndBusinessId(userId, businessId);
+		if (businessEntityModel == null)
+		{
+			throw new BusinessException(ErrorCodeSystem.BUSINESS_NOFLOW);
+		}
+		ChoiceAccountRecordService accountRecordService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_CHOICEACCOUNTRECORD, ChoiceAccountRecordService.class);
+		List<ChoiceAccountRecordModel> accountList = accountRecordService.queryByBusinessIdAndNodeId(businessId, nodeId);
+		ResultVo result = new ResultVo();
+		result.setResult(accountList);
+		result.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+		result.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+		return result;
+	}
+	
+	private void initVar()
+	{
+		userId = this.formatLongParam(this.getAndCheckBlankStrParam("user_id", ErrorCodeCheckInput.BLANK_USERID), ErrorCodeCheckInput.LONG_FORMAT_ERROR);
+		businessId = this.formatLongParam(this.getAndCheckBlankStrParam("businessId", ErrorCodeCheckInput.BLANK_BUSINESSID), ErrorCodeCheckInput.LONG_FORMAT_ERROR);
+		nodeId = this.getStrParameter("nodeId");
+	}
+}

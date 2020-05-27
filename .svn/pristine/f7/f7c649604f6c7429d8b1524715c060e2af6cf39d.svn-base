@@ -1,0 +1,170 @@
+package com.thinkive.fxc.ismp.bus.business.function;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.base.util.StringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.model.EmailBillConfigModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.UserEmailBILLConfigModel;
+import com.thinkive.fxc.ismp.bus.base.business.service.BillService;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.server.InvokeException;
+import com.thinkive.server.ResultVo;
+
+/**
+ * 作者：MIKE
+ * 公司：深圳市思迪信息技术股份公司
+ * 日期时间：2017年2月24日 下午6:37:22
+ * 说明：提交对账当email地址设置信息
+ */
+public class Function1004484 extends ISMPBaseFunction
+{
+	
+	private static final String OP_TYPE_ADD = "1";
+	
+	private static final String OP_TYPE_CHANGE = "2";
+	
+	private static final String OP_TYPE_CLOSE = "3";
+	
+	private int user_id; //用户id 
+	
+	private String email;//邮箱地址
+	
+	private String op_type = OP_TYPE_ADD;//默认1（1：新增，2：修改，3：关闭）
+	
+	private String business_id;//业务实例编号
+	
+	@Override
+	public ResultVo execute() throws Exception
+	{
+		checkInput();
+		ResultVo resultVo = new ResultVo();
+		resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+		resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+		
+		BillService billService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_BILL, BillService.class);
+		
+		UserEmailBILLConfigModel madelbill = new UserEmailBILLConfigModel();
+		EmailBillConfigModel modelemail = new EmailBillConfigModel();
+		
+		DataRow datarow = billService.getEamilBillInfo(user_id);
+		//新增
+		if (OP_TYPE_ADD.equals(op_type))
+		{
+			if (datarow != null)
+			{
+				throw new InvokeException(getErrorNo(99), "用户已有email对账单，无法重复申请");
+			}
+			datarow = new DataRow();
+			datarow.set("user_id", user_id);
+			datarow.set("email", email);
+			datarow.set("status", DictionaryConstants.BOL_TRUE);
+			//增加对账单邮箱地址信息
+			billService.insertBillInfo(datarow);
+			madelbill.setUserId(user_id);
+			madelbill.setemail(email);
+			madelbill.setStates(DictionaryConstants.BOL_TRUE);
+			
+			datarow.remove("email");
+			datarow.remove("status");
+			datarow.set("user_id", madelbill.getUserId());
+			datarow.set("business_id", business_id);
+			datarow.set("op_type", op_type);
+			datarow.set("old_email", datarow.getString("email"));
+			datarow.set("new_email", madelbill.getemail());
+			
+			//增加对账单邮箱操作记录
+			billService.InserBillOperationEmail(datarow);
+			
+			return resultVo;
+			
+		}
+		//修改邮箱
+		if (op_type.equals("2"))
+		{
+			if (datarow == null)
+			{
+				throw new InvokeException(getErrorNo(98), "用户未申请email对账单");
+			}
+			if (!StringHelper.isEmail(email))
+			{
+				throw new InvokeException(getErrorNo(97), "email格式错误");
+			}
+			if (email.equals(datarow.getString("email")))
+			{
+				throw new InvokeException(getErrorNo(96), "email与数据库相同，无需修改");
+			}
+			DataRow updateData = new DataRow();
+			updateData.set("user_id", user_id);
+			updateData.set("email", email);
+			datarow.set("status", DictionaryConstants.BOL_TRUE);
+			//修改业务办理记录表状态
+			billService.updateBillInfo(updateData);
+			
+			datarow.remove("email");
+			datarow.remove("status");
+			datarow.set("old_email", datarow.getString("email"));
+			datarow.set("new_email", email);
+			datarow.set("op_type", op_type);
+			datarow.set("user_id", user_id);
+			datarow.set("business_id", business_id);
+			//增加对账单邮箱操作记录
+			billService.InserBillOperationEmail(datarow);
+			
+			return resultVo;
+		}
+		if (op_type.equals("3"))
+		{
+			if (datarow == null)
+			{
+				throw new InvokeException(getErrorNo(98), "用户未申请email对账单");
+			}
+			DataRow updateData = new DataRow();
+			updateData.set("user_id", user_id);
+			updateData.set("status", DictionaryConstants.BOL_FALSE);
+			//修改业务办理记录表状态
+			billService.updateBillInfo(updateData);
+			
+			datarow.remove("email");
+			datarow.remove("status");
+			datarow.set("op_type", op_type);
+			datarow.set("user_id", user_id);
+			datarow.set("old_email", datarow.getString("email"));
+			datarow.set("new_email", email);
+			datarow.set("op_type", op_type);
+			datarow.set("user_id", user_id);
+			datarow.set("business_id", business_id);
+			//增加对账单邮箱操作记录
+			billService.InserBillOperationEmail(datarow);
+		}
+		return resultVo;
+	}
+	
+	private void checkInput() throws InvokeException
+	{
+		user_id = this.getIntParameter("user_id");
+		if (StringHelper.isBlank(this.getStrParameter("user_id")))
+		{
+			throw new InvokeException(getErrorNo(1), "用户ID不能为空");
+		}
+		op_type = this.getStrParameter("op_type");
+		if (StringHelper.isBlank(this.getStrParameter("op_type")))
+		{
+			throw new InvokeException(getErrorNo(4), "操作类型不能都为空");
+		}
+		
+		email = this.getStrParameter("email");
+		if (StringHelper.isBlank(this.getStrParameter("email")))
+		{
+			throw new InvokeException(getErrorNo(2), "邮箱地址不能都为空");
+		}
+		
+		business_id = this.getStrParameter("business_id");
+		if (StringHelper.isBlank(this.getStrParameter("business_id")))
+		{
+			throw new InvokeException(getErrorNo(4), "业务实例编号不能为空！");
+		}
+	}
+	
+}

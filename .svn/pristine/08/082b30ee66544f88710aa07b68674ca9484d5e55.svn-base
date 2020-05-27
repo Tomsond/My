@@ -1,0 +1,67 @@
+/**
+ * 
+ */
+package com.thinkive.fxc.ismp.bus.base.business.dao;
+
+import com.thinkive.fxc.ismp.bus.base.business.model.BusinessConfigModel;
+
+/**
+ * @描述:  业务属性配置表 <p>t_ismp_business_config</p> 数据层
+ * @版权: Copyright (c) 2016 
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 尹杰民
+ * @版本: 2.0 
+ * @创建时间: 2016年8月15日 下午3:56:10
+ */
+public interface BusinessConfigDao
+{
+	
+	/** 
+	* @描述: 添加业务属性配置
+	* @作者: 尹杰民
+	* @时间：2016年8月17日 下午3:59:13
+	* @param  businessConfigModel
+	* @return BusinessConfigModel    
+	* @
+	*/
+	//public BusinessConfigModel add(BusinessConfigModel businessConfigModel) ;
+	
+	/** 
+	* @描述: 更新业务属性配置
+	* @作者: 尹杰民
+	* @时间：2016年8月17日 下午3:59:13
+	* @param  businessConfigModel
+	* @return BusinessConfigModel    
+	* @
+	*/
+	//public int update(BusinessConfigModel businessConfigModel) ;
+	
+	/** 
+	* @描述: 根据流程标识btypeId查询业务属性配置
+	* @作者: 尹杰民
+	* @时间：2016年8月17日 下午3:59:13
+	* @param  btypeId
+	* @
+	*/
+	public BusinessConfigModel queryByBtypeId(Long btypeId);
+
+	/**
+	 * @描述：根据客户端类型和业务编号查询
+	 * @作者：刘恺
+	 * @时间：2016年9月13日 下午6:28:38
+	 * @param businessCode
+	 * @param opSource
+	 * @return
+	 */
+	public BusinessConfigModel queryByOpSourceAndBusinessCode(String businessCode, String opSource);
+	
+	/** 
+	* @描述: 删除业务属性配置
+	* @作者: 尹杰民
+	* @时间：2016年8月17日 下午3:59:13
+	* @param  id
+	* @return int    
+	* @
+	*/
+	//public int delete(Long id) ;
+}

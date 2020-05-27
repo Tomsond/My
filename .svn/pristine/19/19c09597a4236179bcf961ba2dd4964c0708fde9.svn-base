@@ -1,0 +1,32 @@
+package com.thinkive.fxc.ismp.bus.base.business.dao.impl;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessTableConstants;
+import com.thinkive.fxc.ismp.bus.base.business.dao.ImageTypeConfigDao;
+import com.thinkive.fxc.ismp.bus.base.business.model.ImageTypeConfigModel;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseDao;
+import com.thinkive.fxc.ismp.bus.base.util.ModelUtil;
+
+/**
+ * @描述: 影像资料上传类型配置表(t_ismp_image_imagetype_config)数据层接口实现类
+ * @版权: Copyright (c) 2016 
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0 
+ * @创建时间: 2016年8月16日 下午2:02:40
+ */
+public class ImageTypeConfigDaoImpl extends ISMPBaseDao implements ImageTypeConfigDao
+{
+	
+	@Override
+	public ImageTypeConfigModel queryByNodeId(String nodeId)
+	{
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT ID,NODE_ID,TYPE_ID,THIRD_MEDIA_CODE,RECOGNI_TYPE,NEED_OCR FROM ");
+		sql.append(BusinessTableConstants.T_ISMP_IMAGE_IMAGETYPE_CONFIG);
+		sql.append(" WHERE NODE_ID = ?");
+		DataRow queryResult = this.getJdbcTemplate().queryMap(sql.toString(), new Object[] { nodeId });
+		return ModelUtil.packInfo(queryResult, ImageTypeConfigModel.class);
+	}
+	
+}

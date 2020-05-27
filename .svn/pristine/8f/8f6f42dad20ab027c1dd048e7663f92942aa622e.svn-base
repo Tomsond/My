@@ -1,0 +1,140 @@
+package com.thinkive.fxc.ismp.bus.business.assets.yzzz.function;
+
+import com.thinkive.base.exception.BusinessException;
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.basicdata.contants.BasicServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.basicdata.model.ThirdBankModel;
+import com.thinkive.fxc.ismp.bus.base.basicdata.service.TradeTimeService;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessConstants;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.model.BusinessEntityModel;
+import com.thinkive.fxc.ismp.bus.base.business.service.BusinessEntityService;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.business.vo.UserInfoVo;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.business.assets.thirdbank.contants.ThirdBankContants;
+import com.thinkive.fxc.ismp.bus.business.assets.thirdbank.contants.ThirdBankErrorCode;
+import com.thinkive.fxc.ismp.bus.business.assets.thirdbank.model.UserBankBindModel;
+import com.thinkive.fxc.ismp.bus.business.assets.thirdbank.service.ThirdBankService;
+import com.thinkive.fxc.ismp.bus.business.assets.yzzz.contants.YzzzContants;
+import com.thinkive.fxc.ismp.bus.business.assets.yzzz.contants.YzzzErrorCodeContants;
+import com.thinkive.fxc.ismp.bus.business.assets.yzzz.model.YzzzExtendModel;
+import com.thinkive.fxc.ismp.bus.business.assets.yzzz.service.YzzzService;
+import com.thinkive.fxc.ismp.bus.business.util.DataFormatUtils;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdDictionaryConstants;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdTBASConstants;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdInterface;
+import com.thinkive.server.ResultVo;
+
+/**
+ * @描述: 银证转账
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0.0 
+ * @创建时间: 2016年9月8日 下午8:03:00
+ */
+public class Function1004149 extends ISMPBaseFunction
+{
+	
+	private Long userId; //用户编号
+	
+	private String fundAccount; //查询用户信息的资金帐号(主资金帐号)
+	
+	private String opAccount; //银证转账操作的资金帐号
+	
+	private String transferBalance; //金额
+	
+	private String password; //充值：银行取款密码，提现：资金密码
+	
+	private Long bankConfigId; //旧银行卡对应的三方存管配置编号
+	
+	private String businessCode; //业务编号
+	
+	@Override
+	public ResultVo execute() throws Exception
+	{
+		//step1:获取入参并检验
+		this.checkInput();
+		
+		TradeTimeService tradeTimeService = SpringHelper.getBean(BasicServiceBeanIdConstants.SERVICE_ID_TRADETIME, TradeTimeService.class);
+		if (!tradeTimeService.checkBankTradeTime())
+		{
+			throw new BusinessException(YzzzErrorCodeContants.CANNOT_TOPUP_AND_WITHDRAWAL);
+		}
+		
+		//step2:查询用户基本信息和用户账号信息
+		UserInfoService userInfoService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO, UserInfoService.class);
+		UserInfoVo userInfoVo = userInfoService.queryAndCheckUserByUserIdAndAccount(userId, fundAccount);
+		
+		//step3:检查银行绑定类型的帐号密码是否需要
+		ThirdBankService thirdBankService = SpringHelper.getBean(ThirdBankContants.SERVICE_ID_THIRDBANK, ThirdBankService.class);
+		ThirdBankModel thirdBankModel = thirdBankService.queryThirdBankModelById(bankConfigId);
+		if (thirdBankModel == null)
+		{
+			throw new BusinessException(ThirdBankErrorCode.NO_BANKCODE);
+		}
+		//step2:检测需要注销的银行卡是否可操作
+		UserBankBindModel bankBindModel = thirdBankService.queryByBankCodeAndFundAccountAndUserId(thirdBankModel.getBankNo(), opAccount, userId);
+		if (null == bankBindModel)
+		{
+			throw new BusinessException(ThirdBankErrorCode.NO_MATCHING_USERBANKBIND);//用户没有匹配的银行卡
+		}
+		
+		//step4:第三方参数 充值/提现操作
+		DataRow thirdInput = DataFormatUtils.packThirdInput(userInfoVo);
+		thirdInput.set("bank_no", bankBindModel.getAccount());//银行卡号
+		thirdInput.set("account", opAccount);//银证转账操作的资金帐号
+		thirdInput.set("banktype", thirdBankModel.getBankNo());//银行编号
+		thirdInput.set("transfer_balance", transferBalance);//转账金额
+		thirdInput.set("money_type", bankBindModel.getMoneyType());//货币类型
+		if (BusinessConstants.BUSINESS_YZZZ_TOPUP.equals(businessCode))
+		{//充值需要银行密码
+			thirdInput.set("transfer_type", ThirdTBASConstants.BANKTRANSFER_TYPE_RECHARGE);
+			thirdInput.set("bank_password", password);
+		}
+		else if (BusinessConstants.BUSINESS_YZZZ_WITHDRAWAL.equals(businessCode))
+		{
+			thirdInput.set("transfer_type", ThirdTBASConstants.BANKTRANSFER_TYPE_WITHDRAW);
+			thirdInput.set("fund_password", password);
+		}
+		ThirdInterface thirdInterface = SpringHelper.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDINTERFACE, ThirdInterface.class);
+		thirdInterface.OprAccount(thirdInput);
+		
+		//setp6:添加业务办理记录
+		BusinessEntityModel businessEntityModel = new BusinessEntityModel(userId, businessCode, DictionaryConstants.FLOW_LASTSTEP_NEXT, DictionaryConstants.BOL_TRUE,
+				DictionaryConstants.DEAL_RESULT_SUCCESS, opSource, opStation, ip);
+		BusinessEntityService businessEntityService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_BUSINESSENTITY, BusinessEntityService.class);
+		businessEntityService.add(businessEntityModel);
+		//添加扩展信息
+		YzzzExtendModel yzzzExtendModel = new YzzzExtendModel();
+		yzzzExtendModel.setBusinessId(businessEntityModel.getId());
+		yzzzExtendModel.setBankConfigId(bankConfigId);
+		yzzzExtendModel.setBankNo(thirdBankModel.getBankNo());
+		yzzzExtendModel.setFundAccount(fundAccount);
+		yzzzExtendModel.setMoneyType(bankBindModel.getMoneyType());
+		yzzzExtendModel.setOpAccount(opAccount);
+		yzzzExtendModel.setTransferbalance(transferBalance);
+		YzzzService yzzzService = SpringHelper.getBean(YzzzContants.SERVICE_ID_YZZZ, YzzzService.class);
+		yzzzService.addExtendInfo(yzzzExtendModel);
+		// step7：出参
+		ResultVo resultVo = new ResultVo();
+		resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+		resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+		return resultVo;
+	}
+	
+	private void checkInput()
+	{
+		userId = Long.valueOf(this.getAndCheckBlankStrParam("user_id", ErrorCodeCheckInput.BLANK_USERID));
+		fundAccount = this.getAndCheckBlankStrParam("fund_account", YzzzErrorCodeContants.BLANK_FOUND_ACCTOUNT);//查询用户信息的资金帐号(主资金帐号)
+		opAccount = this.getAndCheckBlankStrParam("op_account", YzzzErrorCodeContants.BLANK_OP_ACCOUNT);
+		transferBalance = this.getAndCheckBlankStrParam("transfer_balance", YzzzErrorCodeContants.BLANK_TRANSFER_BALANCE);//金额
+		password = this.getAndCheckBlankStrParam("password", YzzzErrorCodeContants.BLANK_PASSWORD);
+		bankConfigId = Long.valueOf(this.getAndCheckBlankStrParam("bankConfigId", ErrorCodeCheckInput.BLANK_ENUM_BANKCONFIGID));//三方存管配置编号
+		businessCode = this.getAndCheckBlankStrParam("businessCode", ErrorCodeCheckInput.BLANK_BUSINESSCODE);
+	}
+}

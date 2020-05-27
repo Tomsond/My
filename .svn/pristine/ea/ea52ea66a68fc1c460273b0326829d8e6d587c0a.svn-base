@@ -1,0 +1,96 @@
+package com.thinkive.fxc.ismp.bus.third.constants;
+
+/**
+ * @描述: 第三方接口数据字典常量类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月22日 下午2:45:37
+ */
+public class ThirdDictionaryConstants
+{
+	
+	/**
+	 *第三方问卷编号---风险测评
+	 */
+	public static final String SNO_FXCP = "1"; //风险测评
+	
+	/**
+	 *第三方问卷编号---港股通适当性测评
+	 */
+	public static final String SNO_GGTSDXCP = "2";
+	
+	/**
+	 * 第三方接口服务类
+	 */
+	public static final String SERVICE_ID_THIRDINTERFACE = "com.thinkive.fxc.ismp.thirdInterfaceService";
+	
+	/**
+	 * 第三方交易帐号服务类
+	 */
+	public static final String SERVICE_ID_THIRDTRDACCOUNT = "com.thinkive.fxc.ismp.thirdTrdAccountService";
+	
+	/**
+	 * 第三方数据服务类
+	 */
+	public static final String SERVICE_ID_THIRDDATA = "com.thinkive.fxc.ismp.thirdDataService";
+	
+	/**
+	 * 第三方资产服务类
+	 */
+	public static final String SERVICE_ID_THIRDASSET = "com.thinkive.fxc.ismp.thirdAssetService";
+	
+	/**
+	 * 第三方首次交易日服务类
+	 */
+	public static final String SERVICE_ID_THIRDFIRSTTRANSACTION = "com.thinkive.fxc.ismp.thirdFirstTransactionService";
+	
+	/**
+	 * 问卷答案--失效
+	 */
+	public static final String SFCG_STATUS_INVALID = "0";
+	
+	/**
+	 * 问卷答案--有效
+	 */
+	public static final String SFCG_STATUS_VALID = "1";
+	
+	/**
+	 * 问卷答案--不存在
+	 */
+	public static final String SFCG_STATUS_NONEXISTENT = "2";
+	
+	/**
+	 * 委托方式-未开通
+	 */
+	public static final String WTFS_CLOSE = "0";
+	
+	/**
+	 * 委托方式-已开通
+	 */
+	public static final String WTFS_OPEN = "1";
+	
+	/**
+	 * 调用第三方接口后，返回DataRow的状态码标示
+	 */
+	public static final String DATAROWSTATUS = "No";
+	
+	/**
+	 * 调用第三方接口后，返回DataRow的状态码对应的描述
+	 */
+	public static final String DATAROWDESCRIPTION = "Msg";
+	
+	public static final String ASSET_CHECK_FLAG_FAIL = "0";//资产校验结果 0-不通过
+	
+	public static final String ASSET_CHECK_FLAG_PASS = "1";//资产校验结果 0-通过
+	
+	public static final String ASSET_CHECK_FLAG_NODATA = "2";//资产校验结果 0-没有数据
+	
+	public static final String TRADEEXPERIENCE_CHECK_FLAG_FAIL = "0";//交易经验校验结果 0-不通过
+	
+	public static final String TRADEEXPERIENCE_CHECK_FLAG_PASS = "1";//交易经验校验结果 0-通过
+	
+	public static final String TRADEEXPERIENCE_CHECK_FLAG_NODATA = "2";//交易经验校验结果 0-没有数据
+	
+}

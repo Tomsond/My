@@ -1,0 +1,180 @@
+package com.thinkive.fxc.ismp.bus.business.assets.thirdbank.model;
+
+import com.thinkive.base.jdbc.DataRow;
+
+/**
+ * @描述: 三方存管业务信息拓展表(T_ISMP_B_THIRDBANK)模型
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月29日 下午3:57:45
+ */
+public class ThirdBankExtendModel extends DataRow
+{
+
+    private static final long serialVersionUID = -4778540677998156647L;
+    
+    private static final String BUSINESS_ID="business_id";
+    
+    private static final String FUND_ACCOUNT="fund_account";
+    
+    private static final String OP_TYPE="op_type";
+    
+    private static final String OLD_BANKCODE="old_bankcode";
+    
+    private static final String OLD_BANKNUM="old_banknum";
+    
+    private static final String NEW_BANKCODE="new_bankcode";
+    
+    private static final String NEW_BANKNUM="new_banknum";
+    
+    private static final String BIND_ERROR_COUNT="bind_error_count";
+    
+    private static final String YWQQID="ywqqid";
+    
+    
+    /**
+     *获取业务实例ID
+     */
+    public Long getBusinessId()
+    {
+        return getLong(BUSINESS_ID);
+    }
+    
+    /**
+     *设置业务实例ID
+     */
+    public void setBusinessId(Long businessId)
+    {
+        set(BUSINESS_ID, businessId);
+    } 
+    
+    /**
+     *获取资金帐号
+     */
+    public String getFundAccount()
+    {
+        return getString(FUND_ACCOUNT);
+    }
+    
+    /**
+     *设置资金帐号
+     */
+    public void setFundAccount(String fundAccount)
+    {
+        set(FUND_ACCOUNT, fundAccount);
+    }
+    
+    /**
+     *获取操作类型 0:注销，1：绑定，2：修改，01：先注销再绑定
+     */
+    public String getOpType()
+    {
+        return getString(OP_TYPE);
+    }
+    
+    /**
+     *设置操作类型 0:注销，1：绑定，2：修改，01：先注销再绑定
+     */
+    public void setOpType(String opType)
+    {
+        set(OP_TYPE, opType);
+    }
+    
+    /**
+     *获取注销的银行编号
+     */
+    public String getOldBankcode()
+    {
+        return getString(OLD_BANKCODE);
+    }
+    
+    /**
+     *设置注销的银行编号
+     */
+    public void setOldBankcode(String oldBankcode)
+    {
+        set(OLD_BANKCODE, oldBankcode);
+    }
+    
+    /**
+     *获取注销的银行卡号
+     */
+    public String getOldBanknum()
+    {
+        return getString(OLD_BANKNUM);
+    }
+    
+    /**
+     *设置注销的银行卡号
+     */
+    public void setOldBanknum(String oldBanknum)
+    {
+        set(OLD_BANKNUM, oldBanknum);
+    }
+    
+    /**
+     *获取绑定的银行编号
+     */
+    public String getNewBankcode()
+    {
+        return getString(NEW_BANKCODE);
+    }
+    
+    /**
+     *设置绑定的银行编号
+     */
+    public void setNewBankcode(String newBankcode)
+    {
+        set(NEW_BANKCODE, newBankcode);
+    }
+    
+    /**
+     *获取绑定的银行卡号
+     */
+    public String getNewBanknum()
+    {
+        return getString(NEW_BANKNUM);
+    }
+    
+    /**
+     *设置绑定的银行卡号
+     */
+    public void setNewBanknum(String newBanknum)
+    {
+        set(NEW_BANKNUM, newBanknum);
+    }
+    
+    /**
+     *获取绑定错误次数
+     */
+    public Integer getBindErrorCount()
+    {
+        return getInt(BIND_ERROR_COUNT);
+    }
+    
+    /**
+     *设置绑定错误次数
+     */
+    public void setBindErrorCount(Integer bindErrorCount)
+    {
+        set(BIND_ERROR_COUNT, bindErrorCount);
+    } 
+ 
+    /**
+     *获取柜台业务处理流水号
+     */
+    public String getYwqqid()
+    {
+        return getString(YWQQID);
+    }
+    
+    /**
+     *设置柜台业务处理流水号
+     */
+    public void setYwqqid(String ywqqid)
+    {
+        set(YWQQID, ywqqid);
+    }  
+}

@@ -1,0 +1,176 @@
+package com.thinkive.fxc.ismp.bus.base.basicdata.model;
+
+import java.sql.Timestamp;
+import java.util.Date;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.DateHelper;
+
+public class ProprietyModel  extends DataRow
+{
+    
+    private static final long serialVersionUID = 6702715830919886101L;
+    private static final String ID = "id";
+    private static final String RISK_LEVEL= "risk_level"; 
+    private static final String SERVICE_TIME="service_time";
+	private static final String QUESTION="question";
+	private static final String OPTIONS="options";
+	private static final String ANSWER="answer";
+	private static final String STATE="state";
+	private static final String SCORE="score";
+	private static final String CREATE_DATE="create_date";
+	private static final String BUSSINESS_CODE = "business_code";
+	private static final String BUSSINESS_ID= "business_id";
+	private static final String EXTEND1= "extend1";
+	private static final String EXTEND2= "extend3";
+	private static final String EXTEND3= "extend3";
+	private static final String USER_ID= "user_id"; 
+	
+    /**
+     * 获取自增主键
+     */
+    public Long getId() {
+        return getLong(ID);
+    }
+
+    /**
+     * 设置自增主键
+     */
+    public void setId(Long id) {
+        set(ID, id);
+    }
+    
+  
+    public String getRisklevel() {
+        return getString(RISK_LEVEL);
+    }
+
+    
+    public void setRisklevel(String risk_level) {
+        set(RISK_LEVEL, risk_level);
+    }
+    
+    
+    public String getServicetime() {
+        return getString(SERVICE_TIME);
+    }
+    
+    
+    
+    public void setServicetime(String service_time) {
+        set(SERVICE_TIME, service_time);
+    }
+   
+
+    public String getQuestion() {
+        return getString(QUESTION);
+    }
+    
+    public void setQuestion(String question) {
+        set(QUESTION, question);
+    }
+    
+    
+    public String getOptions() {
+        return getString(OPTIONS);
+    }
+
+   
+    public void setOptions(String options) {
+        set(OPTIONS, options);
+    }
+    
+   
+    public String getAnswer() {
+        return getString(ANSWER);
+    }
+
+    public void setAnswer(String answer) {
+        set(ANSWER, answer);
+    }
+    
+   
+    public Date getCreateDate() {
+       return (Date)get(CREATE_DATE);
+    }
+
+    
+    public void setCreateDate(Date createDate) {
+    	Timestamp timestamp = new Timestamp(createDate.getTime());
+        set(CREATE_DATE, timestamp);
+    }
+   
+   
+    public String getState() {
+        return getString(STATE);
+    }
+
+   
+    public void setState(String state) {
+        set(STATE, state);
+    }  
+    
+    
+    public String getScore() {
+        return getString(SCORE);
+    }
+
+   
+    public void setScore(String score) {
+        set(SCORE, score);
+    }
+    
+    public String getbusinesscode() {
+        return getString(BUSSINESS_CODE);
+    }
+
+    
+    public void setbusinesscode(String business_code) {
+        set(BUSSINESS_CODE, business_code);
+    }
+    
+    public String getbusinessid() {
+        return getString(BUSSINESS_ID);
+    }
+
+    
+    public void setbusinessid(String business_id) {
+        set(BUSSINESS_ID, business_id);
+    }
+    
+    public String getextend1() {
+        return getString(EXTEND1);
+    }
+
+    
+    public void setextend1(String extend1) {
+        set(EXTEND1, extend1);
+    }
+    
+    public String getextend2() {
+        return getString(EXTEND2);
+    }
+
+    
+    public void setextend2(String extend2) {
+        set(EXTEND2, extend2);
+    }
+    
+    public String getextend3() {
+        return getString(EXTEND3);
+    }
+
+    
+    public void setextend3(String extend3) {
+        set(EXTEND3, extend3);
+    }
+    
+    public String getUserid() {
+        return getString(USER_ID);
+    }
+    
+    public void setUserid(Long userid) {
+        set(USER_ID, userid);
+    }
+}
+

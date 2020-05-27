@@ -1,0 +1,58 @@
+package com.thinkive.fxc.ismp.bus.base.business.function;
+
+import java.util.List;
+
+import com.thinkive.base.exception.BusinessException;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.model.BusinessEntityModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.RejectRecordModel;
+import com.thinkive.fxc.ismp.bus.base.business.service.BusinessEntityService;
+import com.thinkive.fxc.ismp.bus.base.business.service.RejectRecordService;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeSystem;
+import com.thinkive.server.ResultVo;
+
+/**
+ * @描述: 根据业务编号和用户信息，查询业务驳回信息
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2017年3月29日 下午3:30:21
+ */
+public class Function1004926 extends ISMPBaseFunction
+{
+	
+	private long userId;//用户编号
+	
+	private long businessId;//业务实例编号
+	
+	@Override
+	public ResultVo execute() throws Exception
+	{
+		initVar();
+		//查询业务办理实例
+		BusinessEntityService businessEntityService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_BUSINESSENTITY, BusinessEntityService.class);
+		BusinessEntityModel businessEntityModel = businessEntityService.queryByUserIdAndBusinessId(userId, businessId);
+		if (businessEntityModel == null)
+		{
+			throw new BusinessException(ErrorCodeSystem.BUSINESS_NOFLOW);
+		}
+		RejectRecordService rejectRecordService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_REJECTRECORD, RejectRecordService.class);
+		List<RejectRecordModel> rejectRecords = rejectRecordService.queryByBusinessId(businessEntityModel.getId());
+		ResultVo result = new ResultVo();
+		result.setResult(rejectRecords);
+		result.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+		result.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+		return result;
+	}
+	
+	private void initVar()
+	{
+		userId = this.formatLongParam(this.getAndCheckBlankStrParam("user_id", ErrorCodeCheckInput.BLANK_USERID), ErrorCodeCheckInput.LONG_FORMAT_ERROR);
+		businessId = this.formatLongParam(this.getAndCheckBlankStrParam("businessId", ErrorCodeCheckInput.BLANK_BUSINESSID), ErrorCodeCheckInput.LONG_FORMAT_ERROR);
+	}
+}

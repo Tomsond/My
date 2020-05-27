@@ -1,0 +1,26 @@
+package com.thinkive.fxc.ismp.bus.base.function;
+
+import com.thinkive.fxc.ismp.bus.BaseTest;
+import com.thinkive.fxc.ismp.bus.base.business.function.Function1004930;
+import com.thinkive.fxc.ismp.bus.business.assets.thirdbank.function.Function1004807;
+import com.thinkive.server.Function;
+
+
+/**
+ * 作者：MIKE
+ * 公司：深圳市思迪信息技术股份公司
+ * 日期时间：2017年1月6日 下午3:38:50
+ * 说明：省份城市测试类
+ */
+public class Function1004807Test extends BaseTest
+{
+    public void testInvoke()
+    {
+        getRequest().setFuncNo(1004807);
+        Function function = new Function1004807();
+        getRequest().addFieldValue("user_id", "1245");
+        getRequest().addFieldValue("amount", "70000000");
+        function.invoke(getContext());
+        System.out.println("结果数据为：" + getResponse().getData());
+    }
+}

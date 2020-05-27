@@ -1,0 +1,46 @@
+package com.thinkive.fxc.ismp.bus.base.business.service.impl;
+
+import org.apache.axis.encoding.Base64;
+import org.apache.commons.lang.StringUtils;
+
+import com.thinkive.base.config.Configuration;
+import com.thinkive.fxc.fileupload.bean.FileUploadResultVo;
+import com.thinkive.fxc.fileupload.util.FileUploadClientHelper;
+import com.thinkive.fxc.ismp.bus.base.business.service.FileUploadService;
+import com.thinkive.fxc.ismp.bus.base.constants.SystemConstants;
+
+/**
+ * @描述: 文件上传服务实现类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年11月8日 下午1:39:34
+ */
+public class FileUploadServiceImpl implements FileUploadService
+{
+	
+	@Override
+	public FileUploadResultVo upLoadFileToFileServer(String fileName, String version, String imagedata, String isOcr) throws Exception
+	{
+		String imgServicePath = Configuration.getString(SystemConstants.CONFIG_KEY_SYSTEM_FILESERVERURL);
+		if (StringUtils.isEmpty(imgServicePath))
+		{
+			throw new Exception("图片服务器地址不能为空！ 请确认配置Configuration.xml#system->imgServiceAddr");
+		}
+		if (StringUtils.isEmpty(imagedata))
+		{
+			throw new Exception("上传的图片数据不能为空");
+		}
+		FileUploadResultVo resultVo = FileUploadClientHelper.uploadFile("http://" + imgServicePath + "/UploadFile", Base64.decode(imagedata), fileName + ".jpg", version, "", isOcr);
+		if (resultVo.getErrorNo() == 0)
+		{
+			return resultVo;
+		}
+		else
+		{
+			throw new Exception("图片上传到图片服务器失败:" + resultVo.getMessage());
+		}
+	}
+	
+}

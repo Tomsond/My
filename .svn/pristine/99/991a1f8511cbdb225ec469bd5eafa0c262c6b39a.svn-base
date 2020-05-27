@@ -1,0 +1,84 @@
+package com.thinkive.fxc.ismp.bus.business.assets.thirdbank.function;
+
+import java.util.List;
+
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.basicdata.contants.BasicServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.basicdata.model.BankInfoModel;
+import com.thinkive.fxc.ismp.bus.base.basicdata.service.BankService;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.business.assets.thirdbank.contants.ThirdBankContants;
+import com.thinkive.fxc.ismp.bus.business.assets.thirdbank.service.ThirdBankService;
+import com.thinkive.fxc.ismp.bus.business.assets.thirdbank.vo.ThirdBankBusinessInfoVo;
+import com.thinkive.server.InvokeException;
+import com.thinkive.server.ResultVo;
+
+/**
+ * @描述: 查询取消成功后，没有正常绑定三方存管的业务流程数据
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0.0 
+ * @创建时间: 2016年9月1日 下午1:45:47
+ */
+public class Function1004492 extends ISMPBaseFunction
+{
+	
+	private Long userId; //用户ID
+	
+	private String fundAccount; //资金账号
+	
+	@Override
+	public ResultVo execute() throws Exception
+	{
+		
+		//step1:获取入参并校验
+		checkInput();
+		
+		//step2：获取取消成功后未正常绑定的三方存管业务流程数据
+		ThirdBankService thirdBankService = SpringHelper.getBean(ThirdBankContants.SERVICE_ID_THIRDBANK, ThirdBankService.class);
+		List<ThirdBankBusinessInfoVo> businessList = thirdBankService.queryCancelSuccNoBindInfo(userId, fundAccount);
+		if (businessList != null && businessList.size() > 0)
+		{
+			BankService bankService = SpringHelper.getBean(BasicServiceBeanIdConstants.SERVICE_ID_BANK, BankService.class);
+			for (ThirdBankBusinessInfoVo thirdBankBusinessInfoVo : businessList)
+			{
+				BankInfoModel oldBankInfo = bankService.queryByThirdBankConfigId(Long.parseLong(thirdBankBusinessInfoVo.getOldBankcode()));
+				BankInfoModel newBankInfo = bankService.queryByThirdBankConfigId(Long.parseLong(thirdBankBusinessInfoVo.getNewBankcode()));
+				if (null != oldBankInfo)
+				{
+					thirdBankBusinessInfoVo.set("old_bankname", oldBankInfo.getBankName());
+					thirdBankBusinessInfoVo.set("bank_name", oldBankInfo.getBankName());//银行名称
+					thirdBankBusinessInfoVo.set("bank_url", oldBankInfo.getBankSmallUrl());//TODO 银行图标的链接地址
+					thirdBankBusinessInfoVo.set("bank_small_url", oldBankInfo.getBankSmallUrl());
+					thirdBankBusinessInfoVo.set("third_bank_url", oldBankInfo.getThirdBankUrl());
+					thirdBankBusinessInfoVo.set("smallimg", oldBankInfo.getSmallImg());
+					thirdBankBusinessInfoVo.set("bgimg", oldBankInfo.getBgImg());
+					thirdBankBusinessInfoVo.set("localOldBankNo", oldBankInfo.getBankNo());
+				}
+				if (null != newBankInfo)
+				{
+					thirdBankBusinessInfoVo.set("localNewBankNo", newBankInfo.getBankNo());
+					thirdBankBusinessInfoVo.set("new_bankname", newBankInfo.getBankName());
+
+				}
+			}
+		}
+		
+		//step3:打包出参
+		ResultVo resultVo = new ResultVo();
+		resultVo.setResult(businessList);
+		resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+		resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+		resultVo.setResult(businessList);
+		return resultVo;
+	}
+	
+	private void checkInput() throws InvokeException
+	{
+		userId = Long.valueOf(this.getAndCheckBlankStrParam("user_id", ErrorCodeCheckInput.BLANK_USERID));
+		fundAccount = this.getAndCheckBlankStrParam("fund_account", ErrorCodeCheckInput.BLANK_FUNDACCOUNT);
+	}
+}

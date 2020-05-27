@@ -1,0 +1,44 @@
+package com.thinkive.fxc.ismp.bus.base.basicdata.dao;
+
+import com.thinkive.fxc.ismp.bus.base.basicdata.model.BusinessRightsModel;
+
+/**
+ * @描述:  公共-营业部业务权限表(T_FXC_BUSINESS_RIGHTS) 数据层接口
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 尹杰民
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月18日 下午5:07:29
+ */
+public interface BusinessRightsDao
+{
+    /**
+     * @描述：添加营业部业务权限
+     * @作者：尹杰民
+     * @时间：2016年8月18日 下午5:12:18
+     * @param businessRightsModel
+     * @return BusinessRightsModel
+     * @throws Exception
+     */
+    public BusinessRightsModel add(BusinessRightsModel businessRightsModel) throws Exception;
+    
+    /**
+     * @描述：根据ID 更新营业部业务权限
+     * @作者：尹杰民
+     * @时间：2016年8月18日 下午5:12:54
+     * @param businessRightsModel
+     * @return int
+     * @throws Exception
+     */
+    public int update(BusinessRightsModel businessRightsModel) throws Exception;
+    
+    /**
+     * @描述：根据分公司营业部ID 查询 营业部业务权限
+     * @作者：尹杰民
+     * @时间：2016年8月18日 下午5:13:32
+     * @param branchId
+     * @return BusinessRightsModel
+     * @throws Exception
+     */
+    public BusinessRightsModel queryByBranchId(String branchId) throws Exception;
+}

@@ -1,0 +1,84 @@
+package com.thinkive.fxc.ismp.bus.business.mark;
+
+import java.util.Date;
+import java.util.List;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.DateHelper;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.base.util.StringHelper;
+import com.thinkive.fxc.ismp.bus.base.basicdata.contants.BasicServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.basicdata.model.EnumValueModel;
+import com.thinkive.fxc.ismp.bus.base.basicdata.service.EnumInfoService;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.business.vo.UserInfoVo;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.business.util.DataFormatUtils;
+import com.thinkive.fxc.ismp.bus.business.util.PwdEncryptUtil;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdDictionaryConstants;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdInterfaceConstant;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdTBASConstants;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdInterface;
+import com.thinkive.server.ResultVo;
+import com.thinkive.server.util.SpringUtil;
+
+
+/**
+ * 作者：MIKE
+ * 公司：深圳市思迪信息技术股份公司
+ * 日期时间：2017年6月3日 上午11:25:57
+ * 说明：用户身份认证
+ */
+public class Function1004508 extends ISMPBaseFunction
+{
+	private Long userId;
+	
+    private String client_id;
+	
+	private String fund_account;
+	
+	private UserInfoService userInfoService;
+	
+	private ThirdInterface thirdInterface;
+	@Override
+	public ResultVo execute() throws Exception
+	{
+		initVar();
+		ResultVo resultVo = new ResultVo();
+		userInfoService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO, UserInfoService.class);
+		UserInfoVo userInfoVo = userInfoService.queryAndCheckUserByUserIdAndType(userId, ThirdInterfaceConstant.USER_ACCOUNT_TYPE_ZQ);
+		//查询风险测评结果
+	    DataRow data = DataFormatUtils.packThirdInput(userInfoVo);
+	    data.set("client_id", client_id);
+	    data.set("fund_account", fund_account);
+	    String password = userInfoVo.getPwd();
+	    if(!password.isEmpty()){
+	    	password=PwdEncryptUtil.decryptionPsw(password);
+	    }
+	    data.set("password", password);
+	    try {
+	        thirdInterface = SpringHelper.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDINTERFACE, ThirdInterface.class);
+	    	DataRow fxcpdr = thirdInterface.queryUserKeyGeneration(data);
+			String user_key = fxcpdr.getString("user_key");
+			data.set("user_key", user_key);
+			DataRow row = thirdInterface.queryUserIdentityAuthentication(data);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+		resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+		return resultVo;
+		
+	}
+	
+	private void initVar()
+	{
+		userId = this.formatLongParam(this.getAndCheckBlankStrParam("user_id", ErrorCodeCheckInput.BLANK_USERID), ErrorCodeCheckInput.LONG_FORMAT_ERROR);
+		client_id = this.getStrParameter("client_id");
+		fund_account = this.getStrParameter("fund_account");
+	}	
+}

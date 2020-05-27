@@ -1,0 +1,23 @@
+{
+  "hints": [],
+  "groups": [
+    {
+      "sourceType": "com.my.controller.TestController",
+      "name": "person",
+      "type": "com.my.controller.TestController"
+    }
+  ],
+  "properties": [
+    {
+      "sourceType": "com.my.controller.TestController",
+      "name": "person.age",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.my.controller.TestController",
+      "name": "person.name",
+      "description": "2.通过@ConfigurationProperties\n  注意：要生成属性的getter\/setter方法，否则读取不到值null",
+      "type": "java.lang.String"
+    }
+  ]
+}

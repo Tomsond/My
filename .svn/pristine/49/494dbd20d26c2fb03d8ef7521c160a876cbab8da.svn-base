@@ -1,0 +1,251 @@
+package com.thinkive.fxc.ismp.bus.base.business.model;
+
+import java.sql.Timestamp;
+import java.util.Date;
+
+import com.thinkive.base.jdbc.DataRow;
+
+/**
+ * @描述: 问卷节点需要提交的问卷组配置(t_ismp_survey_config)模型
+ * @版权: Copyright (c) 2016 
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0 
+ * @创建时间: 2016年8月12日 下午3:56:55
+ */
+public class SurveyConfigModel extends DataRow
+{
+
+    private static final long serialVersionUID = 4401570755399246588L;
+    
+    private static final String ID  = "id";
+    
+    private static final String NODE_ID = "node_id";
+    
+    private static final String QUESTION_SOURCE = "question_source";
+    
+    private static final String THIRD_CODE = "third_code";
+    
+    private static final String LOCAL_CODE = "local_code";
+    
+    private static final String COMMIT_TYPE = "commit_type";
+    
+    private static final String PASS_GRADE = "pass_grade";
+    
+    private static final String PASS_VALUE = "pass_value";
+    
+    private static final String ORDER = "order";
+    
+    private static final String AUTO_CHECK = "auto_check";
+    
+    private static final String CREATE_DATE = "create_date";
+    
+    private static final String UPDATE_DATE = "update_date";
+    
+    private static final String CREATE_USER = "create_user";
+    
+    private static final String LAST_UPDATEUSER = "last_updateuser";
+    
+    /**
+     * 获取自增主键
+     */
+    public Long getId() {
+        return getLong(ID);
+    }
+
+    /**
+     * 设置自增主键
+     */
+    public void setId(Long id) {
+        set(ID, id);
+    }
+    
+    /**
+     * 获取节点英文标识
+     */
+    public String getNodeId() {
+        return getString(NODE_ID);
+    }
+
+    /**
+     * 设置节点英文标识
+     */
+    public void setNodeId(String nodeId) {
+        set(NODE_ID, nodeId);
+    }
+    
+    /**
+     * 获取问卷来源
+     */
+    public String getQuestionSource() {
+        return getString(QUESTION_SOURCE);
+    }
+
+    /**
+     * 设置问卷来源
+     */
+    public void setQuestionSource(String questionSource) {
+        set(QUESTION_SOURCE, questionSource);
+    }
+    
+    /**
+     * 获取第三方问卷编号
+     */
+    public String getThirdCode() {
+        return getString(THIRD_CODE);
+    }
+
+    /**
+     * 设置第三方问卷编号
+     */
+    public void setThirdCode(String thirdCode) {
+        set(THIRD_CODE, thirdCode);
+    }
+    
+    /**
+     * 获取数据库问卷编号
+     */
+    public String getLocalCode() {
+        return getString(LOCAL_CODE);
+    }
+
+    /**
+     * 设置数据库问卷编号
+     */
+    public void setLocalCode(String localCode) {
+        set(LOCAL_CODE, localCode);
+    }
+    
+    /**
+     * 获取问卷提交方式
+     */
+    public String getCommitType() {
+        return getString(COMMIT_TYPE);
+    }
+
+    /**
+     * 设置问卷提交方式
+     */
+    public void setCommitType(String commitType) {
+        set(COMMIT_TYPE, commitType);
+    }
+    
+    /**
+     * 获取问卷通过等级
+     */
+    public String getPassGrade() {
+        return getString(PASS_GRADE);
+    }
+
+    /**
+     * 设置问卷通过等级
+     */
+    public void setPassGrade(String passGrade) {
+        set(PASS_GRADE, passGrade);
+    }
+    
+    
+    /**
+     * 获取问卷通过分数
+     */
+    public String getPassValue() {
+        return getString(PASS_VALUE);
+    }
+
+    /**
+     * 设置问卷通过分数
+     */
+    public void setPassValue(String passValue) {
+        set(PASS_VALUE, passValue);
+    }
+    
+    /**
+     * 获取问卷提交顺序
+     */
+    public String getOrder() {
+        return getString(ORDER);
+    }
+
+    /**
+     * 设置问卷提交顺序
+     */
+    public void setOrder(String order) {
+        set(ORDER, order);
+    }
+    
+    /**
+     * 获取是否自动校验通过
+     */
+    public String getAutoCheck() {
+        return getString(AUTO_CHECK);
+    }
+
+    /**
+     * 设置是否自动校验通过
+     */
+    public void setAutoCheck(String autoCheck) {
+        set(AUTO_CHECK, autoCheck);
+    }
+    
+    
+    /**
+     * 获取创建时间
+     */
+    public Date getCreateDate()
+    {
+        return (Date) get(CREATE_DATE);
+    }
+    
+    /**
+     * 设置创建时间
+     */
+    public void setCreateDate(Date createDate)
+    {
+        Timestamp timestamp = new Timestamp(createDate.getTime());
+        set(CREATE_DATE, timestamp);
+    }
+    
+    /**
+     * 获取更新时间
+     */
+    public Date getUpdateDate()
+    {
+        return (Date) get(UPDATE_DATE);
+    }
+    
+    /**
+     * 设置更新时间
+     */
+    public void setUpdateDate(Date updateDate)
+    {
+        Timestamp timestamp = new Timestamp(updateDate.getTime());
+        set(UPDATE_DATE, timestamp);
+    }
+    /**
+     * 获取创建人
+     */
+    public Long getCreateUser() {
+        return getLong(CREATE_USER);
+    }
+
+    /**
+     * 设置创建人
+     */
+    public void setCreateUser(Long createUser) {
+        set(CREATE_USER, createUser);
+    }  
+    
+    /**
+     * 获取最后修改人
+     */
+    public Long getLastUpdateUser() {
+        return getLong(LAST_UPDATEUSER);
+    }
+
+    /**
+     * 设置最后修改人
+     */
+    public void setLastUpdateUser(Long lastUpdateUser) {
+        set(LAST_UPDATEUSER, lastUpdateUser);
+    }  
+}

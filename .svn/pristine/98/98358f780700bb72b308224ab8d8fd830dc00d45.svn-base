@@ -1,0 +1,180 @@
+package com.thinkive.fxc.ismp.bus.business.smjj.function;
+
+import java.io.UnsupportedEncodingException;
+import java.util.Map;
+
+import com.thinkive.base.exception.BusinessException;
+import com.thinkive.base.util.StringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.function.IsmpFlowBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.business.model.BusinessEntityModel;
+import com.thinkive.fxc.ismp.bus.base.business.service.BusinessEntityService;
+import com.thinkive.fxc.ismp.bus.base.business.utils.FlowNodeManageUtil;
+import com.thinkive.fxc.ismp.bus.base.business.vo.BusinessEntityAndConfigVO;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.business.smjj.constants.SmjjConstants;
+import com.thinkive.fxc.ismp.bus.business.smjj.model.SmjjAssetsRecordModel;
+import com.thinkive.fxc.ismp.bus.business.smjj.model.SmjjImageRecordModel;
+import com.thinkive.fxc.ismp.bus.business.smjj.service.SmjjImageRecordService;
+import com.thinkive.server.ResultVo;
+import com.thinkive.server.util.SpringUtil;
+
+/**
+ * 
+ * 描述： 私募基金合格投资者--保存用户选择数据+上传证明图片
+ * @author yanyaoh
+ * @created 2019年9月17日 上午10:45:04
+ * @since
+ */
+public class Function3100020 extends IsmpFlowBaseFunction
+{
+    
+    protected Long   userId;           // 用户编号
+    
+    protected String opSource;         // 客户端类型
+    
+    protected String businessCode;     // 业务类型
+    
+    protected String nodeId;           // 节点英文标识
+    
+    protected String assetsFlag;       // 内部资产检查是否通过
+    
+    protected String tradeTimeFlag;    // 交易经验检查是否通过
+    
+    protected String authenType; // 认证方式：内部资产不通过时，不能为空
+    
+    protected String riskName; // 风险等级名称
+    
+    protected String realAssets; // 用户实际内部资产额
+    
+    protected String realFirstTime; // 用户实际的首次交易日期
+    
+    private String imgData; // 图像数据，多个地址间用","分割image_path|secret_key|image_type,
+    
+    @SuppressWarnings("unchecked")
+    public ResultVo execute() throws Exception
+    {
+        initVar();
+        
+        // step1：节点权限校验，并返回当前业务实例
+        Map<String, Object> checkResult = FlowNodeManageUtil.checkNodeAuthAndReturnInfo(userId, businessCode, opSource,
+                nodeId);
+        BusinessEntityAndConfigVO businessEntityAndConfigVO = (BusinessEntityAndConfigVO) checkResult
+                .get("businessEntityAndConfigVO");
+        BusinessEntityService businessEntityService = SpringUtil
+                .getBean(BusinessServiceBeanIdConstants.SERVICE_ID_BUSINESSENTITY, BusinessEntityService.class);
+        boolean isNewBusiness = businessEntityAndConfigVO == null ? true : false;
+        
+        // step2：新增业务办理实例
+        if ( isNewBusiness )
+        {
+            BusinessEntityModel businessEntityModel = new BusinessEntityModel();
+            businessEntityModel.setUserId(userId);
+            businessEntityModel.setOpSource(opSource);
+            businessEntityModel.setOpStation(opStation);
+            businessEntityModel.setBusinessCode(businessCode);
+            businessEntityModel.setIsComplete(DictionaryConstants.BOL_FALSE);
+            businessEntityModel.setIp(ip);
+            businessEntityModel.setNodeId(nodeId);
+            businessEntityService.add(businessEntityModel, nodeId);
+            businessEntityAndConfigVO = new BusinessEntityAndConfigVO();
+            businessEntityAndConfigVO.putAll(businessEntityModel);
+        }
+        
+//        //保存选择数据
+        SmjjImageRecordService imageRecordService = SpringUtil.getBean(SmjjConstants.SERVICE_ID_SMJJIMAGERECORD,
+                SmjjImageRecordService.class);
+        SmjjAssetsRecordModel smjjAssetsRecordModel = new SmjjAssetsRecordModel();
+        smjjAssetsRecordModel.setBusinessId(businessEntityAndConfigVO.getId());
+        smjjAssetsRecordModel.setUserId(userId);
+        smjjAssetsRecordModel.set("authen_type", this.authenType);
+        smjjAssetsRecordModel.set("risk_name", this.riskName);
+        smjjAssetsRecordModel.set("real_assets_flag",this.assetsFlag);
+        smjjAssetsRecordModel.set("trade_time_flag",this.tradeTimeFlag);
+        smjjAssetsRecordModel.set("real_assets",this.realAssets); // 用户的内部资产值
+        smjjAssetsRecordModel.set("first_trade_time",this.realFirstTime);
+        imageRecordService.addOrUpdate(smjjAssetsRecordModel);
+        
+        //保存上传的证明图片
+        String[] imgDataArr = imgData.split(","); // a|b|c,e|d|f
+        for (int i = 0; i < imgDataArr.length; i++) {
+            String imgData =  imgDataArr[i];
+            if (imgData.indexOf('|') !=-1) {   //判断格式是否符合要求
+                String[] fileSerctArr = imgData.split("\\|");
+                SmjjImageRecordModel imageRecordModel = new SmjjImageRecordModel();
+                imageRecordModel.setBusinessId(businessEntityAndConfigVO.getId());
+                imageRecordModel.setMediaCode(Integer.toString(i));
+                imageRecordModel.setNodeId(nodeId);
+                imageRecordModel.setImagePath(getURLDecoderString(fileSerctArr[0]));
+                imageRecordModel.setSecretKey(fileSerctArr[1]);
+                imageRecordModel.setImageType(fileSerctArr[2]);//1.收入证明 2.金融资产 3.投资经验（交易年限）
+                imageRecordService.addOrUpdate(imageRecordModel);
+            }
+        }
+        
+        
+        //修改流程接口-到上传资产证明步骤
+//        BusinessEntityModel businessEntityModel = new BusinessEntityModel();
+//        businessEntityModel.setId(businessEntityAndConfigVO.getId());
+//        businessEntityModel.setBusinessCode(businessEntityAndConfigVO.getBusinessCode());
+//        businessEntityModel.setNodeId(submitBprocNodeConfigAndDefineVO.getNextBpNodeId());
+//        businessEntityModel.setOpSource(opSource);
+//        businessEntityModel.setIp(ip);
+//        businessEntityModel.setOpStation(opStation);
+//        businessEntityService.changeBusinessFlowNode(businessEntityModel, nodeId);
+        
+        ResultVo resultVo = new ResultVo();
+        resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+        resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+        return resultVo;
+    }
+    
+    private String getURLDecoderString(String str)
+    {
+        String result = "";
+        if ( null == str )
+        {
+            return "";
+        }
+        try
+        {
+            result = java.net.URLDecoder.decode(str, "UTF-8");
+        }
+        catch (UnsupportedEncodingException e)
+        {
+            e.printStackTrace();
+        }
+        return result;
+    }
+    
+    /**
+     * @描述：获取业务入参
+     * @作者：刘恺
+     * @时间：2016年8月23日 下午8:55:24
+     */
+    private void initVar()
+    {
+        userId = this.formatLongParam(this.getAndCheckBlankStrParam("user_id", ErrorCodeCheckInput.BLANK_USERID),
+                ErrorCodeCheckInput.LONG_FORMAT_ERROR);
+        opSource = this.getAndCheckBlankStrParam("op_source", ErrorCodeCheckInput.BLANK_OP_SOURCE);
+        businessCode = this.getAndCheckBlankStrParam("businessCode", ErrorCodeCheckInput.BLANK_BUSINESSCODE);
+        nodeId = this.getStrParameter("nodeId", "smjj_userInput");
+        assetsFlag = this.getAndCheckBlankStrParam("assets_flag", ErrorCodeCheckInput.BLANK_ASSET_FLAG);//内部资产是否满足标识不能为空
+        tradeTimeFlag = this.getAndCheckBlankStrParam("trade_time_flag", ErrorCodeCheckInput.BLANK_TRADE_TIME_FLAG);//交易经验是否满足标识不能为空
+        
+   
+        authenType = this.getStrParameter("authen_type"); // 认证类型1：收入证明 2：家庭金融资产证明
+        riskName = this.getStrParameter("risk_name"); // 用户风险等级名称
+        realAssets = this.getStrParameter("real_assets"); // 用户实际内部资产额度
+        realFirstTime = this.getStrParameter("first_trade_time"); // 用户实际的首次交易日期
+        
+        if("0".equals(assetsFlag) && StringHelper.isEmpty(authenType)) {
+            // 内部资产不通过 - 认证方式不能为空
+            throw new BusinessException(ErrorCodeCheckInput.BLANK_AUTHEN_TYPE);
+        }
+        
+        imgData = this.getAndCheckBlankStrParam("img_data", ErrorCodeCheckInput.BLANK_IMG_DATA);
+        
+    }
+}

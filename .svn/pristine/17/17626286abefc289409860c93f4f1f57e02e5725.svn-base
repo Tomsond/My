@@ -1,0 +1,431 @@
+<?xml version="1.0" encoding="GBK"  standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
+<!-- ################################################################## ## 
+	## ## 用于配置服务器需要动态加载的功能模块 ## ## ## ## ## ## id : 业务功能编号 ## ## class : 业务功能的具体实现类 
+	## ## 描述 : 功能描述信息 ## ## ## ################################################################## -->
+<functions>
+
+	<function id="1001">
+		<class>com.thinkive.fxc.ismp.bus.business.user.function.Function1001
+		</class>
+		<desc>查询用户信息</desc>
+	</function>
+	<function id="1003">
+		<class>com.thinkive.fxc.ismp.bus.business.user.function.Function1003
+		</class>
+		<desc>更新用户信息</desc>
+	</function>
+	<function id="1004438">
+		<class>com.thinkive.fxc.ismp.bus.business.user.function.Function1004438</class>
+		<desc>获取我的业务办理记录</desc>
+	</function>
+	<function id="1004497">
+		<class>com.thinkive.fxc.ismp.bus.business.user.function.Function1004497
+		</class>
+		<desc>根据用户ID、业务类似、业务办理编号获取办理数据列表</desc>
+	</function>
+	<function id="1004900">
+		<class>com.thinkive.fxc.ismp.bus.base.business.function.Function1004900
+		</class>
+		<desc>根据用户编号和业务编号，查询用户正在办理的业务实例信息</desc>
+	</function>
+	<function id="1004901">
+		<class>com.thinkive.fxc.ismp.bus.base.business.function.Function1004901
+		</class>
+		<desc>通用---模块化节点提交---提交问卷【方式一：不是第一步和最后一步】</desc>
+	</function>
+	<function id="1004902">
+		<class>com.thinkive.fxc.ismp.bus.base.business.function.Function1004902
+		</class>
+		<desc>通用---用户主动放弃业务办理</desc>
+	</function>
+	<function id="1004903">
+		<class>com.thinkive.fxc.ismp.bus.business.user.function.Function1004903
+		</class>
+		<desc>用户登录</desc>
+	</function>
+	<function id="1004904">
+		<class>com.thinkive.fxc.ismp.bus.business.user.function.Function1004904
+		</class>
+		<desc>账户信息同步</desc>
+	</function>
+	<function id="1004905">
+		<class>com.thinkive.fxc.ismp.bus.base.business.function.Function1004905
+		</class>
+		<desc>通用---上传身份证</desc>
+	</function>
+	<function id="1004906">
+		<class>com.thinkive.fxc.ismp.bus.base.business.function.Function1004906
+		</class>
+		<desc>通用---身份证上传确认【方式一：不是最后一步，直接提交数据并修改流程】</desc>
+	</function>
+	<function id="1004907">
+		<class>com.thinkive.fxc.ismp.bus.base.business.function.Function1004907
+		</class>
+		<desc>通用---身份证上传确认【方式二：是最后一步，后台需要审核】</desc>
+	</function>
+	<function id="1004908">
+		<class>com.thinkive.fxc.ismp.bus.business.user.idcardup.Function1004908
+		</class>
+		<desc>身份证升位---身份证上传确认</desc>
+	</function>
+	<function id="1004909">
+		<class>com.thinkive.fxc.ismp.bus.base.business.function.Function1004909
+		</class>
+		<desc>模块化节点提交---提交问卷【方式二：只有一步】---可用于风险测评</desc>
+	</function>
+	<function id="1004911">
+		<class>com.thinkive.fxc.ismp.bus.base.business.function.Function1004911
+		</class>
+		<desc>通用---查询选择账号记录</desc>
+	</function>
+	<function id="1004912">
+		<class>com.thinkive.fxc.ismp.bus.base.business.function.Function1004912
+		</class>
+		<desc>模块化节点提交---提交问卷【有多个业务办理步骤，问卷是第一步】</desc>
+	</function>
+	<function id="1004913">
+		<class>com.thinkive.fxc.ismp.bus.base.business.function.Function1004913
+		</class>
+		<desc>业务办理确认</desc>
+	</function>
+	<function id="1004917">
+		<class>com.thinkive.fxc.ismp.bus.base.business.function.Function1004917
+		</class>
+		<desc>通用校验短信（业务办理实例不存在，则新增业务实例。存在，则更新业务办理实例状态） </desc>
+	</function>
+	<function id="1004918">
+		<class>com.thinkive.fxc.ismp.bus.base.business.function.Function1004918
+		</class>
+		<desc>模块化节点提交---提交问卷(不是第一步以及最后一步) </desc>
+	</function>
+	<function id="1004922">
+		<class>com.thinkive.fxc.ismp.bus.base.business.function.Function1004922
+		</class>
+		<desc>查询视频见证是否通过</desc>
+	</function>
+	<function id="1004191">
+		<class>com.thinkive.fxc.ismp.bus.base.business.function.Function1004191
+		</class>
+		<desc>短信验证----通用（不包含业务办理逻辑）</desc>
+	</function>
+	<function id="1004196">
+		<class>com.thinkive.fxc.ismp.bus.base.business.function.Function1004196
+		</class>
+		<desc>查询第三方问卷结果</desc>
+	</function>
+	<function id="1004197">
+		<class>com.thinkive.fxc.ismp.bus.base.business.function.Function1004197
+		</class>
+		<desc>调用第三方接口 获取测评题目</desc>
+	</function>
+	<function id="1004138">
+		<class>com.thinkive.fxc.ismp.bus.base.business.function.Function1004138
+		</class>
+		<desc>公共功能-获取问卷</desc>
+	</function>
+
+	<function id="1004133">
+		<class>com.thinkive.fxc.ismp.bus.business.user.function.Function1004133
+		</class>
+		<desc>修改交易密码</desc>
+	</function>
+	<function id="1004134">
+		<class>com.thinkive.fxc.ismp.bus.business.assets.thirdbank.function.Function1004134
+		</class>
+		<desc>三方存管-根据资金账户获取绑定的银行卡</desc>
+	</function>
+	<function id="1004136">
+		<class>com.thinkive.fxc.ismp.bus.business.assets.thirdbank.function.Function1004136
+		</class>
+		<desc>三方存管-绑定银行卡</desc>
+	</function>
+	<function id="1004137">
+		<class>com.thinkive.fxc.ismp.bus.business.assets.thirdbank.function.Function1004137
+		</class>
+		<desc>三方存管-取消资金账号和银行卡的绑定</desc>
+	</function>
+	<function id="1004182">
+		<class>com.thinkive.fxc.ismp.bus.business.assets.thirdbank.function.Function1004182
+		</class>
+		<desc>修改三方存管绑定银行 （包含注销和绑定）</desc>
+	</function>
+	<function id="1004492">
+		<class>com.thinkive.fxc.ismp.bus.business.assets.thirdbank.function.Function1004492
+		</class>
+		<desc>查询取消成功后，没有正常绑定三方存管的业务流程数据</desc>
+	</function>
+	<function id="1004493">
+		<class>com.thinkive.fxc.ismp.bus.business.assets.thirdbank.function.Function1004493
+		</class>
+		<desc>确认完成三方存管修改业务中，取消成功但绑定失败的业务办理数据</desc>
+	</function>
+	<function id="1004494">
+		<class>com.thinkive.fxc.ismp.bus.business.assets.thirdbank.function.Function1004494
+		</class>
+		<desc>根据资金帐号和交易密码，校验三方存管银行操作条件是否满足(中邮实现)</desc>
+	</function>
+	<function id="1004495">
+		<class>com.thinkive.fxc.ismp.bus.business.assets.thirdbank.function.Function1004495
+		</class>
+		<desc>三方存管-结息</desc>
+	</function>
+	<function id="1004525">
+		<class>com.thinkive.fxc.ismp.bus.business.assets.thirdbank.function.Function1004525
+		</class>
+		<desc>三方存管修改（注销后绑定） ---第一步： 取消资金账号和银行卡的绑定</desc>
+	</function>
+	<function id="1004526">
+		<class>com.thinkive.fxc.ismp.bus.business.assets.thirdbank.function.Function1004526
+		</class>
+		<desc>三方存管修改(注销后绑定) --- 第二步：将银行卡和资金账号绑定</desc>
+	</function>
+	<function id="1004162">
+		<class>com.thinkive.fxc.ismp.bus.business.user.function.Function1004162
+		</class>
+		<desc>修改资金密码</desc>
+	</function>
+	<function id="1004474">
+		<class>com.thinkive.fxc.ismp.bus.business.electronsign.function.Function1004474
+		</class>
+		<desc>查询用户电子签名约定书是否签署</desc>
+	</function>
+	<function id="1004475">
+		<class>com.thinkive.fxc.ismp.bus.business.electronsign.function.Function1004475
+		</class>
+		<desc>电子签名约定书 --- 签署协议（只有一步）</desc>
+	</function>
+	<function id="1004151">
+		<class>com.thinkive.fxc.ismp.bus.business.entrust.function.Function1004151
+		</class>
+		<desc>委托方式-查询并同步</desc>
+	</function>
+	<function id="1004161">
+		<class>com.thinkive.fxc.ismp.bus.business.entrust.function.Function1004161
+		</class>
+		<desc>委托方式-修改</desc>
+	</function>
+	<function id="1004430">
+		<class>com.thinkive.fxc.ismp.bus.base.business.function.Function1004430
+		</class>
+		<desc>搜索业务列表</desc>
+	</function>
+	<function id="1004178">
+		<class>com.thinkive.fxc.ismp.bus.base.business.function.Function1004178
+		</class>
+		<desc>根据电子协议类别查询该类别下的电子协议</desc>
+	</function>
+	<function id="1004181">
+		<class>com.thinkive.fxc.ismp.bus.base.business.function.Function1004181
+		</class>
+		<desc>通用--发送手机短信验证码</desc>
+	</function>
+	<function id="1004191">
+		<class>com.thinkive.fxc.ismp.bus.base.business.function.Function1004191
+		</class>
+		<desc>短信验证----通用（不包含业务办理逻辑）</desc>
+	</function>
+	<function id="1007">
+		<class>com.thinkive.fxc.ismp.bus.business.user.function.Function1007
+		</class>
+		<desc>短信验证---修改手机号码</desc>
+	</function>
+	<function id="1004432">
+		<class>com.thinkive.fxc.ismp.bus.business.gznhg.function.Function1004432
+		</class>
+		<desc>国债逆回购权限办理数据获取</desc>
+	</function>
+	<function id="1004435">
+		<class>com.thinkive.fxc.ismp.bus.business.gznhg.function.Function1004435
+		</class>
+		<desc>国债逆回购 --- 签署协议，选择帐号（只有一步）</desc>
+	</function>
+	<function id="1004452">
+		<class>com.thinkive.fxc.ismp.bus.business.gznhg.function.Function1004452
+		</class>
+		<desc>国债逆回购---业务办理完成确认</desc>
+	</function>
+	<function id="1004140">
+		<class>com.thinkive.fxc.ismp.bus.business.function.Function1004140
+		</class>
+		<desc>账户通</desc>
+	</function>
+	<function id="1004169">
+		<class>com.thinkive.fxc.ismp.bus.base.basicdata.function.Function1004169
+		</class>
+		<desc>获取数据字典信息</desc>
+	</function>
+
+	<!-- 港股通手机端无节点控制接口 -->
+	<function id="1004200">
+		<class>com.thinkive.fxc.ismp.bus.business.ggt.function.Function1004200
+		</class>
+		<desc>港股通----获取港股通需要判断的账户条件</desc>
+	</function>
+	<function id="1004201">
+		<class>com.thinkive.fxc.ismp.bus.business.ggt.function.Function1004201
+		</class>
+		<desc>港股通--查询业务办理数据</desc>
+	</function>
+	<function id="1004202">
+		<class>com.thinkive.fxc.ismp.bus.business.ggt.function.Function1004202
+		</class>
+		<desc>港股通--修改问卷流程状态</desc>
+	</function>
+	<function id="1004205">
+		<class>com.thinkive.fxc.ismp.bus.business.ggt.function.Function1004205
+		</class>
+		<desc>港股通--将用户加入开通港股通跑批队列</desc>
+	</function>
+	<function id="1004206">
+		<class>com.thinkive.fxc.ismp.bus.business.ggt.function.Function1004206
+		</class>
+		<desc>港股通---验签，修改签名标识状态</desc>
+	</function>
+	<function id="1004207">
+		<class>com.thinkive.fxc.ismp.bus.business.ggt.function.Function1004207
+		</class>
+		<desc>港股通--获取业务办理过程中的所有步骤的数据（手机端使用）</desc>
+	</function>
+	<function id="1004208">
+		<class>com.thinkive.fxc.ismp.bus.business.ggt.function.Function1004208
+		</class>
+		<desc>港股通-提交开通交易帐号 (沪A证券账号)</desc>
+	</function>
+	<function id="1004209">
+		<class>com.thinkive.fxc.ismp.bus.business.ggt.function.Function1004209
+		</class>
+		<desc>港股通---业务办理完成确认</desc>
+	</function>
+	<function id="1004210">
+		<class>com.thinkive.fxc.ismp.bus.business.ggt.function.Function1004210
+		</class>
+		<desc>港股通--提交风险测评（提交到本地数据库）</desc>
+	</function>
+	<function id="1004211">
+		<class>com.thinkive.fxc.ismp.bus.business.ggt.function.Function1004211
+		</class>
+		<desc>港股通--提交业务知识测评</desc>
+	</function>
+	
+	<!-- 风险警示股票 -->
+	<function id="1004434">
+		<class>com.thinkive.fxc.ismp.bus.business.fxjs.function.Function1004434
+		</class>
+		<desc>获取开通上海风险警示买入交易权限业务办理数据 </desc>
+	</function>
+	<function id="1004171">
+		<class>com.thinkive.fxc.ismp.bus.business.fxjs.function.Function1004171
+		</class>
+		<desc>风险警示权限开通 --- 签署协议，选择帐号（只有一步） </desc>
+	</function>
+	
+	
+	<function id="1004188">
+		<class>com.thinkive.fxc.ismp.bus.business.fundaccount.function.Function1004188
+		</class>
+		<desc>查询用户基金公司开户状态 </desc>
+	</function>
+	<function id="1004189">
+		<class>com.thinkive.fxc.ismp.bus.business.fundaccount.function.Function1004189
+		</class>
+		<desc>查询基金开户业务数据 </desc>
+	</function>
+	<function id="1004190">
+		<class>com.thinkive.fxc.ismp.bus.business.fundaccount.function.Function1004190
+		</class>
+		<desc>基金开户 </desc>
+	</function>
+	<function id="1004489">
+		<class>com.thinkive.fxc.ismp.bus.business.fundaccount.function.Function1004489
+		</class>
+		<desc>基金开户 --- 查询用户基金风险测评状态</desc>
+	</function>
+	<function id="1004490">
+		<class>com.thinkive.fxc.ismp.bus.business.fundaccount.function.Function1004490
+		</class>
+		<desc>基金开户 --- 查询基金风险测评题目</desc>
+	</function>
+	<function id="1004491">
+		<class>com.thinkive.fxc.ismp.bus.business.fundaccount.function.Function1004491
+		</class>
+		<desc>基金开户 --- 提交基金风险测评</desc>
+	</function>
+
+
+	<!-- 退市股票整理 -->
+	<function id="1004172">
+		<class>com.thinkive.fxc.ismp.bus.business.tsgpzl.function.Function1004172
+		</class>
+		<desc>退市股票整理 --- 退市股票权限设置申请 </desc>
+	</function>
+	<function id="1004433">
+		<class>com.thinkive.fxc.ismp.bus.business.tsgpzl.function.Function1004433
+		</class>
+		<desc>退市股票整理 --- 开通退市股票权限办理数据获取</desc>
+	</function>
+
+	<!-- 创业板转签 -->
+	<function id="1004020">
+		<class>com.thinkive.fxc.ismp.bus.business.gem.function.Function1004020
+		</class>
+		<desc>创业板转签---资质判断</desc>
+	</function>
+	<function id="1004021">
+		<class>com.thinkive.fxc.ismp.bus.business.gem.function.Function1004021
+		</class>
+		<desc>创业板转签---查询创业板转签业务数据</desc>
+	</function>
+	<function id="1004029">
+		<class>com.thinkive.fxc.ismp.bus.business.gem.function.Function1004029
+		</class>
+		<desc>创业板--选择股东帐号,并提交应急联系人信息 </desc>
+	</function>
+	<function id="1004030">
+		<class>com.thinkive.fxc.ismp.bus.business.gem.function.Function1004030
+		</class>
+		<desc>创业板 </desc>
+	</function>	
+	
+	
+	<!-- 股票质押回购 -->
+	<function id="1004813">
+		<class>com.thinkive.fxc.ismp.bus.business.pledgeRepo.function.Function1004813
+		</class>
+		<desc>股票质押回购--资格校验判断 </desc>
+	</function>
+	<function id="1004814">
+		<class>com.thinkive.fxc.ismp.bus.business.pledgeRepo.function.Function1004814
+		</class>
+		<desc>股票质押回购--获取业务办理数据 </desc>
+	</function>
+	<function id="1004815">
+		<class>com.thinkive.fxc.ismp.bus.business.pledgeRepo.function.Function1004815
+		</class>
+		<desc>股票质押回购--选择账号并提交 </desc>
+	</function>
+	
+	<!-- 主副资金账号变更 -->
+	<function id="1004801">
+		<class>com.thinkive.fxc.ismp.bus.business.assets.zhth.function.Function1004801
+		</class>
+		<desc>主副资金账号变更--查询资金帐号</desc>
+	</function>
+	<function id="1004802">
+		<class>com.thinkive.fxc.ismp.bus.business.assets.zhth.function.Function1004802
+		</class>
+		<desc>主副资金账号变更--选择账号并提交 </desc>
+	</function>
+	
+	<!-- 重置手机号 -->
+	<function id="1004821">
+		<class>com.thinkive.fxc.ismp.bus.business.resetphone.Function1004821
+		</class>
+		<desc>重置手机号码提交（工作平台审核通过后调用）</desc>
+	</function>
+	<function id="1004822">
+		<class>com.thinkive.fxc.ismp.bus.business.resetphone.Function1004822
+		</class>
+		<desc>短信验证---重置手机号码(审核任务)</desc>
+	</function>
+</functions>

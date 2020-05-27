@@ -1,0 +1,68 @@
+package com.thinkive.fxc.ismp.bus.base.basicdata.dao.impl;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.StringUtil;
+import com.thinkive.fxc.ismp.bus.base.basicdata.contants.BaseTableConstants;
+import com.thinkive.fxc.ismp.bus.base.basicdata.dao.SimilarityConfigDao;
+import com.thinkive.fxc.ismp.bus.base.basicdata.model.SimilarityConfigModel;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseDao;
+import com.thinkive.fxc.ismp.bus.base.constants.SystemConstants;
+import com.thinkive.fxc.ismp.bus.base.util.ModelUtil;
+
+/**
+ * @描述: 公共-相似度阀值配置表(T_FXC_SIMILARITY_CONFIG) 数据层接口实现类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 尹杰民
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月18日 下午6:03:25
+ */
+public class SimilarityConfigDaoImpl extends ISMPBaseDao implements SimilarityConfigDao
+{
+    
+    @Override
+    public SimilarityConfigModel add(SimilarityConfigModel similarityConfigModel) throws Exception
+    {
+        String id = this.getSeqValue(SystemConstants.DB_ISMP,BaseTableConstants.T_FXC_ONEWAYVIDEO_LOG);
+        similarityConfigModel.setId(Long.valueOf(id));
+        similarityConfigModel.setCreateDate(new Date());
+        this.getJdbcTemplate().insert(BaseTableConstants.T_FXC_ONEWAYVIDEO_LOG, similarityConfigModel);
+        return similarityConfigModel;
+    }
+    
+    @Override
+    public int update(SimilarityConfigModel similarityConfigModel) throws Exception
+    {
+        Long id = similarityConfigModel.getId();
+        similarityConfigModel.setUpdateDate(new Date());
+        return this.getJdbcTemplate().update(BaseTableConstants.T_FXC_ONEWAYVIDEO_LOG, similarityConfigModel, "ID", id);
+    }
+    
+    @Override
+    public SimilarityConfigModel queryByParams(String type, String status) throws Exception
+    {
+        StringBuilder sql = new StringBuilder();
+        List<String> paramList = new ArrayList<String>();
+        sql.append(" SELECT ID, SIMILARITY, STATUS, TYPE, CREATE_DATE, CREATE_BY, UPDATE_DATE, UPDATE_BY");
+        sql.append(" FROM ");
+        sql.append(BaseTableConstants.T_FXC_ONEWAYVIDEO_LOG);
+        sql.append(" WHERE 1=1 ");
+        if ( StringUtil.isNotEmpty(type) )
+        {
+            sql.append(" AND TYPE = ? ");
+            paramList.add(type);
+        }
+        if ( StringUtil.isNotEmpty(status) )
+        {
+            sql.append(" AND STATUS = ? ");
+            paramList.add(status);
+        }
+        DataRow queryResult = this.getJdbcTemplate().queryMap(sql.toString(), paramList.toArray());
+        return ModelUtil.packInfo(queryResult, SimilarityConfigModel.class);
+    }
+    
+}

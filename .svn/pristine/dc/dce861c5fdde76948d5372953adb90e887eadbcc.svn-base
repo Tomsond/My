@@ -1,0 +1,33 @@
+package com.thinkive.fxc.ismp.bus.business.assets.yzzz.contants;
+
+/**
+ * @描述: 银证转账常量类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0.0 
+ * @创建时间: 2016年9月8日 下午8:06:21
+ */
+public class YzzzContants
+{
+	
+	/**
+	 * 银证转账标识 1：提现
+	 */
+	public static String WITHDRAWAL_FLAG = "1";
+	
+	/**
+	 *  银证转账标识 0：充值
+	 */
+	public static String TOPUP_FLAG = "0";
+	
+	/**
+	 * 银证转账扩展信息类
+	 */
+	public static final String T_ISMP_B_YZZZ = "T_ISMP_B_YZZZ";
+	
+	/**
+	 * 银证转账服务类
+	 */
+	public static final String SERVICE_ID_YZZZ = "com.thinkive.fxc.ismp.yzzzService";
+}

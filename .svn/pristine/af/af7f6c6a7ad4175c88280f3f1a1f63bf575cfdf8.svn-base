@@ -1,0 +1,79 @@
+package com.thinkive.fxc.ismp.bus.business.user.function;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.service.BusinessEntityService;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.server.ResultVo;
+
+/**
+ * @描述: 根据用户ID、业务类似、业务办理编号获取办理数据列表
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0.0 
+ * @创建时间: 2016年9月12日 下午11:38:48
+ */
+public class Function1004497 extends ISMPBaseFunction
+{
+	
+	private Long user_id;;//用户ID
+	
+	private String business_code;//业务类似
+	
+	private Long business_id;//业务办理编号
+	
+	private List<DataRow> resultList = new ArrayList<DataRow>();//返回的业务办理详情
+	
+	/**
+	 * 描述：校验入参
+	 * 作者：刘恺
+	 * 时间：2015年11月11日 上午10:00:58
+	 */
+	public void checkInput()
+	{
+
+        user_id = Long.valueOf(this.getAndCheckBlankStrParam("user_id",ErrorCodeCheckInput.BLANK_USERID));
+        business_code = this.getAndCheckBlankStrParam("business_code",ErrorCodeCheckInput.BLANK_BUSINESSCODE);
+        business_id = Long.valueOf(this.getAndCheckBlankStrParam("business_id",ErrorCodeCheckInput.BLANK_BUSINESSID));
+	}
+	
+	/**
+	 * 描述：业务逻辑代码
+	 * 作者：刘恺
+	 * 时间：2015年11月11日 上午10:09:20
+	 */
+	public void processBusiness()
+	{
+		BusinessEntityService businessEntityService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_BUSINESSENTITY, BusinessEntityService.class);
+		resultList = businessEntityService.queryBusinessDetail(business_id, business_code, user_id);
+	}
+	
+	public ResultVo returnToClient()
+	{
+	    ResultVo resultVo = new ResultVo();
+		resultVo.setResult(resultList);
+		resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+		resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+		return resultVo;
+	}
+	
+	@Override
+	public ResultVo execute()
+	{
+	    //step1:获取入参并校验
+		checkInput();
+		
+		//step2:获取业务办理数据
+		processBusiness();
+		
+		//step3:打包出参
+		return returnToClient();
+	}
+}

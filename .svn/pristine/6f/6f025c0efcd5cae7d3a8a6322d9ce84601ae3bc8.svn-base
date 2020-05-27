@@ -1,0 +1,55 @@
+package com.thinkive.fxc.ismp.bus.base.basicdata.service;
+
+import java.util.List;
+
+import com.thinkive.fxc.ismp.bus.base.basicdata.model.BankInfoModel;
+import com.thinkive.fxc.ismp.bus.base.basicdata.vo.ThirdBankInfoVo;
+
+/**
+ * @描述: 公共-银行信息服务层接口
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月22日 下午5:00:31
+ */
+public interface BankService
+{
+	
+	/**
+	 * @描述：获取所有银行列表
+	 * @作者：田源
+	 * @时间：2016年8月19日 下午2:59:39
+	 * @return List<BankInfoModel>
+	 * @throws Exception
+	 */
+	public List<BankInfoModel> queryAll() throws Exception;
+	
+	/**
+	 * @描述：根据银行编号查询银行信息
+	 * @作者：田源
+	 * @时间：2016年8月19日 下午3:05:37
+	 * @param bankNo
+	 * @return BankInfoModel
+	 * @throws Exception
+	 */
+	public BankInfoModel queryByBankNo(String bankNo) throws Exception;
+	
+	/**
+	 * @描述：根据关联的银行机构号查询银行信息
+	 * @作者：刘恺
+	 * @时间：2017年2月21日 下午1:04:23
+	 * @param linkBankOrg
+	 * @return
+	 */
+	public ThirdBankInfoVo queryVoByLinkBankOrg(String linkBankOrg);
+	
+	/**
+	 * @描述：根据三方存管银行配置编号查询银行信息
+	 * @作者：刘恺
+	 * @创建时间: 2017年3月6日 下午12:32:26
+	 * @param bankConfigId
+	 * @return
+	 */
+	public BankInfoModel queryByThirdBankConfigId(Long bankConfigId);
+}

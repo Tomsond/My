@@ -1,0 +1,100 @@
+package com.thinkive.fxc.ismp.bus.base.business.function;
+
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.constants.SurveyNodePropertyConstants;
+import com.thinkive.fxc.ismp.bus.base.business.model.BusinessEntityModel;
+import com.thinkive.fxc.ismp.bus.base.business.service.SurveyAnswerRecordService;
+import com.thinkive.fxc.ismp.bus.base.business.service.SurveyAnswerResultService;
+import com.thinkive.fxc.ismp.bus.base.business.service.SurveyOperationService;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.business.utils.ModularNodeUtil;
+import com.thinkive.fxc.ismp.bus.base.business.vo.UserInfoVo;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdInterfaceConstant;
+import com.thinkive.server.ResultVo;
+
+/**
+ * @描述: 模块化节点提交---提交问卷【方式二：只有一步】
+ * 使用场景：业务办理只有一步，提交问卷
+ *         问卷接口为通用的问卷提交接口
+ *         没有其他扩展字段
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月28日 上午11:14:27
+ */
+public class Function1004909 extends IsmpFlowBaseFunction
+{
+	
+	private String answerStr;//答案信息
+	
+	public ResultVo execute() throws Exception
+	{
+		
+		initVar();
+		
+		UserInfoService userInfoService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO, UserInfoService.class);
+		UserInfoVo userInfo = userInfoService.queryAndCheckUserByUserIdAndType(userId, ThirdInterfaceConstant.USER_ACCOUNT_TYPE_ZQ);
+		
+		//step1：获取并检测属性配置是否正确
+		Map<String, String> surveyNodeProperty = ModularNodeUtil.checkSurveyNodeProperty(nodePropertyConfigModelList);
+		
+		//step2：校验问卷是否通过，如果通过则保存答案
+		SurveyOperationService surveyOperationService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_SURVEYOPERATION, SurveyOperationService.class);
+		DataRow checkResult = surveyOperationService.surveyCheck(answerStr, userInfo, surveyNodeProperty);
+		resultVo.setResult("checkResult", checkResult);
+		boolean check_flag = DictionaryConstants.BOL_TRUE.equals(checkResult.getString("check_flag"));
+		//如果校验失败，返回结构
+		if (!check_flag)
+		{
+			declareNotChangeNodeId();
+			//校验通过，但不的新的业务实例，保存用户问卷结果信息
+			return resultVo;
+		}
+		if (StringUtils.isBlank(answerStr))
+		{
+			declareNotChangeNodeId();
+			//校验通过，但不的新的业务实例，保存用户问卷结果信息
+			return resultVo;
+		}
+		//校验成功,获取问卷编号
+		Long subId = null;
+		String quetionSource = surveyNodeProperty.get(SurveyNodePropertyConstants.PROPERTY_KEY_QUESTION_SOURCE);
+		if (DictionaryConstants.QUESTION_SOURCE_LOCAL.equals(quetionSource))
+		{
+			subId = checkResult.getLong("subId");
+		}
+		else if (DictionaryConstants.QUESTION_SOURCE_THIRD.equals(quetionSource))
+		{
+			subId = Long.parseLong(surveyNodeProperty.get(SurveyNodePropertyConstants.PROPERTY_KEY_THIRD_CODE));
+		}
+		
+		//添加业务办理实例和用户答案
+		BusinessEntityModel businessEntityModel = getNewBusinessEntity();
+		businessEntityModel.setNodeId(submitBprocNodeConfigAndDefineVO.getNextBpNodeId());
+		businessEntityModel.setIsComplete(DictionaryConstants.BOL_TRUE);
+		businessEntityModel.setDealResult(DictionaryConstants.DEAL_RESULT_SUCCESS);
+		SurveyAnswerRecordService surveyAnswerRecordMode = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_SURVEYANSWERRECORD, SurveyAnswerRecordService.class);
+		surveyAnswerRecordMode.addBusinessAndaddOrUpdateAnswer(answerStr, businessEntityModel, subId, nodeId);
+		SurveyAnswerResultService surveyAnswerResultService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_SURVEYANSWERRESULT, SurveyAnswerResultService.class);
+		surveyAnswerResultService.addOrUpdateAnswer(businessEntityModel.getId(), subId, nodeId, checkResult.getString("riskvalue"), checkResult.getString("risklevel"),
+				checkResult.getString("subitemname"));
+		
+		resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+		resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+		return resultVo;
+	}
+	
+	private void initVar()
+	{
+		answerStr = this.getStrParameter("answerStr");
+	}
+	
+}

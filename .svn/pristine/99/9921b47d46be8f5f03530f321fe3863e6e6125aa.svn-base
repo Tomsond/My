@@ -1,0 +1,74 @@
+package com.thinkive.fxc.ismp.bus.business.rzrq.preMarginTrading.business;
+
+import org.apache.commons.lang.StringUtils;
+
+import com.thinkive.base.exception.BusinessException;
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.function.IsmpFlowBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.business.model.BusinessEntityModel;
+import com.thinkive.fxc.ismp.bus.base.business.service.BusinessEntityService;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeSystem;
+import com.thinkive.fxc.ismp.bus.business.rzrq.preMarginTrading.constant.ErrorCodeBusiness;
+import com.thinkive.fxc.ismp.bus.business.util.SmsUtils;
+import com.thinkive.server.ResultVo;
+
+/**
+ * @描述: 融资融券预约 --- 预留手机号短信校验,生成业务办理数据
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月31日 下午2:14:45
+ */
+public class Function1004549 extends IsmpFlowBaseFunction
+{
+	
+	private String mobile_code;//手机验证码
+	
+	public ResultVo execute() throws Exception
+	{
+		initVar();
+		
+		//获取用户预留手机号
+		UserInfoService userInfoService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO, UserInfoService.class);
+		DataRow userInfo = userInfoService.queryUserInfoByUserId(userId);
+		if (userInfo == null)
+		{
+			throw new BusinessException(ErrorCodeSystem.NOTEXIST_USER, "用户不存在");
+		}
+		String mobileNo = userInfo.getString("mobile");
+		if (StringUtils.isBlank(mobileNo))
+		{
+			throw new BusinessException(ErrorCodeBusiness.NOMOBILE, "预留手机号不存在");
+		}
+		
+		boolean checkResult = SmsUtils.checkMobileCode(mobileNo, mobile_code, DictionaryConstants.SMS_TYPE_PREAPPLYZJCERT);
+		if (!checkResult)
+		{
+			throw new BusinessException(ErrorCodeSystem.ERROR_MOBILECODE, "短信验证失败");
+		}
+		
+		//没有正在办理的业务数据，创建新的业务数据
+		if (isNewBusiness())
+		{
+			BusinessEntityModel businessEntityModel = getNewBusinessEntity();
+			BusinessEntityService businessEntityService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_BUSINESSENTITY, BusinessEntityService.class);
+			businessEntityService.add(businessEntityModel, nodeId);
+			returnBusinessEntityModel(businessEntityModel);
+		}
+		
+		resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+		resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+		return resultVo;
+	}
+	
+	private void initVar()
+	{
+		mobile_code = this.getAndCheckBlankStrParam("mobile_code", ErrorCodeCheckInput.BLANK_VALIDATE_CODE);
+	}
+}

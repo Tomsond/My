@@ -1,0 +1,217 @@
+package com.thinkive.fxc.ismp.bus.base.business.service.impl;
+
+import java.util.Map;
+
+import com.thinkive.base.config.Configuration;
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.fxc.ismp.bus.base.business.service.CertTBASService;
+import com.thinkive.fxc.ismp.bus.base.constants.SystemConstants;
+import com.thinkive.gateway.v2.client.Client;
+import com.thinkive.gateway.v2.result.Result;
+
+/**
+ * @描述: 证书BUS访问接口类-实现类
+ * @版权: Copyright (c) 2014 
+ * @公司: 深圳市思迪信息技术有限公司
+ * @作者: 吴江波
+ * @版本: 1.0 
+ * @创建日期: 2014-9-12 
+ * @创建时间: 下午04:07:00
+ */
+public class CertTBASServiceImpl implements CertTBASService
+{
+	
+	/**
+	 * @描述：根据功能号获取证书相关接口结果集
+	 * @作者：吴江波
+	 * @时间：2014-9-12 下午04:08:21
+	 * @param funcNo
+	 * @param param
+	 * @return
+	 */
+	@SuppressWarnings("rawtypes")
+	private Result getCertResult(int funcNo, Map param)
+	{
+		Client client = new Client(SystemConstants.CERT_BUS);
+		Result result = client.getResult(funcNo, param);
+		return result;
+	}
+	
+	/**
+	 * @描述：根据客户四项唯一标识信息校验是否申请过中登证书
+	 * @作者：吴江波
+	 * @时间：2014-9-12 下午04:50:19
+	 * @param userName 客户姓名
+	 * @param nationality 国籍
+	 * @param cardType1 证件类型值
+	 * @param cardNum1 证件号码
+	 * @param certSource 1
+	 * @return
+	 * @throws Exception
+	 */
+	public Result chkIsExistCert(String userName, String nationality, String cardType1, String cardNum1, String certSource)
+	{
+		DataRow param = new DataRow();
+		param.set("user_name", userName);
+		param.set("nationality", nationality);
+		if ("CHN".equals(nationality))
+		{
+			param.set("nationality", "156");
+		}
+		param.set("card_type1", cardType1);
+		param.set("card_num1", cardNum1);
+		param.set("cert_source", certSource);
+		return getCertResult(30040, param);
+	}
+	
+	/**
+	 * @描述：下载中登申请p7b证书
+	 * @作者：吴江波
+	 * @时间：2014-9-12 下午04:51:26
+	 * @param param
+	 * @return
+	 */
+	public Result downCsdcP7B(DataRow param)
+	{
+		return getCertResult(30001, param);
+	}
+	
+	/**
+	 * @描述：更新中登申请p7b证书
+	 * @作者：吴江波
+	 * @时间：2014-9-12 下午04:52:18
+	 * @param param
+	 * @return
+	 */
+	public Result updateCsdcP7B(DataRow param)
+	{
+		return getCertResult(30004, param);
+	}
+	
+	/**
+	 * @描述：获取天威证书
+	 * @作者：吴江波
+	 * @时间：2014-9-12 下午05:07:07
+	 * @param userid
+	 * @return
+	 */
+	public Result getTianWeiCert(String userid)
+	{
+		DataRow param = new DataRow();
+		param.set("user_id", userid);
+		return getCertResult(30025, param);
+	}
+	
+	/**
+	 * @描述：中登验签
+	 * @作者：吴江波
+	 * @时间：2014-9-12 下午05:08:11
+	 * @param plainText
+	 * @param signedText
+	 * @return
+	 */
+	public Result detachedSign(String plainText, String signedText)
+	{
+		DataRow param = new DataRow();
+		param.set("plain_text", plainText);
+		param.set("signed_text", signedText);
+		param.set("need_cert", "true");
+		return getCertResult(Configuration.getInt("cert_function.sign", 30054), param);
+	}
+	
+	/**
+	 * @描述：提交私匙保护密码
+	 * @作者：邱联琼
+	 * @时间：2014-9-19 17：30
+	 * @param param
+	 * @return
+	 */
+	@Override
+	public Result uploadPrivateKeyPwd(DataRow param)
+	{
+		return getCertResult(30092, param);
+	}
+	
+	/**
+	* @描述：自建证书验签
+	* @作者：LUODF
+	* @时间：2014-2-4 上午10:51:45
+	* @param param 
+	* @return
+	*/
+	@Override
+	public Result detachedSignZJ(String plainText, String signedText)
+	{
+		
+		DataRow param = new DataRow();
+		param.set("plain_text", plainText);
+		param.set("signed_text", signedText);
+		param.set("need_cert", "true");
+		return getCertResult(Configuration.getInt("cert_function.sign", 30090), param);
+	}
+	
+	@Override
+	public Result downTWP7B(DataRow param)
+	{
+		return getCertResult(30026, param);
+	}
+	
+	@Override
+	public Result updateTWP7B(DataRow param)
+	{
+		return getCertResult(30027, param);
+	}
+	
+	//获取中登证书
+	@Override
+	public Result getCsdcCert(String userid)
+	{
+		DataRow param = new DataRow();
+		param.set("user_id", userid);
+		return getCertResult(30002, param);
+	}
+	
+	@Override
+	public Result addCertUserInfo(DataRow param)
+	{
+		return getCertResult(30019, param);
+	}
+	
+	@Override
+	public Result updateCertApplyInfo(DataRow param)
+	{
+		return getCertResult(30037, param);
+	}
+	
+	@Override
+	public Result updateCertApplyState(DataRow param)
+	{
+		return getCertResult(30021, param);
+	}
+	
+	@Override
+	public Result cancelCertZD(String certId)
+	{
+		DataRow param = new DataRow();
+		param.set("cert_id", certId);
+		return getCertResult(30008, param);
+	}
+	
+	@Override
+	public Result cancelCertTianWei(String certId)
+	{
+		DataRow param = new DataRow();
+		param.set("cert_id", certId);
+		return getCertResult(30031, param);
+	}
+	
+	@Override
+	public Result checkCertExist(DataRow dataRow)
+	{
+		if ("CHN".equals(dataRow.getString("nationality")))
+		{
+			dataRow.set("nationality", "156");
+		}
+		return getCertResult(30095, dataRow);
+	}
+}

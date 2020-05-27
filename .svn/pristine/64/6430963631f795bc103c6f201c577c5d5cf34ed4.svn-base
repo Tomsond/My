@@ -1,0 +1,123 @@
+package com.thinkive.fxc.ismp.bus.business.assets.thirdbank.dao.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.jdbc.session.Session;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessConstants;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessTableConstants;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseDao;
+import com.thinkive.fxc.ismp.bus.base.util.ModelUtil;
+import com.thinkive.fxc.ismp.bus.business.assets.thirdbank.contants.ThirdBankContants;
+import com.thinkive.fxc.ismp.bus.business.assets.thirdbank.dao.ThirdBankBusinessInfoDao;
+import com.thinkive.fxc.ismp.bus.business.assets.thirdbank.model.ThirdBankExtendModel;
+import com.thinkive.fxc.ismp.bus.business.assets.thirdbank.vo.ThirdBankBusinessInfoVo;
+
+/**
+ * @描述: 三方存管业务实例和其要拓展信息(T_ISMP_BUSINESS_ENTITY和T_ISMP_B_THIRDBANK)数据层接口实现类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月29日 下午2:07:45
+ */
+public class ThirdBankBusinessInfoDaoImpl extends ISMPBaseDao implements ThirdBankBusinessInfoDao
+{
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<ThirdBankBusinessInfoVo> queryByParams(ThirdBankBusinessInfoVo thirdBankBusinessInfoVo)
+    {
+        List<String> paramsList=new ArrayList<String>();
+        StringBuilder sql=new StringBuilder();
+        sql.append("SELECT TB.ID,TB.USER_ID,TB.NODE_ID,TB.DEAL_RESULT,TB.DESCRIPTION,TB.CREATE_DATE,TB.UPDATE_DATE,TE.FUND_ACCOUNT,TE.OP_TYPE,TE.OLD_BANKCODE,TE.OLD_BANKNUM,TE.NEW_BANKCODE,TE.NEW_BANKNUM,TE.BIND_ERROR_COUNT FROM ");
+        sql.append(BusinessTableConstants.T_ISMP_BUSINESS_ENTITY).append(" TB ");
+        sql.append(" LEFT JOIN ").append(ThirdBankContants.T_ISMP_B_THIRDBANK).append(" TE ");
+        sql.append(" ON TB.ID = TE.BUSINESS_ID ");
+        sql.append(" WHERE TB.BUSINESS_CODE = ?");
+        paramsList.add(BusinessConstants.BUSINESS_THIRDBANK);
+        if(0 != thirdBankBusinessInfoVo.getId()){
+            sql.append(" AND TB.ID = ?");
+            paramsList.add(String.valueOf(thirdBankBusinessInfoVo.getId()));
+        }
+        if(null != thirdBankBusinessInfoVo.getUserId()){
+            sql.append(" AND TB.USER_ID = ?");
+            paramsList.add(thirdBankBusinessInfoVo.getUserId().toString());
+        }
+        if(StringUtils.isNotBlank(thirdBankBusinessInfoVo.getNodeId())){
+            sql.append(" AND TB.NODE_ID = ?");
+            paramsList.add(thirdBankBusinessInfoVo.getNodeId());
+        }
+        if(StringUtils.isNotBlank(thirdBankBusinessInfoVo.getOpType())){
+            sql.append(" AND TE.OP_TYPE = ?");
+            paramsList.add(thirdBankBusinessInfoVo.getOpType());
+        }
+        if(StringUtils.isNotBlank(thirdBankBusinessInfoVo.getIsComplete())){
+            sql.append(" AND TB.ISCOMPLETE = ?");
+            paramsList.add(thirdBankBusinessInfoVo.getIsComplete());
+        }
+        if(StringUtils.isNotBlank(thirdBankBusinessInfoVo.getFundAccount())){
+            sql.append(" AND TE.FUND_ACCOUNT = ?");
+            paramsList.add(thirdBankBusinessInfoVo.getFundAccount());
+        }
+        if(StringUtils.isNotBlank(thirdBankBusinessInfoVo.getDealResult())){
+            sql.append(" AND TB.DEAL_RESULT = ?");
+            paramsList.add(thirdBankBusinessInfoVo.getDealResult());
+        }
+        List<DataRow> queryResult=this.getJdbcTemplate().query(sql.toString(), paramsList.toArray());
+        return ModelUtil.packList(queryResult, ThirdBankBusinessInfoVo.class);
+    }
+
+    @Override
+    public ThirdBankExtendModel addThirdBankModel(ThirdBankExtendModel thirdBankExtendModel,Session session)
+    {
+        session.insert(ThirdBankContants.T_ISMP_B_THIRDBANK, thirdBankExtendModel);
+        return thirdBankExtendModel;
+    }
+    
+    @Override
+    public ThirdBankExtendModel addThirdBankModel(ThirdBankExtendModel thirdBankExtendModel)
+    {
+        this.getJdbcTemplate().insert(ThirdBankContants.T_ISMP_B_THIRDBANK, thirdBankExtendModel);
+        return thirdBankExtendModel;
+    }
+
+    @Override
+    public ThirdBankBusinessInfoVo queryByBusinessId(Long businessId)
+    {
+        StringBuilder sql=new StringBuilder();
+        sql.append("SELECT TB.ID,TB.USER_ID,TB.NODE_ID,TB.DEAL_RESULT,TB.DESCRIPTION,TB.CREATE_DATE,TB.UPDATE_DATE,TE.FUND_ACCOUNT,TE.OP_TYPE,TE.OLD_BANKCODE,TE.OLD_BANKNUM,TE.NEW_BANKCODE,TE.NEW_BANKNUM,TE.BIND_ERROR_COUNT FROM ");
+        sql.append(BusinessTableConstants.T_ISMP_BUSINESS_ENTITY).append(" TB ");
+        sql.append(" LEFT JOIN ").append(ThirdBankContants.T_ISMP_B_THIRDBANK).append(" TE ");
+        sql.append(" ON TB.ID = TE.BUSINESS_ID ");
+        sql.append(" WHERE TB.BUSINESS_CODE = ?");
+        sql.append(" AND TB.ID = ?");
+        DataRow queryResult=this.getJdbcTemplate().queryMap(sql.toString(), new Object[]{BusinessConstants.BUSINESS_THIRDBANK,businessId});
+        return ModelUtil.packInfo(queryResult, ThirdBankBusinessInfoVo.class);
+    }
+    @Override
+    public DataRow queryThirdbankByBusinessId(Long businessId)
+    {
+        StringBuilder sql=new StringBuilder();
+        sql.append("SELECT * FROM ");
+        sql.append(ThirdBankContants.T_ISMP_B_THIRDBANK); 
+        sql.append(" WHERE BUSINESS_ID = ?"); 
+        return this.getJdbcTemplate().queryMap(sql.toString(), new Object[]{businessId}); 
+    }
+
+    @Override
+    public int update(ThirdBankExtendModel bankExtendModel)
+    {
+        return this.getJdbcTemplate().update(ThirdBankContants.T_ISMP_B_THIRDBANK, bankExtendModel, "BUSINESS_ID", bankExtendModel.getBusinessId());
+    }
+
+    @Override
+    public int update(ThirdBankExtendModel bankExtendModel, Session session)
+    {
+        return  session.update(ThirdBankContants.T_ISMP_B_THIRDBANK, bankExtendModel, "BUSINESS_ID", bankExtendModel.getBusinessId());
+    }
+    
+}

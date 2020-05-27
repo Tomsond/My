@@ -1,0 +1,109 @@
+package com.thinkive.fxc.ismp.bus.business.mark;
+
+import java.util.Date;
+
+import org.apache.axis.transport.jms.InvokeException;
+import org.apache.log4j.Logger;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.basicdata.model.OperationStreamModel;
+import com.thinkive.fxc.ismp.bus.base.basicdata.service.OperationStreamService;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.business.vo.UserInfoVo;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdDictionaryConstants;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdInterfaceConstant;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdInterface;
+import com.thinkive.server.ResultVo;
+import com.thinkive.server.util.SpringUtil;
+
+/**
+ * 作者：MIKE
+ * 公司：深圳市思迪信息技术股份公司
+ * 日期时间：2017年6月2日 下午4:00:17
+ * 说明：插入操作流水类
+ */
+public class Function1004501 extends ISMPBaseFunction
+{
+	private Long userId;
+	private String type;//业务类型
+	private String request_data;//请求数据
+	private String response_data;//响应数据
+	private String request_time;//请求时间
+	private String device_id;//设备ID
+	private String app_version_number;//app版本号
+	private String ip;//IP地址
+	private String xdtx;//xdtx
+	private String mac;//Mac地址
+	private String business_code;//业务类型
+	private String business_id;//实例id
+    private String oper_info;//周边操作信息
+	
+	private UserInfoService userInfoService;
+	
+	private ThirdInterface thirdInterface;
+	
+	private static Logger logger = Logger.getLogger(Function1004501.class);
+	@Override
+	public ResultVo execute() throws Exception
+	{
+		initVar();
+		ResultVo resultVo = new ResultVo();
+		userInfoService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO, UserInfoService.class);
+		UserInfoVo userInfoVo = userInfoService.queryAndCheckUserByUserIdAndType(userId, ThirdInterfaceConstant.USER_ACCOUNT_TYPE_ZQ);
+		String account = userInfoVo.getFundAccount();
+		String name = userInfoVo.getName();
+		OperationStreamModel model = new OperationStreamModel();
+		model.setAccount(account);
+		model.setName(name);
+		model.setUserid(userId);
+		model.setType(type);
+		model.setRequestdata(request_data);
+		model.setResponsedata(response_data);
+		model.setRequesttime(new Date());
+		model.setIp(ip);
+		model.setXdtx(xdtx);
+		model.setMac(mac);
+		model.setAppversionnumber(app_version_number);
+		model.setDeviceid(device_id);
+		model.setbusinesscode(business_code);
+		model.setbusinessid(business_id);
+		OperationStreamService service = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_OPERATIONSTREAM, OperationStreamService.class);
+		try {
+//			thirdInterface = SpringUtil.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDINTERFACE, ThirdInterface.class);
+//			userInfoVo.set("instr_batch_no", "instr_batch_no");
+//			userInfoVo.set("oper_info", oper_info);
+//			userInfoVo.set("op_station", opStation);
+//			userInfoVo.set("password", userInfoVo.getPwd());
+//			DataRow FxcpDr = thirdInterface.queryInsert(userInfoVo);
+			service.OperationStreamInsert(model);
+			resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+			resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+		} catch (Exception e) {
+			logger.info("[1004501]留痕异常："+e);
+			resultVo.setErrorNo(-1);
+			resultVo.setErrorMsg("留痕记录失败！");
+		}
+		return resultVo;	
+	}
+	private void initVar()
+	{
+		userId = this.formatLongParam(this.getAndCheckBlankStrParam("user_id", ErrorCodeCheckInput.BLANK_USERID), ErrorCodeCheckInput.LONG_FORMAT_ERROR);
+		type = this.getStrParameter("type");
+		request_data = this.getStrParameter("request_data");
+		response_data = this.getStrParameter("response_data");
+		request_time = this.getStrParameter("request_time");
+		device_id = this.getStrParameter("device_id");
+		app_version_number = this.getStrParameter("app_version_number");
+		ip = this.getStrParameter("ip");
+		xdtx = this.getStrParameter("xdtx");
+		mac = this.getStrParameter("mac");
+		business_code = this.getStrParameter("business_code");
+		business_id = this.getStrParameter("business_id");
+		oper_info = this.getStrParameter("oper_info");
+	}	
+}

@@ -1,0 +1,63 @@
+package com.thinkive.fxc.ismp.bus.business.khzzhf.dao.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.StringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessTableConstants;
+import com.thinkive.fxc.ismp.bus.base.business.model.BusinessEntityModel;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseDao;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.util.ModelUtil;
+import com.thinkive.fxc.ismp.bus.business.khzzhf.dao.KhzzhfDao;
+
+public class KhzzhfDaoImpl extends ISMPBaseDao implements KhzzhfDao
+{
+
+    @Override
+    public List<DataRow> queryAllBySubjectNo(String subjectNo) throws Exception
+    {
+        StringBuilder sql = new StringBuilder();
+        sql.append(" SELECT SUB.STATE SUB_STATE,SUB.SUBJECT_NO,SUB.NAME SUB_NAME,QUE.QUE_ID,QUE.NAME QUE_NAME,QUE.STATE QUE_STATE,QUE.TYPE QUE_TYPE,QUE.EXT_CODE QUE_EXT_CODE,ANS.ANSWER_ID ANS_ID,ANS.NAME ANS_NAME,ANS.STATE ANS_STATE,ANS.MARK ANS_MARK,ANS.IS_TRUE");
+        sql.append(" FROM T_PUB_SURVEY_SUBJECT SUB LEFT JOIN T_PUB_SURVEY_QUESTION QUE ON SUB.SUBJECT_ID = QUE.SUBJECT_ID ");
+        sql.append(" LEFT JOIN T_PUB_SURVEY_ANSWER ANS ON QUE.QUE_ID = ANS.QUE_ID WHERE SUB.STATE ='0' AND QUE.STATE ='0' AND ANS.STATE='0'");
+        
+        List<String> args = new ArrayList<String>();
+        if(StringHelper.isNotEmpty(subjectNo)){
+            args.add(subjectNo);
+            sql.append(" AND SUB.SUBJECT_NO = ? ");
+        }
+        sql.append("  ORDER BY QUE.ORDERLINE ASC");
+        return this.getJdbcTemplateWork().query(sql.toString(),args.toArray());
+        
+    }
+
+    @Override
+    public DataRow querySubjectBySubjectNo(String subjectNo) throws Exception
+    {
+        StringBuilder sql = new StringBuilder();
+        sql.append(" SELECT SUB.SUBJECT_ID,SUB.SUBJECT_NO,SUB.NAME ");
+        sql.append(" FROM T_PUB_SURVEY_SUBJECT SUB WHERE 1=1");
+        List<String> args = new ArrayList<String>();
+        if(StringHelper.isNotEmpty(subjectNo)){
+            args.add(subjectNo);
+            sql.append(" AND SUB.SUBJECT_NO = ? ");
+        }
+        sql.append("  ORDER BY SUB.ORDERLINE ASC");
+        return this.getJdbcTemplateWork().queryMap(sql.toString(),args.toArray());
+    }
+ 
+    @Override
+    public BusinessEntityModel queryCompleteByUserIdAndBusinessCode(long userId, String businessCode)
+    {
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT ID, USER_ID, BUSINESS_CODE, NODE_ID, ISCOMPLETE, DEAL_RESULT, OP_SOURCE, CREATE_DATE, UPDATE_DATE,DESCRIPTION  FROM ");
+        sql.append(BusinessTableConstants.T_ISMP_BUSINESS_ENTITY);
+        sql.append(" WHERE USER_ID = ? AND  BUSINESS_CODE = ? AND ISCOMPLETE = ?");
+        DataRow businessEntityModel = this.getJdbcTemplate().queryMap(sql.toString(), new Object[] { userId, businessCode, DictionaryConstants.BOL_TRUE });
+        return ModelUtil.packInfo(businessEntityModel, BusinessEntityModel.class);
+    }
+
+    
+}

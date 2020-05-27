@@ -1,0 +1,72 @@
+/**
+ * 
+ */
+package com.thinkive.fxc.ismp.bus.base.business.dao;
+
+import java.util.List;
+
+import com.thinkive.base.jdbc.session.Session;
+import com.thinkive.fxc.ismp.bus.base.business.model.ChoiceAccountRecordModel;
+
+/**
+ * @描述: 选择帐号记录表(t_ismp_choice_account_record) DAO
+ * @版权: Copyright (c) 2016 
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 尹杰民
+ * @版本: 2.0 
+ * @创建时间: 2016年8月16日 下午2:13:44
+ */
+public interface ChoiceAccountRecordDao
+{
+	
+	/**
+	 * @描述:  添加选择帐号记录
+	 * @作者: 田源  
+	 * @时间：2016年8月17日 下午3:59:13
+	 * @param choiceAccountRecordModel
+	 * @return ChoiceAccountRecordModel
+	 * @
+	 */
+	public ChoiceAccountRecordModel add(ChoiceAccountRecordModel choiceAccountRecordModel);
+	
+	//public int update(ChoiceAccountRecordModel choiceAccountRecordModel) ;
+	
+	/**
+	 * @描述: 根据businessId和nodeId查询选择帐号记录
+	 * @作者: 田源  
+	 * @时间：2016年8月17日 下午3:59:13
+	 * @param businessId
+	 * @param nodeId
+	 * @return List<ChoiceAccountRecordModel>
+	 * @
+	 */
+	public List<ChoiceAccountRecordModel> queryByBusinessIdAndNodeId(Long businessId, String nodeId);
+	
+	/**
+	 * @描述：批量添加用户选择帐号记录(需要管理事务)
+	 * @作者：刘恺
+	 * @时间：2016年9月3日 上午11:01:01
+	 * @param choiceAccountRecordModels
+	 * @param session
+	 */
+	public List<ChoiceAccountRecordModel> addBatch(List<ChoiceAccountRecordModel> choiceAccountRecordModels, Session session);
+	
+	/**
+	 * @描述：批量添加用户选择帐号记录
+	 * @作者：刘恺
+	 * @时间：2016年9月3日 上午11:08:35
+	 * @param choiceAccountRecordModels
+	 */
+	public List<ChoiceAccountRecordModel> addBatch(List<ChoiceAccountRecordModel> choiceAccountRecordModels);
+	
+	/**
+	 * @描述：根据业务实例编号和节点标识删除用户选择的帐号记录
+	 * @作者：刘恺
+	 * @时间：2016年9月3日 上午11:19:38
+	 * @param businessId
+	 * @param nodeId
+	 * @param session
+	 * @throws Exception
+	 */
+	public void deleteByBusinessIdAndNodeId(Long businessId, String nodeId, Session session) throws Exception;
+}

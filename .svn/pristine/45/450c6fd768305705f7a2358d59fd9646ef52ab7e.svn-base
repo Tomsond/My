@@ -1,0 +1,61 @@
+/**
+ * 
+ */
+package com.thinkive.fxc.ismp.bus.base.business.dao;
+
+import java.util.List;
+
+import com.thinkive.fxc.ismp.bus.base.business.model.ImageInformationModel;
+
+/**
+ * @描述: 身份证信息确认记录表(t_ismp_image_information) DAO接口
+ * @版权: Copyright (c) 2016 
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 尹杰民
+ * @版本: 2.0 
+ * @创建时间: 2016年8月16日 下午1:52:46
+ */
+public interface ImageInformationDao
+{
+	
+	/** 
+	 * @描述: 添加身份证确认信息
+	 * @作者: 尹杰民
+	 * @时间：2016年8月17日 下午3:59:13
+	 * @param imageInformationModel
+	 * @
+	 * @return ImageInformationModel
+	*/
+	public ImageInformationModel add(ImageInformationModel imageInformationModel);
+	
+	/** 
+	 * @描述: 修改身份证确认信息 ,返回更新成功记录数
+	 * @作者: 尹杰民
+	 * @时间：2016年8月17日 下午3:59:13
+	 * @param imageInformationModel
+	 * @
+	 * @return int
+	*/
+	public int update(ImageInformationModel imageInformationModel);
+	
+	/** 
+	 * @描述:  根据businessId和nodeId查询身份证确认信息
+	 * @作者: 尹杰民
+	 * @时间：2016年8月17日 下午3:59:13
+	 * @param businessId
+	 * @param nodeId
+	 * @
+	 * @return List<ImageInformationModel>
+	*/
+	public List<ImageInformationModel> queryByParams(Long businessId, String nodeId);
+	
+	/**
+	 * @描述：根据业务实例编号和节点编号更新信息确认实例
+	 * @作者：刘恺
+	 * @创建时间: 2017年3月29日 下午3:07:52
+	 * @param imageInformationModel
+	 * @return
+	 */
+	public int updateByBusinessIdAndNodeId(ImageInformationModel imageInformationModel);
+	
+}

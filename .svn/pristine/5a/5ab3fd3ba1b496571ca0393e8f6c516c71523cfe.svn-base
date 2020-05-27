@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="GBK"?>
+<!--
+##################################################################
+##                                                              ##
+##         用于配置服务器需要动态加载的功能模块                 ##
+##                                                              ##
+##                                                              ##
+##         id     :  业务功能编号                               ##
+##         class  :  业务功能的具体实现类                       ##
+##         desc   :  功能描述信息                                ##
+##                                                              ##
+##################################################################
+#############视频相关功能号定义，统一功能号码段104开头##################################################
+-->
+<functions>
+	<function id="104000">
+		<class>com.thinkive.fxc.ismp.plat.business.witness.function.Function104000</class>
+		<desc>视频见证页面初始化数据</desc>
+	</function>
+	<function id="104001">
+		<class>com.thinkive.fxc.ismp.plat.business.witness.function.Function104001</class>
+		<desc>查询视频见证客户信息</desc>
+	</function>
+	<function id="104002">
+		<class>com.thinkive.fxc.ismp.plat.business.witness.function.Function104002</class>
+		<desc>修改视频见证客户信息</desc>
+	</function>
+	<function id="104003">
+		<class>com.thinkive.fxc.ismp.plat.business.witness.function.Function104003</class>
+		<desc>保存公安验证信息及历史记录</desc>
+	</function>
+	<function id="104004">
+		<class>com.thinkive.fxc.ismp.plat.business.witness.function.Function104004</class>
+		<desc>视频见证复核</desc>
+	</function>
+	<function id="104005">
+		<class>com.thinkive.fxc.ismp.plat.business.witness.function.Function104005</class>
+		<desc>视频见证通过</desc>
+	</function>
+	<function id="104006">
+		<class>com.thinkive.fxc.ismp.plat.business.witness.function.Function104006</class>
+		<desc>视频见证驳回</desc>
+	</function>
+	<function id="104007">
+		<class>com.thinkive.fxc.ismp.plat.business.witness.function.Function104007</class>
+		<desc>保存视频信息</desc>
+	</function>
+	<function id="104008">
+		<class>com.thinkive.fxc.ismp.plat.business.witness.function.Function104008</class>
+		<desc>保存免冠照信息</desc>
+	</function>
+	<function id="104009">
+		<class>com.thinkive.fxc.ismp.plat.business.witness.function.Function104009</class>
+		<desc>排队bus登录</desc>
+	</function>
+	<function id="104010">
+		<class>com.thinkive.fxc.ismp.plat.business.witness.function.Function104010</class>
+		<desc>排队bus退出</desc>
+	</function>
+	<function id="104011">
+		<class>com.thinkive.fxc.ismp.plat.business.witness.function.Function104011</class>
+		<desc>视频见证日志记录表</desc>
+	</function>
+	<function id="104012">
+		<class>com.thinkive.fxc.ismp.plat.business.witness.function.Function104012</class>
+		<desc>获取房间ID</desc>
+	</function>
+	<function id="104013">
+		<class>com.thinkive.fxc.ismp.plat.business.witness.function.Function104013</class>
+		<desc>提交手动选择客户</desc>
+	</function>
+	<function id="104014">
+		<class>com.thinkive.fxc.ismp.plat.business.witness.function.Function104014</class>
+		<desc>提交自动选择客户</desc>
+	</function>
+	<function id="104015">
+		<class>com.thinkive.fxc.ismp.plat.business.witness.function.Function104015</class>
+		<desc>坐席登录排队系统 -轮询客户查询</desc>
+	</function>
+	<function id="104016">
+		<class>com.thinkive.fxc.ismp.plat.business.witness.function.Function104016</class>
+		<desc>查询客户列表-排队</desc>
+	</function>
+	<function id="104017">
+		<class>com.thinkive.fxc.ismp.plat.business.witness.function.Function104017</class>
+		<desc>改变客户状态（视频通过、或驳回）</desc>
+	</function>
+	<function id="104018">
+		<class>com.thinkive.fxc.ismp.plat.business.witness.function.Function104018</class>
+		<desc>修改anchat服务器配置并更新redis缓存数据</desc>
+	</function>
+	<function id="104019">
+		<class>com.thinkive.fxc.ismp.plat.business.witness.function.Function104019</class>
+		<desc>增加anchat服务器配置并更新redis缓存数据</desc>
+	</function>
+	<function id="104020">
+		<class>com.thinkive.fxc.ismp.plat.business.witness.function.Function104020</class>
+		<desc>删除anchat服务器配置并更新redis缓存数据</desc>
+	</function>
+	<function id="104021">
+		<class>com.thinkive.fxc.ismp.plat.business.witness.function.Function104021</class>
+		<desc>根据视频ID查询该业务的ID</desc>
+	</function>
+	<function id="104022">
+		<class>com.thinkive.fxc.ismp.plat.business.witness.function.Function104022</class>
+		<desc>查询视频流水-根据数据权限</desc>
+	</function>
+	<function id="104023">
+		<class>com.thinkive.fxc.ismp.plat.business.witness.function.Function104023</class>
+		<desc>查询anychat服务器数据</desc>
+	</function>
+	<function id="104024">
+		<class>com.thinkive.fxc.ismp.plat.business.witness.function.Function104024</class>
+		<desc>视频监控-统计坐席工作状态（忙闲）信息 </desc>
+	</function>
+	<function id="104025">
+		<class>com.thinkive.fxc.ismp.plat.business.witness.function.Function104025</class>
+		<desc>查询坐席具备的业务类型的视频见证权限 </desc>
+	</function>
+</functions>

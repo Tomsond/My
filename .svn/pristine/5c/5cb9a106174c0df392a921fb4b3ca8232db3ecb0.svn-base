@@ -1,0 +1,133 @@
+package com.thinkive.fxc.ismp.bus.base.business.model;
+
+import java.sql.Timestamp;
+import java.util.Date;
+
+import com.thinkive.base.jdbc.DataRow;
+
+/**
+ * @描述: 选择帐号节点属性配置表(t_ismp_choice_account_config)模型
+ * @版权: Copyright (c) 2016 
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0 
+ * @创建时间: 2016年8月12日 下午4:19:47
+ */
+public class ChoiceAccountConfigModel extends DataRow
+{
+
+    private static final long serialVersionUID = 1253868818389896068L;
+    
+    private static final String ID = "id";
+    
+    private static final String NODE_ID = "node_id";
+    
+    private static final String SHOW_ERROR_ACCOUNT = "show_error_account";
+    
+    private static final String SHOW_OPEN_ACCOUNT = "show_open_account";
+    
+    private static final String SHOW_DEALERROR_LINK = "show_dealerror_link";
+    
+    private static final String CREATE_DATE = "create_date";
+    
+    private static final String UPDATE_DATE = "update_date";
+    
+    /**
+     * 获取自增主键
+     */
+    public Long getId() {
+        return getLong(ID);
+    }
+
+    /**
+     * 设置自增主键
+     */
+    public void setId(Long id) {
+        set(ID, id);
+    }
+    
+    /**
+     * 获取节点英文标识
+     */
+    public String getNodeId() {
+        return getString(NODE_ID);
+    }
+
+    /**
+     * 设置节点英文标识
+     */
+    public void setNodeId(String nodeId) {
+        set(NODE_ID, nodeId);
+    }
+
+    /**
+     * 获取是否显示异常帐号
+     */
+    public String getShowErrorAccount() {
+        return getString(SHOW_ERROR_ACCOUNT);
+    }
+
+    /**
+     * 设置是否显示异常帐号
+     */
+    public void setShowErrorAccount(String showErrorAccount) {
+        set(SHOW_ERROR_ACCOUNT, showErrorAccount);
+    }
+    
+    /**
+     * 获取是否显示已开通帐号
+     */
+    public String getShowOpenAccount() {
+        return getString(SHOW_OPEN_ACCOUNT);
+    }
+
+    /**
+     * 设置是否显示已开通帐号
+     */
+    public void setShowOpenAccount(String showOpenAccount) {
+        set(SHOW_OPEN_ACCOUNT, showOpenAccount);
+    }
+    
+    /**
+     * 获取是否提供异常帐号处理链接
+     */
+    public String getShowDealErrorLink() {
+        return getString(SHOW_DEALERROR_LINK);
+    }
+
+    /**
+     * 设置是否提供异常帐号处理链接
+     */
+    public void setShowDealErrorLink(String showDealErrorLink) {
+        set(SHOW_DEALERROR_LINK, showDealErrorLink);
+    }
+    
+    /**
+     * 获取创建时间
+     */
+    public Date getCreateDate() {
+        return (Date) get(CREATE_DATE);
+    }
+
+    /**
+     * 设置创建时间
+     */
+    public void setCreateDate(Date createDate) {
+        Timestamp timestamp=new Timestamp(createDate.getTime());
+        set(CREATE_DATE, timestamp);
+    }
+    
+    /**
+     * 获取更新时间
+     */
+    public Date getUpdateDate() {
+       return (Date) get(UPDATE_DATE);
+    }
+
+    /**
+     * 设置更新时间
+     */
+    public void setUpdateDate(Date updateDate) {
+        set(UPDATE_DATE, updateDate);
+    }
+}

@@ -1,0 +1,154 @@
+package com.thinkive.fxc.ismp.bus.base.business.service;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.server.InvokeException;
+
+/**
+ * @描述: 数字证书管理服务类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月29日 下午9:54:39
+ */
+public interface CertManageService
+{
+	
+	/**
+	 * @描述：申请中登证书
+	 * @作者：刘恺
+	 * @时间：2016年8月29日 下午9:54:49
+	 * @param certuid
+	 * @param pkcs10
+	 * @param ipaddr
+	 * @param macaddr
+	 * @return
+	 * @throws Exception
+	 */
+	public DataRow applyZDCert(String certuid, String pkcs10, String ipaddr, String macaddr) throws Exception;
+	
+	/**
+	 * @描述：更新中登证书
+	 * @作者：刘恺
+	 * @时间：2016年8月29日 下午9:55:02
+	 * @param cert_id
+	 * @param pkcs10
+	 * @param ipaddr
+	 * @param macaddr
+	 * @return
+	 * @throws Exception
+	 */
+	public DataRow updateZDCert(String cert_id, String pkcs10, String ipaddr, String macaddr) throws Exception;
+	
+	/**
+	 * @描述：申请自建证书
+	 * @作者：刘恺
+	 * @时间：2016年8月29日 下午9:55:15
+	 * @param certuid
+	 * @param pkcs10
+	 * @param email
+	 * @param ipaddr
+	 * @param macaddr
+	 * @return
+	 * @throws InvokeException
+	 */
+	public DataRow applyZJCert(String certuid, String pkcs10, String email, String ipaddr, String macaddr) throws InvokeException;
+	
+	/**
+	 * @描述：更新证件证书
+	 * @作者：刘恺
+	 * @时间：2016年8月29日 下午9:55:36
+	 * @param cert_id
+	 * @param pkcs10
+	 * @param ipaddr
+	 * @param macaddr
+	 * @return
+	 * @throws InvokeException
+	 */
+	public DataRow updateZJCert(String cert_id, String pkcs10, String ipaddr, String macaddr) throws InvokeException;
+	
+	/**
+	 * @描述：检查用户是否申请过对应证书（调用中登或者其他自建第三方接口检查）
+	 * @作者：刘恺
+	 * @时间：2016年8月29日 下午9:56:06
+	 * @param userId
+	 * @param certSource
+	 * @return
+	 * @throws Exception
+	 */
+	public DataRow checkUserCert(Long userId, String certSource) throws Exception;
+	
+	/**
+	 * @描述：校验用户信息
+	 * @作者：刘恺
+	 * @时间：2016年8月29日 下午9:56:22
+	 * @param userInfo
+	 * @throws InvokeException
+	 */
+	public void checkUserInfo(DataRow userInfo) throws InvokeException;
+	
+	/**
+	 * @描述：同步证书用户到云柜台
+	 * @作者：刘恺
+	 * @时间：2016年8月29日 下午9:56:31
+	 * @param userInfo
+	 * @return
+	 * @throws InvokeException
+	 */
+	public String synCertUser(DataRow userInfo) throws InvokeException;
+	
+	/**
+	 * @描述：使用托管bus加密密码
+	 * @作者：刘恺
+	 * @时间：2016年8月29日 下午9:56:46
+	 * @param password
+	 * @return
+	 * @throws InvokeException
+	 */
+	public String encodePwdByTGTBas(String password) throws InvokeException;
+	
+	/**
+	 * @描述：上传密码
+	 * @作者：刘恺
+	 * @时间：2016年8月29日 下午9:57:02
+	 * @param certuid
+	 * @param encodedPwd
+	 * @throws InvokeException
+	 */
+	public void uploadPwd(String certuid, String encodedPwd) throws InvokeException;
+	
+	/**
+	 * @描述：检查用户是否在我们系统中申请过证书
+	 * @作者：刘恺
+	 * @时间：2016年8月29日 下午9:57:08
+	 * @param userInfo
+	 * @param cert_source
+	 * @return
+	 * @throws InvokeException
+	 */
+	public DataRow checkCertExist(DataRow userInfo, String cert_source) throws InvokeException;
+	
+	/**
+	 * @描述：重置托管证书密码
+	 * @作者：刘恺
+	 * @时间：2016年8月29日 下午10:05:30
+	 * @param ipaddr
+	 * @param macaddr
+	 * @param password
+	 * @param userInfo
+	 * @param cert_type
+	 * @throws InvokeException
+	 */
+	public void resetTgCertPwd(String ipaddr, String macaddr, String password, DataRow userInfo, Object cert_type) throws InvokeException;
+	
+	/**
+	 * @描述：保存托管证书密码
+	 * @作者：刘恺
+	 * @时间：2016年8月29日 下午10:05:38
+	 * @param user_id
+	 * @param privatekey_pwd
+	 * @throws InvokeException
+	 * @throws Exception
+	 */
+	public void saveTgPwd(String user_id, String privatekey_pwd) throws InvokeException, Exception;
+}

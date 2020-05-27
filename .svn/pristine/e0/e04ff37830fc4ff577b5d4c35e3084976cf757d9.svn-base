@@ -1,0 +1,56 @@
+package com.thinkive.fxc.ismp.bus.base.business.function;
+
+import java.util.List;
+
+import com.thinkive.server.InvokeException;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.base.util.StringHelper;
+import com.thinkive.fxc.ismp.bus.base.basicdata.vo.ThirdBankInfoVo;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.business.assets.thirdbank.contants.ThirdBankContants;
+import com.thinkive.fxc.ismp.bus.business.assets.thirdbank.service.ThirdBankService;
+import com.thinkive.server.InvokeException;
+import com.thinkive.server.ResultVo;
+
+/**
+ * @描述: 三方存管-从数据库获取所有银行卡信息
+ * @版权: Copyright (c) 2014 
+ * @公司: 思迪科技 
+ * @作者: 吴江波
+ * @版本: 1.0 
+ * @创建日期: 2014-8-29 
+ * @创建时间: 上午10:13:23
+ */
+public class Function1004135 extends ISMPBaseFunction
+{
+	
+	private ThirdBankService thirdBankService;
+	
+	private String bindtype;// 三方绑定方式
+	
+	private String ispwd;//是否需要密码
+	
+	@Override
+	public ResultVo execute() throws InvokeException
+	{
+		checkInput();
+		ResultVo resultVo = new ResultVo();
+		
+		thirdBankService = SpringHelper.getBean(ThirdBankContants.SERVICE_ID_THIRDBANK, ThirdBankService.class);
+		
+		//从数据库获取所有银行卡信息
+		List<ThirdBankInfoVo> bankCardInfoList = thirdBankService.queryByBindTypeAndIsPwd(bindtype, ispwd);
+		
+		resultVo.setResult(bankCardInfoList);
+		resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+		resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+		return resultVo;
+	}
+	
+	private void checkInput() throws InvokeException
+	{
+		bindtype = this.getStrParameter("bindtype");
+		ispwd = this.getStrParameter("ispwd");
+	}
+}

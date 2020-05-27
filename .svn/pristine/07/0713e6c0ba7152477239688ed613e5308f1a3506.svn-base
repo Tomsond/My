@@ -1,0 +1,68 @@
+package com.thinkive.fxc.ismp.bus.base.basicdata.dao.impl;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.StringUtil;
+import com.thinkive.fxc.ismp.bus.base.basicdata.contants.BaseTableConstants;
+import com.thinkive.fxc.ismp.bus.base.basicdata.dao.SysConfigDao;
+import com.thinkive.fxc.ismp.bus.base.basicdata.model.SysConfigModel;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseDao;
+import com.thinkive.fxc.ismp.bus.base.constants.SystemConstants;
+import com.thinkive.fxc.ismp.bus.base.util.ModelUtil;
+
+/**
+ * @描述: 公共-系统配置表(T_FXC_SYS_CONFIG)数据层接口实现类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 尹杰民
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月18日 下午7:06:00
+ */
+public class SysConfigDaoImpl extends ISMPBaseDao implements SysConfigDao
+{
+    
+    @Override
+    public SysConfigModel add(SysConfigModel sysConfigModel) throws Exception
+    {
+        String id = this.getSeqValue(SystemConstants.DB_ISMP,BaseTableConstants.T_FXC_SYS_CONFIG);
+        sysConfigModel.setId(Long.valueOf(id));
+        sysConfigModel.setCreateDate(new Date());
+        this.getJdbcTemplate().insert(BaseTableConstants.T_FXC_SYS_CONFIG, sysConfigModel);
+        return sysConfigModel;
+    }
+    
+    @Override
+    public int upadte(SysConfigModel sysConfigModel) throws Exception
+    {
+        Long id = sysConfigModel.getId();
+        sysConfigModel.setUpdateDate(new Date());
+        return this.getJdbcTemplate().update(BaseTableConstants.T_FXC_SYS_CONFIG, sysConfigModel, "ID", id);
+    }
+    
+    @Override
+    public SysConfigModel queryByParams(String name, String curValue) throws Exception
+    {
+        StringBuilder sql = new StringBuilder();
+        List<String> paramList = new ArrayList<String>();
+        sql.append(" SELECT ID, NAME, CAPTION, CUR_VALUE, DESCRIPTION, CREATE_DATE, CREATE_BY, UPDATE_DATE, UPDATE_BY");
+        sql.append(" FROM ");
+        sql.append(BaseTableConstants.T_FXC_SYS_CONFIG);
+        sql.append(" WHERE 1=1 ");
+        if ( StringUtil.isNotEmpty(name) )
+        {
+            sql.append(" AND NAME = ? ");
+            paramList.add(name);
+        }
+        if ( StringUtil.isNotEmpty(curValue) )
+        {
+            sql.append(" AND CUR_VALUE = ? ");
+            paramList.add(curValue);
+        }
+        DataRow queryResult = this.getJdbcTemplate().queryMap(sql.toString(), paramList.toArray());
+        return ModelUtil.packInfo(queryResult, SysConfigModel.class);
+    }
+    
+}

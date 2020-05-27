@@ -1,0 +1,45 @@
+package com.thinkive.fxc.ismp.bus.business.otc.service;
+
+import java.util.List;
+
+import com.thinkive.fxc.ismp.bus.base.business.model.ChoiceAccountRecordModel;
+import com.thinkive.fxc.ismp.bus.business.otc.model.OtcInfo;
+
+/**
+ * 描述: OTC开户服务类
+ * 版权: Copyright (c) 2010
+ * 公司: 思迪科技 
+ * 作者: 刘恺
+ * 版本: 1.0 
+ * 创建日期: 2016年1月13日 
+ * 创建时间: 下午6:03:08
+ */
+public interface OtcOpenService
+{
+	
+	/**
+	 * 描述：查询已配置的全部OTC信息
+	 * 作者：刘恺
+	 * 时间：2016年1月14日 上午10:41:15
+	 * @return
+	 */
+	public List<OtcInfo> queryAllOtcInfo();
+	
+	/**
+	 * 描述：根据业务ID查询用户申请开通的帐号列表
+	 * 作者：刘恺
+	 * 时间：2016年1月14日 上午11:04:36
+	 * @param business_id
+	 * @return
+	 */
+	public List<ChoiceAccountRecordModel> queryApplyAccountsByBId(Long business_id);
+	
+	/**
+	 * @描述：根据编号批量查询OTC信息
+	 * @作者：刘恺
+	 * @创建时间: 2017年3月1日 下午5:31:48
+	 * @param codes
+	 * @return
+	 */
+	public List<OtcInfo> queryByCodes(String[] codes);
+}

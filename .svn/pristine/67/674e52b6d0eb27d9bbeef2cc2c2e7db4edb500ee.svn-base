@@ -1,0 +1,97 @@
+package com.thinkive.fxc.ismp.bus.business.resetphone;
+
+import com.thinkive.base.exception.BusinessException;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.base.util.StringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.function.IsmpFlowBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.business.model.BusinessEntityModel;
+import com.thinkive.fxc.ismp.bus.base.business.service.BusinessEntityService;
+import com.thinkive.fxc.ismp.bus.base.business.service.ChoiceAccountRecordService;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.business.vo.UserInfoVo;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.business.user.contants.UserErrorCodeContants;
+import com.thinkive.fxc.ismp.bus.business.util.SmsUtils;
+import com.thinkive.server.InvokeException;
+import com.thinkive.server.ResultVo;
+
+/**
+ * @描述: 重置新手收号，提交新手机号
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 谢能琥
+ * @版本: 2.0.0 
+ * @创建时间: 2016年12月1日 下午5:06:07
+ */
+public class Function1004822 extends IsmpFlowBaseFunction
+{
+	
+	private String mobileCode; //手机验证码
+	
+	private String newMobile; //新手机号码
+	
+	private String fundAccount; //资金帐号
+	
+	private UserInfoService userInfoService;
+	
+	public ResultVo execute() throws Exception
+	{
+		//step1：获取入参并校验
+		checkInput();
+		
+		// step2:验证手机验证码是否正确
+		boolean checkResult = SmsUtils.checkMobileCode(newMobile, mobileCode, DictionaryConstants.SMS_TYPE_RESET_MOBILE);
+		if (!checkResult)
+		{
+			throw new BusinessException(UserErrorCodeContants.BUSINESS_MOBILE_VALIDATE_ERROR, "短信验证失败，手机号：" + newMobile + ",验证码:" + mobileCode);
+		}
+		
+		//step3:查询用户基本信息和用户账号信息,获取原手机号码
+		userInfoService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO, UserInfoService.class);
+		UserInfoVo userInfoVo = userInfoService.queryAndCheckUserByUserIdAndAccount(userId, fundAccount);
+		
+		//step3:验证要修改的手机号码是否与原来的相同 
+		String oldMobile = userInfoVo.getMobile();
+		if (newMobile.equals(oldMobile))
+		{
+			throw new BusinessException(UserErrorCodeContants.BUSINESS_MOBILE_SAME, "修改的手机号与当前绑定手机号相同：" + newMobile);
+		}
+		
+		//step4:验证要修改的手机号码是否已绑定其他用户
+		boolean existMobile = userInfoService.existMobile(newMobile);
+		if (existMobile)
+		{
+			throw new BusinessException(UserErrorCodeContants.BUSINESS_MOBILE_BINDING_OTHER, "该手机已绑定其他用户：" + newMobile);
+		}
+		
+		//step5:添加选择账号
+		ChoiceAccountRecordService choiceAccountRecordService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_CHOICEACCOUNTRECORD, ChoiceAccountRecordService.class);
+		choiceAccountRecordService.addBatchByAccounts(newMobile, businessEntityAndConfigVO.getId(), nodeId, DictionaryConstants.CHOICEACCOUNT_DEALRESULT_NOTSTART);
+		
+		//step6:修改业务实例，添加审核任务
+		declareNotChangeNodeId();
+		BusinessEntityService businessEntityService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_BUSINESSENTITY, BusinessEntityService.class);
+		BusinessEntityModel updateBusinessEntityModel = getNewBusinessEntity();
+		updateBusinessEntityModel.setId(businessEntityAndConfigVO.getId());
+		businessEntityService.changeFlowNodeAndAddAutitTask(updateBusinessEntityModel, nodeId);
+		
+		//step7:出参
+		ResultVo resultVo = new ResultVo();
+		resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+		resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+		return resultVo;
+	}
+	
+	private void checkInput() throws InvokeException
+	{
+		mobileCode = this.getAndCheckBlankStrParam("mobile_code", ErrorCodeCheckInput.BLANK_VALIDATE_CODE);
+		newMobile = this.getAndCheckBlankStrParam("new_mobile", ErrorCodeCheckInput.BLANK_NEWMOBILE_ACCOUNT);
+		if (!StringHelper.isMoblie(newMobile))
+		{
+			throw new BusinessException(ErrorCodeCheckInput.ERROR_FORMAT_MOBILE, "新手机号码格式不正确");
+		}
+		fundAccount = this.getAndCheckBlankStrParam("fundid", ErrorCodeCheckInput.BLANK_FUNDACCOUNT);
+	}
+}

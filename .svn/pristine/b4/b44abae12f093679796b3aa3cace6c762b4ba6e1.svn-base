@@ -1,0 +1,260 @@
+package com.thinkive.fxc.ismp.bus.business.mark;
+
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.commons.lang.time.DateUtils;
+import org.apache.log4j.Logger;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.base.util.StringHelper;
+import com.thinkive.fxc.ismp.bus.base.basicdata.model.QuestionnaireFlowModel;
+import com.thinkive.fxc.ismp.bus.base.basicdata.service.QuestionnaireFlowService;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.business.vo.UserInfoVo;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdDictionaryConstants;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdInterfaceConstant;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdInterface;
+import com.thinkive.server.ResultVo;
+import com.thinkive.server.util.SpringUtil;
+
+
+/**
+ * 作者：MIKE
+ * 公司：深圳市思迪信息技术股份公司
+ * 日期时间：2017年6月3日 上午11:24:26
+ * 说明：插入问卷流水类
+ */
+public class Function1004503 extends ISMPBaseFunction
+{
+	private Long userId;
+	private String questionnaire_type;//问卷类型
+	private String questionnaire_name;//问卷名称
+	private String questionnaire_version;//问卷版本
+	private String pre_test_scores;//评测前分数
+	private String post_evaluation_score;//评测后分数
+	private String pre_evaluation_level;//评测前等级
+	private String post_rating;//评测后等级
+	private String latest_evaluation_date;//最新评测日期
+	private String questionnaire_title;//问卷题目
+	private String questionnaire_options;//问卷选项
+	private String questionnaire_answer;//问卷答案
+	private String assessment_channel;//测评渠道
+	private String questionnaire_expiration_date;//问卷失效日期
+	private String device_id;//设备ID
+	private String ip;//IP地址
+	private String xdtx;//xdtx
+	private String mac;//Mac地址
+	private String business_code;//业务类型
+	private String business_id;//实例id
+	
+	private UserInfoService userInfoService;
+	
+	private static Logger logger = Logger.getLogger(Function1004503.class);
+	
+	@Override
+	public ResultVo execute() throws Exception
+	{
+		initVar();
+		ResultVo resultVo = new ResultVo();
+		userInfoService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO, UserInfoService.class);
+		UserInfoVo userInfoVo = userInfoService.queryAndCheckUserByUserIdAndType(userId, ThirdInterfaceConstant.USER_ACCOUNT_TYPE_ZQ);
+		String account = userInfoVo.getFundAccount();
+		String name = userInfoVo.getName();
+		QuestionnaireFlowModel model = new QuestionnaireFlowModel();
+		   
+		model.setAccount(account);
+		model.setName(name);
+		model.setUserid(userId);
+		model.setAssessmentchannel(assessment_channel);
+		model.setPostevaluationscore(post_evaluation_score);
+		model.setPostrating(post_rating);
+		model.setPreevaluationlevel(pre_evaluation_level);
+		model.setPretestscores(pre_test_scores);
+		model.setQuestionnaireanswer(questionnaire_answer);
+		//model.setQuestionnaireexpirationdate(new Date());
+		model.setQuestionnairename(questionnaire_name);
+		model.setQuestionnaireoptions(questionnaire_options);
+		model.setQuestionnairetitle(questionnaire_title);
+		model.setQuestionnairetype(questionnaire_type);
+		model.setQuestionnaireversion(questionnaire_version);
+		model.setLatestevaluationdate(new Date());
+		model.setIp(ip);
+		model.setMac(mac);
+		model.setXdtx(xdtx);
+		model.setDeviceid(device_id);
+		model.setbusinesscode(business_code);
+		model.setbusinessid(business_id);
+		QuestionnaireFlowService service = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_QUESTIONNAIREFLOW, QuestionnaireFlowService.class);
+		try {
+		    if(StringHelper.isEmpty(model.getQuestionnairetitle())){
+		        model.setQuestionnairetitle(this.queryQuestion_options_answer().getString("questionStr"));//前端入参为空，从三方获取，拼接问题串
+		    }
+		    if(StringHelper.isEmpty(model.getQuestionnaireoptions())){
+		        model.setQuestionnaireoptions(this.queryQuestion_options_answer().getString("answerStr"));//前端入参为空，从三方获取，拼接答案串
+		    }
+			service.questionnaireFlowInsert(model);
+			resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+			resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+		} catch (Exception e) {
+			resultVo.setErrorNo(-1);
+			logger.info("[1004503]留痕异常："+e);
+			resultVo.setErrorMsg("留痕记录失败！");
+		}
+		return resultVo;
+		
+	}
+	private void initVar()
+	{
+		userId = this.formatLongParam(this.getAndCheckBlankStrParam("user_id", ErrorCodeCheckInput.BLANK_USERID), ErrorCodeCheckInput.LONG_FORMAT_ERROR);
+		questionnaire_type = this.getStrParameter("questionnaire_type");
+		questionnaire_name = this.getStrParameter("questionnaire_name");
+		questionnaire_version = this.getStrParameter("questionnaire_version");
+		pre_test_scores = this.getStrParameter("pre_test_scores");
+		pre_evaluation_level = this.getStrParameter("pre_evaluation_level");
+		post_rating = this.getStrParameter("post_rating");
+		latest_evaluation_date = this.getStrParameter("latest_evaluation_date");
+		questionnaire_title = this.getStrParameter("questionnaire_title");
+		device_id = this.getStrParameter("device_id");
+		ip = this.getStrParameter("ip");
+		xdtx = this.getStrParameter("xdtx");
+		mac = this.getStrParameter("mac");
+		post_evaluation_score=this.getStrParameter("post_evaluation_score");
+		questionnaire_options = this.getStrParameter("questionnaire_options");
+		questionnaire_answer = this.getStrParameter("questionnaire_answer");
+		assessment_channel = this.getStrParameter("assessment_channel");
+		questionnaire_expiration_date = this.getStrParameter("questionnaire_expiration_date");
+		business_code = this.getStrParameter("business_code");
+		business_id = this.getStrParameter("business_id");
+	}
+	
+	
+	/**
+	 * @描述: 查询三方获取问题串，答案串
+	 * @作者:	   农仕冰
+	 * @时间: 2018年5月4日 下午10:37:21
+	 * @return
+	 */
+	private DataRow queryQuestion_options_answer() throws Exception
+	{
+	    DataRow thirdInput = new DataRow();
+        thirdInput.set("sub_id", "1");
+        ThirdInterface thirdInterface = SpringHelper.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDINTERFACE, ThirdInterface.class);
+        List<DataRow> questionnaireQues = thirdInterface.getQuestionnaireQues(thirdInput);
+        List<DataRow> questionList = new ArrayList<DataRow>();//问题串集合
+        List<DataRow> answerList = new ArrayList<DataRow>();//答案串集合
+        
+        String questionStr = "";
+        String answerStr = "";
+        if(questionnaireQues != null && questionnaireQues.size() > 0)
+        {
+            for (int i = 0; i < questionnaireQues.size(); i++)
+            {
+                DataRow data = questionnaireQues.get(i);
+               
+                String ques_id = data.getString("que_id");
+                DataRow answData = new DataRow();
+                answData.set("que_id", ques_id);
+                answData.set("ans_id", data.getString("ans_id"));
+                answData.set("a_name", data.getString("a_name"));
+                answerList.add(answData);
+                
+                DataRow quesData = new DataRow();
+                String ques_name = data.getString("q_name");
+                String typeStr = data.getString("type").equals("1") ? "(多选)":"(单选)";
+                ques_name = ques_name + typeStr;
+                quesData.set("que_id", ques_id);
+                quesData.set("q_name", ques_name);
+                boolean addFlag = true;
+                if(questionList != null && questionList.size() > 0)
+                {
+                    for (DataRow dataOpList : questionList)
+                    {
+                        if(dataOpList.getString("que_id").equals(ques_id))
+                        {
+                            addFlag = false;
+                            break;
+                        }
+                    }
+                }
+                if(addFlag)
+                {
+                    questionList.add(quesData);
+                }
+                
+            }
+            
+            if(questionList != null && questionList.size() > 0 && answerList != null && answerList.size() > 0)
+            {
+                for (int i = 0; i < questionList.size(); i++)
+                {
+                    DataRow qData = questionList.get(i);
+                    questionStr += (i+1)+"."+qData.getString("q_name")+"|";
+                    for (int j = 0; j < answerList.size(); j++)
+                    {
+                        DataRow aData = answerList.get(j);
+                        if(aData.getString("que_id").equals(qData.getString("que_id"))){
+                            answerStr += numberToLetter(aData.getInt("ans_id"))+"."+ aData.getString("a_name")+"&";
+                        }
+                        if(j+1 == answerList.size()){
+                            answerStr = answerStr.substring(0, answerStr.length()-1) + "|";
+                        }
+                    }
+                }
+            }
+        }
+        
+        DataRow result = new DataRow();
+        result.set("questionStr", questionStr);//问题串
+        result.set("answerStr", answerStr);//答案串
+	    return result;
+	}
+
+	/**
+	 * @描述: 答案id转ABC字母
+	 * @作者:	   农仕冰
+	 * @时间: 2018年5月4日 下午10:31:39
+	 * @param num
+	 * @return
+	 */
+	private String numberToLetter(int num) throws Exception
+    {
+        String returnStr = null;
+        switch (num)
+        {
+            case 1:
+                returnStr = "A";
+                break;
+            case 2:
+                returnStr = "B";
+                break;
+            case 3:
+                returnStr = "C";
+                break;
+            case 4:
+                returnStr = "D";
+                break;
+            case 5:
+                returnStr = "E";
+                break;
+            case 6:
+                returnStr = "F";
+                break;
+            case 7:
+                returnStr = "G";
+                break;
+            default:
+                returnStr = "";
+                break;
+        }
+        return returnStr;
+    }
+}

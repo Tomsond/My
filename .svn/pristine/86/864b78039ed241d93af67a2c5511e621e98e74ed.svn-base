@@ -1,0 +1,45 @@
+package com.thinkive.fxc.ismp.bus.base.util;
+
+import java.security.MessageDigest;
+ 
+/**
+ * 描述：原云柜台MD5工具
+ * @author tianyuan
+ * @created 2016年8月11日 上午9:54:20
+ */
+public class MD5 {
+	public final static String md5(String s) {
+        char hexDigits[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+                        'a', 'b', 'c', 'd', 'e', 'f' };
+        try {
+                byte[] strTemp = s.getBytes();
+                MessageDigest mdTemp = MessageDigest.getInstance("MD5");
+                mdTemp.update(strTemp);
+                byte[] md = mdTemp.digest();
+                int j = md.length;
+                char str[] = new char[j * 2];
+                int k = 0;
+                for (int i = 0; i < j; i++) {
+                        byte byte0 = md[i];
+                        str[k++] = hexDigits[byte0 >>> 4 & 0xf];
+                        str[k++] = hexDigits[byte0 & 0xf];
+                }
+                return new String(str);
+        } catch (Exception e) {
+                return null;
+        }
+	}
+	/**
+	 * MD5算法先大写然后MD5 然后在大写，再交换前16和后16位的为位置，在进行一次MD5所得到的值
+	 * @param str
+	 * @return
+	 */
+	public final static String md5reverse(String str) {
+		String firstMd5  = md5(str.toUpperCase()).toUpperCase();
+	    String left = firstMd5.substring(0,16);
+		String  right= firstMd5.substring(16,32);
+		String secondMd5 = right+left;
+		String reultMd5  = md5(secondMd5.toUpperCase());
+		return reultMd5;
+	}
+}

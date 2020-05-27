@@ -1,0 +1,102 @@
+package com.thinkive.fxc.ismp.bus.business.assets.thirdbank.function;
+
+import com.thinkive.base.exception.BusinessException;
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.basicdata.model.ThirdBankModel;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.business.vo.UserInfoVo;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.business.assets.thirdbank.contants.ThirdBankContants;
+import com.thinkive.fxc.ismp.bus.business.assets.thirdbank.contants.ThirdBankErrorCode;
+import com.thinkive.fxc.ismp.bus.business.assets.thirdbank.model.UserBankBindModel;
+import com.thinkive.fxc.ismp.bus.business.assets.thirdbank.service.ThirdBankService;
+import com.thinkive.fxc.ismp.bus.business.util.DataFormatUtils;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdDictionaryConstants;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdInterface;
+import com.thinkive.server.InvokeException;
+import com.thinkive.server.ResultVo;
+
+/**
+ * @描述: 三方存管-结息
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0.0 
+ * @创建时间: 2016年9月1日 下午6:47:25
+ */
+public class Function1004495 extends ISMPBaseFunction
+{
+    private Long   userId;     //用户ID
+                                 
+    private String fundAccount; //资金账号
+                                 
+    private String bankCode;    //银行编号
+                                 
+    private String opAccount;  //银行对应的资金账号
+                                 
+    private String moneyType;  //银行对应的货币类型
+                                 
+    @Override
+    public ResultVo execute() throws Exception
+    {
+        
+        //step1:获取入参并校验
+        checkInput();
+        
+        //step2:获取并校验用户账号信息
+        UserInfoService userInfoService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO,
+                UserInfoService.class);
+        UserInfoVo userInfoVo = userInfoService.queryAndCheckUserByUserIdAndAccount(userId, fundAccount);
+        
+        //step3:获取用户绑定的银行卡
+        ThirdBankService thirdBankService = SpringHelper.getBean(ThirdBankContants.SERVICE_ID_THIRDBANK,
+                ThirdBankService.class);
+        UserBankBindModel bankBindModel = thirdBankService.queryByBankCodeAndFundAccountAndUserId(bankCode, opAccount,userId);
+        if ( null == bankBindModel )
+        {
+            throw new BusinessException(ThirdBankErrorCode.NO_MATCHING_USERBANKBIND);//用户没有匹配的银行卡
+        }
+
+        ThirdBankModel thirdBankModel = thirdBankService.queryThirdBankModelByBankNo(bankBindModel.getBankCode());
+
+        if (thirdBankModel == null)
+        {
+            throw new BusinessException(ThirdBankErrorCode.NO_BANKCODE);
+        }
+        DataRow thirdInput = DataFormatUtils.packThirdInput(userInfoVo);
+        thirdInput.set("bank_no", thirdBankModel.getLinkBankOrg());
+        thirdInput.set("card_num", bankBindModel.getAccount());
+        thirdInput.set("money_type", moneyType);
+        thirdInput.set("bank_code",  thirdBankModel.getLinkBankOrg());
+		thirdInput.set("op_account", opAccount);
+		thirdInput.set("banktype",  thirdBankModel.getLinkBankOrg());
+        ThirdInterface thirdInterface = SpringHelper.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDINTERFACE, ThirdInterface.class);
+        thirdInterface.jiexiBankCard(thirdInput);
+        //销户接口   需要结息的话   调销户接口  会先进行结息   一个交易日后在调销户接口 进行销户
+        //DataRow cancelResult = thirdInterface.cancelAccountBindBankCard(thirdInput);
+        //step5:打包出参
+        ResultVo resultVo = new ResultVo();
+        resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+        resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+        return resultVo;
+    }
+    
+    /**
+     * @描述：获取入参并校验
+     * @作者：田源
+     * @时间：2016年9月1日 下午6:50:18
+     * @throws InvokeException
+     */
+    private void checkInput() throws InvokeException
+    {
+        fundAccount = this.getAndCheckBlankStrParam("fund_account", ErrorCodeCheckInput.BLANK_FUNDACCOUNT);
+        userId = Long.valueOf(this.getAndCheckBlankStrParam("user_id", ErrorCodeCheckInput.BLANK_USERID));
+        bankCode = this.getStrParameter("bankcode");//银行卡编号
+        opAccount = this.getStrParameter("op_account"); //银行对应的资金账号
+        moneyType = this.getStrParameter("money_type"); //银行对应的货币类型
+    }
+}

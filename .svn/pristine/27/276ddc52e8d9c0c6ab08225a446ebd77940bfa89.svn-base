@@ -1,0 +1,70 @@
+package com.thinkive.fxc.ismp.bus.base.business.function;
+
+import com.thinkive.base.exception.BusinessException;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.base.util.StringHelper;
+import com.thinkive.fxc.ismp.bus.base.basicdata.contants.BasicServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.basicdata.model.EnumValueModel;
+import com.thinkive.fxc.ismp.bus.base.basicdata.service.EnumInfoService;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.business.user.contants.UserErrorCodeContants;
+import com.thinkive.fxc.ismp.bus.business.util.SmsUtils;
+import com.thinkive.server.InvokeException;
+import com.thinkive.server.ResultVo;
+
+/**
+ * @描述: 短信验证----通用（不包含业务办理逻辑）
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0.0 
+ * @创建时间: 2016年9月16日 下午4:17:11
+ */
+public class Function1004191 extends ISMPBaseFunction
+{
+    
+    private String mobile_code; //手机验证码
+                                
+    private String mobile;      //手机号码
+                                
+    private String sms_type;    //短信类型，对应业务类别  取数据字典
+                                
+    public ResultVo execute() throws InvokeException
+    {
+        // 获取人参并校验
+        checkInput();
+        
+        //检测短信发送类型是否存在
+        EnumInfoService enumService = SpringHelper.getBean(BasicServiceBeanIdConstants.SERVICE_ID_ENUMINFO,
+                EnumInfoService.class);
+        EnumValueModel enumValueModel = enumService
+                .getEnumByTypeAndValue(DictionaryConstants.ENUMNO_SMS_TYPE, sms_type);
+        String smsTypeString = enumValueModel.getItemValue();
+        boolean checkResult = SmsUtils.checkMobileCode(mobile, mobile_code, smsTypeString);
+        
+        //对比验证
+        if ( !checkResult )
+        {
+            throw new BusinessException(UserErrorCodeContants.BUSINESS_MOBILE_VALIDATE_ERROR, "短信验证失败，手机号：" + mobile
+                    + ",验证码:" + mobile_code);
+        }
+        
+        ResultVo resultVo = new ResultVo();
+        resultVo.setErrorNo(0);
+        resultVo.setErrorMsg("调用成功");
+        return resultVo;
+    }
+    
+    private void checkInput() throws InvokeException
+    {
+        mobile_code = this.getAndCheckBlankStrParam("mobile_code", ErrorCodeCheckInput.BLANK_MOBILE_VILIDATENO);
+        mobile = this.getAndCheckBlankStrParam("mobile", ErrorCodeCheckInput.BLANK_MOBILE);
+        if ( !StringHelper.isMoblie(getStrParameter("mobile")) )
+        {
+            throw new BusinessException(ErrorCodeCheckInput.ERROR_FORMAT_MOBILE, "手机号码格式不正确");
+        }
+        sms_type = this.getAndCheckBlankStrParam("sms_type", ErrorCodeCheckInput.BLANK_SMS_TYPE);
+    }
+}

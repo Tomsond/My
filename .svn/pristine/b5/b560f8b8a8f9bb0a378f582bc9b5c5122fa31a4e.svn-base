@@ -1,0 +1,116 @@
+package com.thinkive.fxc.ismp.bus.base.business.service;
+
+import java.util.Map;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.fxc.ismp.bus.base.business.vo.UserInfoVo;
+
+/**
+ * @描述: 测评问卷操作服务类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年9月1日 下午11:59:01
+ */
+public interface SurveyOperationService
+{
+	
+	/**
+	 * @描述：检测测评是否通过
+	 * @作者：刘恺
+	 * @时间：2016年9月1日 下午11:59:21
+	 * @param answerStr
+	 * @param userInfo
+	 * @param surveyNodeProperty
+	 * @return
+	 * @throws Exception
+	 */
+	public abstract DataRow surveyCheck(String answerStr, UserInfoVo userInfo, Map<String, String> surveyNodeProperty) throws Exception;
+	
+	/**
+	 * @描述：校验用户答案，如果用户通过问卷测评，则保存用户答案
+	 * @作者：刘恺
+	 * @时间：2016年9月2日 上午12:13:07
+	 * @param answerStr
+	 * @param userInfo
+	 * @param surveyNodeProperty
+	 * @param businessId
+	 * @param submitNodeId
+	 * @return
+	 * @throws Exception
+	 */
+	public abstract DataRow surveyCheckAndSave(String answerStr, UserInfoVo userInfo, Map<String, String> surveyNodeProperty, Long businessId, String submitNodeId) throws Exception;
+	
+	/**
+	 * @描述：校验用户答案，如果用户通过，新建业务实例，并存储用户答案
+	 * @作者：刘恺
+	 * @时间：2016年9月2日 上午12:13:07
+	 * @param answerStr
+	 * @param userInfo
+	 * @param surveyNodeProperty
+	 * @param businessId
+	 * @param submitNodeId
+	 * @return
+	 * @throws Exception
+	 */
+	public abstract Map<String, Object> surveyCheckAndCreateBusinessAndSave(String answerStr, UserInfoVo userInfo, Map<String, String> surveyNodeProperty, Long businessId, String submitNodeId)
+			throws Exception;
+	
+	/**
+	 * @描述：自动校验用户问卷是否通过
+	 * @作者：刘恺
+	 * @时间：2016年8月28日 下午8:50:33
+	 * @param userInfo
+	 * @param surveyNodeProperty
+	 * @return
+	 * @throws Exception
+	 */
+	public abstract DataRow autoCheckSurvey(UserInfoVo userInfo, Map<String, String> surveyNodeProperty) throws Exception;
+	
+	/**
+	 * @描述：校验问卷答案是否通过
+	 * @作者：刘恺
+	 * @时间：2016年8月28日 下午7:38:15
+	 * @param userInfo
+	 * @param passGrades
+	 * @param passValues
+	 * @return
+	 * @throws Exception
+	 */
+	public abstract DataRow checkAnswerPass(DataRow questionResult, String passGrades, String passValues) throws Exception;
+	
+	/**
+	 * @描述：校验问卷等级是否通过
+	 * @作者：刘恺
+	 * @时间：2016年8月28日 下午7:40:35
+	 * @param questionResult
+	 * @param passGrades 逗号分割多重等级
+	 * @return
+	 */
+	public abstract boolean checkSurveyGrade(DataRow questionResult, String passGrades);
+	
+	/**
+	 * @描述：校验问卷分数是否通过
+	 * @作者：刘恺
+	 * @时间：2016年8月28日 下午7:40:35
+	 * @param questionResult
+	 * @param passValues 20,89|90,100
+	 * @return
+	 */
+	public abstract boolean checkSurveyValue(DataRow questionResult, String passValues);
+	
+	/**
+	 * @描述：保存用户答案
+	 * @作者：刘恺
+	 * @时间：2016年9月2日 上午12:12:09
+	 * @param answerStr
+	 * @param surveyNodeProperty
+	 * @param businessId
+	 * @param submitNodeId
+	 * @param checkResult
+	 * @throws Exception
+	 */
+	public abstract void saveUserAnswer(String answerStr, Map<String, String> surveyNodeProperty, Long businessId, String submitNodeId, DataRow checkResult) throws Exception;
+	
+}

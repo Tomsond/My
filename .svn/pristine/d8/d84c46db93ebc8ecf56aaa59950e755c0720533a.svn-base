@@ -1,0 +1,279 @@
+package com.thinkive.fxc.ismp.bus.base.business.service;
+
+import java.util.List;
+import java.util.Map;
+
+import com.thinkive.base.jdbc.DBPage;
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.fxc.ismp.bus.base.business.model.BusinessEntityModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.ChoiceAccountRecordModel;
+import com.thinkive.fxc.ismp.bus.base.business.vo.BusinessEntityAndConfigVO;
+
+/**
+ * @描述: 业务实例服务类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月22日 下午2:25:34
+ */
+public interface BusinessEntityService
+{
+	
+	/**
+	 * @描述：根据用户编号和业务编号查询未完成的业务实例和业务属性配置视图（系统同一个业务只允许有一条未完成的业务实例）
+	 * @作者：刘恺
+	 * @时间：2016年8月22日 下午2:35:40
+	 * @param userId		用户编号
+	 * @param businessCode	业务编号
+	 * @return
+	 */
+	public BusinessEntityAndConfigVO queryEacVoNotCompleteByUserIdAndBusinessCode(long userId, String businessCode);
+	
+	/**
+	 * @描述：修改业务实例当前节点，并同时添加流程节点记录，记录操作日常
+	 * @作者：刘恺
+	 * @时间：2016年8月24日 下午3:44:38
+	 * @param updateBusinessEntityModel
+	 * @param currNodeId
+	 * @param isNewBusiness 是否为新业务
+	 * @throws Exception
+	 */
+	public void changeBusinessFlowNode(BusinessEntityModel updateBusinessEntityModel, String currNodeId) throws Exception;
+	
+	/**
+	 * @描述：更具用户编号和业务编号查询办理中的业务实例
+	 * @作者：刘恺
+	 * @时间：2016年8月26日 上午11:32:12
+	 * @param userId
+	 * @param businessCode
+	 * @return
+	 */
+	public BusinessEntityModel queryNotCompleteByUserIdAndBusinessCode(long userId, String businessCode);
+	
+	/**
+	 * @描述：添加业务实例( 包含业务实例，节点流程和节点操作记录)
+	 * @作者：刘恺
+	 * @时间：2016年8月27日 下午8:50:53
+	 * @param businessEntityModel	业务实例
+	 * @param currNodeId			当前提交节点
+	 * @return
+	 * @throws Exception 
+	 */
+	public BusinessEntityModel add(BusinessEntityModel businessEntityModel, String currNodeId) throws Exception;
+	
+	/**
+	 * @描述：根据ID更新业务实例
+	 * @作者：刘恺
+	 * @时间：2016年9月3日 下午5:51:58
+	 * @param businessEntityModel
+	 * @return
+	 */
+	public int update(BusinessEntityModel businessEntityModel);
+	
+	/**
+	 * @描述：新增业务实例
+	 * @作者：田源
+	 * @时间：2016年9月8日 下午9:34:18
+	 * @param businessEntityModel
+	 * @return BusinessEntityModel
+	 */
+	public BusinessEntityModel add(BusinessEntityModel businessEntityModel);
+	
+	/**
+	 * @描述：修改业务流程节点并添加审核任务
+	 * @作者：刘恺
+	 * @时间：2016年9月12日 下午9:45:46
+	 * @param updateBusinessEntityModel
+	 * @param currNodeId
+	 * @throws Exception
+	 */
+	public void changeFlowNodeAndAddAutitTask(BusinessEntityModel updateBusinessEntityModel, String currNodeId) throws Exception;
+	
+	/**
+	 * @描述：根据条件查询业务办理数据，如果业务包含业务拓展信息表，动态匹配业务拓展信息表
+	 * @作者：田源
+	 * @时间：2016年9月12日 下午8:09:26
+	 * @param businessId
+	 * @param businessCode
+	 * @param userId
+	 * @return List<DataRow>
+	 */
+	public List<DataRow> queryBusinessDetail(Long businessId, String businessCode, Long userId);
+	
+	/**
+	 * @描述：添加业务实例，并同事添加协议、帐号和审核任务
+	 * @作者：刘恺
+	 * @时间：2016年9月13日 下午7:10:43
+	 * @param businessEntityModel
+	 * @param currNodeId
+	 * @param allSignList
+	 * @param choiceAccountRecordModels
+	 * @throws Exception
+	 */
+	public void addEntityAndAgreeAndAccountAndAuditTask(BusinessEntityModel businessEntityModel, String currNodeId, List<Map<String, String>> allSignList,
+			List<ChoiceAccountRecordModel> choiceAccountRecordModels,String checksign) throws Exception;
+	
+	/**
+	 * @描述：添加业务实例，并同时添加协议、帐号和跑批任务
+	 * @作者：刘恺
+	 * @时间：2016年9月14日 上午11:37:15
+	 * @param businessEntityModel
+	 * @param currNodeId
+	 * @param allSignList
+	 * @param choiceAccountRecordModels
+	 * @throws Exception
+	 */
+	public void addEntityAndAgreeAndAccountAndPpTask(BusinessEntityModel businessEntityModel, String currNodeId, List<Map<String, String>> allSignList,
+			List<ChoiceAccountRecordModel> choiceAccountRecordModels,String checksign) throws Exception;
+	
+	/**
+	 * @描述：添加业务实例、协议、选择帐号
+	 * @作者：刘恺
+	 * @时间：2016年9月14日 下午2:25:53
+	 * @param businessEntityModel
+	 * @param currNodeId
+	 * @param allSignList
+	 * @param choiceAccountRecordModels
+	 * @throws Exception
+	 */
+	public void addEntityAndAgreeAndAccount(BusinessEntityModel businessEntityModel, String currNodeId, List<Map<String, String>> allSignList, List<ChoiceAccountRecordModel> choiceAccountRecordModels,String checksign)
+			throws Exception;
+	
+	/**
+	 * @描述：修改业务流程节点并添加跑批任务
+	 * @作者：刘恺
+	 * @时间：2016年9月18日 下午7:33:41
+	 * @param updateBusinessEntityModel
+	 * @param currNodeId
+	 * @throws Exception
+	 */
+	public void changeFlowNodeAndAddPpTask(BusinessEntityModel updateBusinessEntityModel, String currNodeId) throws Exception;
+	
+	/**
+	 * @描述：根据查询指定用户完成的指定业务的已完结的次数
+	 * @作者：田源
+	 * @时间：2016年9月20日 下午4:26:56
+	 * @param userId
+	 * @param businessCode
+	 * @return long
+	 */
+	public long countCompleteBusinessEntity(Long userId, String businessCode);
+	
+	/**
+	 * @描述：分页查询用户业务办理记录
+	 * @作者：田源
+	 * @时间：2016年9月23日 下午3:59:29
+	 * @param queryParam
+	 * @param curPage
+	 * @param numPerPage
+	 * @return DBPage
+	 */
+	public DBPage queryPageByParams(DataRow queryParam, int curPage, int numPerPage);
+	
+	/**
+	 * @描述：更新业务实例，并同事添加协议、帐号和审核任务
+	 * @作者：谢能琥
+	 * @时间：2016年9月13日 下午7:10:43
+	 * @param businessEntityModel
+	 * @param currNodeId
+	 * @param allSignList
+	 * @param choiceAccountRecordModels
+	 * @throws Exception
+	 */
+	public void updateEntityAndAgreeAndAccountAndAuditTask(BusinessEntityModel businessEntityModel, String currNodeId, List<Map<String, String>> allSignList,
+			List<ChoiceAccountRecordModel> choiceAccountRecordModels,String checksign) throws Exception;
+	
+	/**
+	 * @描述：更新业务实例，并同事添加协议、帐号和跑批任务
+	 * @作者：谢能琥
+	 * @时间：2016年9月14日 上午11:37:15
+	 * @param businessEntityModel
+	 * @param currNodeId
+	 * @param allSignList
+	 * @param choiceAccountRecordModels
+	 * @throws Exception
+	 */
+	public void updateEntityAndAgreeAndAccountAndPpTask(BusinessEntityModel businessEntityModel, String currNodeId, List<Map<String, String>> allSignList,
+			List<ChoiceAccountRecordModel> choiceAccountRecordModels,String checksign) throws Exception;
+	
+	/**
+	 * @描述：更新业务实例、协议、选择帐号
+	 * @作者：谢能琥
+	 * @时间：2016年9月14日 下午2:25:53
+	 * @param businessEntityModel
+	 * @param currNodeId
+	 * @param allSignList
+	 * @param choiceAccountRecordModels
+	 * @throws Exception
+	 */
+	public void updateEntityAndAgreeAndAccount(BusinessEntityModel businessEntityModel, String currNodeId, List<Map<String, String>> allSignList,
+			List<ChoiceAccountRecordModel> choiceAccountRecordModels,String checksign) throws Exception;
+	
+	/**
+	 * @描述：根据用户编号和业务实例编号查询业务实例
+	 * @作者：刘恺
+	 * @时间：2017年2月27日 下午2:01:41
+	 * @param userId
+	 * @param businessId
+	 * @return
+	 */
+	public BusinessEntityModel queryByUserIdAndBusinessId(Long userId, Long businessId);
+	
+	/**
+	 * @描述：添加业务实例，协议记录，审核任务
+	 * @作者：刘恺
+	 * @创建时间: 2017年3月20日 上午9:58:05
+	 * @param businessEntityModel
+	 * @param currNodeId
+	 * @param allSignList
+	 * @throws Exception
+	 */
+	public void addEntityAndAgreeAndAuditTask(BusinessEntityModel businessEntityModel, String currNodeId, List<Map<String, String>> allSignList,String checksign) throws Exception;
+	
+	/**
+	 * @描述：添加业务实例，协议记录，跑批任务
+	 * @作者：刘恺
+	 * @创建时间: 2017年3月20日 上午9:59:44
+	 * @param businessEntityModel
+	 * @param currNodeId
+	 * @param allSignList
+	 * @throws Exception
+	 */
+	public void addEntityAndAgreeAndPpTask(BusinessEntityModel businessEntityModel, String currNodeId, List<Map<String, String>> allSignList,String checksign) throws Exception;
+
+	/**
+	 * @描述：添加业务实例，协议记录
+	 * @作者：刘恺
+	 * @创建时间: 2017年3月20日 上午10:01:32
+	 * @param businessEntityModel
+	 * @param currNodeId
+	 * @param allSignList
+	 * @throws Exception
+	 */
+	public void addEntityAndAgree(BusinessEntityModel businessEntityModel, String currNodeId, List<Map<String, String>> allSignList,String checksign) throws Exception;
+	
+	public BusinessEntityModel queryNotCompleteByUserIdAndBusinessCodeOrFlag(long userId, String businessCode ,String flag);
+
+    public void updateEntityAndAccountAndAuditTask(BusinessEntityModel businessEntityModel, String currNodeId, List<Map<String, String>> allSignList,
+            List<ChoiceAccountRecordModel> choiceAccountRecordModels,String checksign) throws Exception;
+
+    public void updateEntityAndAccountAndPpTask(BusinessEntityModel updateBusinessEntityModel, String nodeId,
+            List<Map<String, String>> allSignList, List<ChoiceAccountRecordModel> choiceAccountRecordModels,
+            String checksign) throws Exception;
+    /**
+     * @描述: 修改业务实例当前节点，并同时添加流程节点记录，记录操作日常，保存选择账户记录（适用在选择账户步骤不是最后一步）
+     * @作者: 农仕冰
+     * @时间: 2019年9月25日 上午11:10:17
+     * @param updateBusinessEntityModel
+     * @param currNodeId
+     * @param choiceAccountRecordModels
+     * @throws Exception
+     */
+    public void changeBusinessFlowNodeAndAccount(BusinessEntityModel updateBusinessEntityModel, String currNodeId ,List<ChoiceAccountRecordModel> choiceAccountRecordModels) throws Exception;
+
+    public DataRow queryBusinessName(String business_code) throws Exception;
+
+    public void updateAccountAndPpTask(BusinessEntityModel businessEntityModel, String string,
+            List<ChoiceAccountRecordModel> choiceAccountRecordModels, String string2) throws Exception;
+}

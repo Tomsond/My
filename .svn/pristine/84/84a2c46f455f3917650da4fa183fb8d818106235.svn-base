@@ -1,0 +1,51 @@
+package com.thinkive.fxc.ismp.bus.base.basicdata.service.impl;
+
+import java.util.List;
+
+import com.thinkive.fxc.ismp.bus.base.basicdata.dao.BankInfoDao;
+import com.thinkive.fxc.ismp.bus.base.basicdata.model.BankInfoModel;
+import com.thinkive.fxc.ismp.bus.base.basicdata.service.BankService;
+import com.thinkive.fxc.ismp.bus.base.basicdata.vo.ThirdBankInfoVo;
+
+/**
+ * @描述: 公共-银行信息服务层接口实现类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月23日 上午9:47:22
+ */
+public class BankServiceImpl implements BankService
+{
+	
+	private BankInfoDao bankInfoDao;
+	
+	public void setBankInfoDao(BankInfoDao bankInfoDao)
+	{
+		this.bankInfoDao = bankInfoDao;
+	}
+	
+	@Override
+	public List<BankInfoModel> queryAll()
+	{
+		return bankInfoDao.queryAll();
+	}
+	
+	@Override
+	public BankInfoModel queryByBankNo(String bankNo)
+	{
+		return bankInfoDao.queryByBankNo(bankNo);
+	}
+	
+	@Override
+	public ThirdBankInfoVo queryVoByLinkBankOrg(String linkBankOrg)
+	{
+		return bankInfoDao.queryVoByLinkBankOrg(linkBankOrg);
+	}
+	
+	@Override
+	public BankInfoModel queryByThirdBankConfigId(Long bankConfigId)
+	{
+		return bankInfoDao.queryByThirdBankConfigId(bankConfigId);
+	}
+}

@@ -1,0 +1,31 @@
+package com.thinkive.fxc.ismp.bus.base.business.dao.impl;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessTableConstants;
+import com.thinkive.fxc.ismp.bus.base.business.dao.SmsModelDao;
+import com.thinkive.fxc.ismp.bus.base.business.model.SmsModelModel;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseDao;
+import com.thinkive.fxc.ismp.bus.base.util.ModelUtil;
+
+/**
+ * @描述: 短信模版表操作实现类(T_ISMP_SMS_MODEL)
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月26日 下午11:05:55
+ */
+public class SmsModelDaoImpl extends ISMPBaseDao implements SmsModelDao
+{
+	
+	@Override
+	public SmsModelModel queryModelByType(String smsType, String sendType)
+	{
+		StringBuffer sql = new StringBuffer("SELECT ID,SMS_TYPE,SMS_MESSAGE,STATE,SMS_LEVEL,SMS_SEND_TYPE FROM ");
+		sql.append(BusinessTableConstants.T_ISMP_SMS_MODEL);
+		sql.append(" WHERE SMS_TYPE = ? AND SMS_SEND_TYPE = ?");
+		DataRow dataRow = this.getJdbcTemplate().queryMap(sql.toString(), new Object[] { smsType, sendType });
+		return ModelUtil.packInfo(dataRow, SmsModelModel.class);
+	}
+	
+}

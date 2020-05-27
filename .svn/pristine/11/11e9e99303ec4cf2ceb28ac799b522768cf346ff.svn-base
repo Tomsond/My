@@ -1,0 +1,188 @@
+package com.thinkive.fxc.ismp.bus.business.assets.thirdbank.function;
+
+import com.thinkive.base.exception.BusinessException;
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.DateHelper;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.basicdata.model.ThirdBankModel;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.business.vo.UserInfoVo;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.business.assets.thirdbank.contants.ThirdBankContants;
+import com.thinkive.fxc.ismp.bus.business.assets.thirdbank.contants.ThirdBankErrorCode;
+import com.thinkive.fxc.ismp.bus.business.assets.thirdbank.model.UserBankBindModel;
+import com.thinkive.fxc.ismp.bus.business.assets.thirdbank.service.ThirdBankService;
+import com.thinkive.fxc.ismp.bus.business.assets.thirdbank.vo.ThirdBankBusinessInfoVo;
+import com.thinkive.fxc.ismp.bus.business.util.DataFormatUtils;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdDictionaryConstants;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdInterface;
+import com.thinkive.server.InvokeException;
+import com.thinkive.server.ResultVo;
+
+import java.util.Date;
+import java.util.List;
+
+/**
+ * @描述: 三方存管修改（销卡条件查询）
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0.0 
+ * @创建时间: 2016年9月2日 上午10:24:07
+ */
+public class Function1004525 extends ISMPBaseFunction
+{
+
+	private Long userId; //用户编号
+
+	private String fundAccount; //主资金账号
+
+	private String opAccount; //旧银行对应的资金账号
+
+	private String zjPassword; //资金密码
+
+	private Long newBankConfigId; //新绑定银行卡对应的三方存管配置编号
+
+	private Long oldBankConfigId; //旧银行卡对应的三方存管配置编号
+
+	private ThirdInterface thirdInterface;
+
+	private ThirdBankService thirdBankService;
+
+	@Override
+	public ResultVo execute() throws Exception
+	{
+
+		//step1:获取入参并校验
+		checkInput();
+
+		thirdBankService = SpringHelper.getBean(ThirdBankContants.SERVICE_ID_THIRDBANK, ThirdBankService.class);
+		thirdBankService.checkTradeTime();
+
+		ThirdBankModel oldThirdBankModel = thirdBankService.queryThirdBankModelById(oldBankConfigId);//根据ID获取对应银行的三方存管配置信息
+		//没有这种三方存管配置
+		if (oldThirdBankModel == null)
+		{
+			throw new BusinessException(ThirdBankErrorCode.NO_BANKCODE);
+		}
+
+		ThirdBankModel newThirdBankModel = thirdBankService.queryThirdBankModelById(newBankConfigId);//根据ID获取对应银行的三方存管配置信息
+		//没有这种三方存管配置
+		if (newThirdBankModel == null)
+		{
+			throw new BusinessException(ThirdBankErrorCode.NO_BANKCODE);
+		}
+
+		//同银行的银行卡不允许变更
+		if (oldThirdBankModel.getBankNo().equals(newThirdBankModel.getBankNo()))
+		{
+			throw new BusinessException(ThirdBankErrorCode.SAME_BANK_CANNOT__MODIFY);//注销的三方存管银行不能与要绑定的银行一致
+		}
+
+		//step2:检测需要注销的银行卡是否可操作
+		UserBankBindModel bankBindModel = thirdBankService.queryByBankCodeAndFundAccountAndUserId(oldThirdBankModel.getBankNo(), opAccount, userId);
+
+
+		if (null == bankBindModel)
+		{
+			throw new BusinessException(ThirdBankErrorCode.NO_MATCHING_USERBANKBIND);//用户没有匹配的银行卡
+		}else {
+
+//			List<ThirdBankBusinessInfoVo> businessList = thirdBankService.querySuccBindInfo(userId, fundAccount);//查询存管绑定成功的记录
+//			if (businessList != null && businessList.size() > 0)
+//			{
+//				for (ThirdBankBusinessInfoVo thirdBankBusinessInfoVo : businessList) {
+//				    String bank_id = String.valueOf(oldThirdBankModel.getId());
+//
+//					if (thirdBankBusinessInfoVo.getNewBankcode().equals(bank_id)) {//成功绑卡的业务中有当前卡
+//						String now = DateHelper.formatDate(new Date(), "yyyyMMdd");
+//						String create_date = DateHelper.formatDate(thirdBankBusinessInfoVo.getUpdateDate(), "yyyyMMdd");
+//					    if (now.equals(create_date)) {
+//							throw new BusinessException(ThirdBankErrorCode.CANCEL_THIRDBANKCHANGE_FAILURE);
+//						}
+//					}
+//				}
+//
+//			}
+			//step3:获取用户数据
+			UserInfoService userInfoService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO, UserInfoService.class);
+			UserInfoVo userInfoVo = userInfoService.queryAndCheckUserByUserIdAndAccount(userId, fundAccount);
+
+			//step4:校验是否满足注销条件
+			DataRow thirdInput = DataFormatUtils.packThirdInput(userInfoVo);
+			thirdInput.set("bank_code", oldThirdBankModel.getLinkBankOrg());
+			thirdInput.set("card_num", bankBindModel.getAccount());
+			thirdInput.set("zj_password", zjPassword);
+			thirdInput.set("op_account", opAccount);
+			thirdInput.set("money_type", bankBindModel.getMoneyType());
+			thirdInput.set("banktype", oldThirdBankModel.getLinkBankOrg());
+
+			thirdInterface = SpringHelper.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDINTERFACE, ThirdInterface.class);
+
+
+			DataRow cancelCheckResult = null;
+			try {
+				cancelCheckResult = thirdBankService.cancelCheck(opAccount, fundAccount, thirdInput);
+			} catch (Exception e) {
+				throw new InvokeException(e.getMessage(), 99);
+			}
+
+			//step6：出参
+			ResultVo resultVo = new ResultVo();
+			resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+			resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+			resultVo.setResult(cancelCheckResult);
+			return resultVo;
+		}
+	}
+
+	/**
+	 * @描述：获取并校验入参
+	 * @作者：田源
+	 * @时间：2016年9月2日 上午10:29:17
+	 * @throws InvokeException
+	 */
+	private void checkInput() throws InvokeException
+	{
+		userId = Long.valueOf(this.getAndCheckBlankStrParam("user_id", ErrorCodeCheckInput.BLANK_USERID));
+		fundAccount = this.getAndCheckBlankStrParam("fund_account", ErrorCodeCheckInput.BLANK_FUNDACCOUNT);
+		opAccount = this.getAndCheckBlankStrParam("op_account", ErrorCodeCheckInput.BALNK_OP_ACCOUNT);
+		opSource = getStrParameter("op_source");
+		zjPassword = this.getStrParameter("zj_password");
+		oldBankConfigId = Long.valueOf(this.getAndCheckBlankStrParam("oldBankConfigId", ErrorCodeCheckInput.BLANK_ENUM_BANKCONFIGID));//三方存管配置编号
+		newBankConfigId = Long.valueOf(this.getAndCheckBlankStrParam("newBankConfigId", ErrorCodeCheckInput.BLANK_ENUM_BANKCONFIGID));//三方存管配置编号
+	}
+	
+	/**
+	 * @描述：添加业务办理记录
+	 * @作者：田源
+	 * @时间：2016年9月2日 上午10:29:01
+	 * @param user_id
+	 * @param fund_account
+	 * @param bank
+	 * @param op_source
+	 * @param new_bankcode
+	 * @return
+	 * @throws Exception
+	 */
+	private Long addBusinessFlow(UserBankBindModel bank) throws Exception
+	{
+		ThirdBankBusinessInfoVo bankBusinessInfoVo = new ThirdBankBusinessInfoVo();
+		bankBusinessInfoVo.setUserId(userId);
+		bankBusinessInfoVo.setNodeId(ThirdBankContants.THIRDBANK_ZXBD_ONESTEP);//注销后绑定分两步，此处为注销成功未绑定
+		bankBusinessInfoVo.setIsComplete(DictionaryConstants.BOL_FALSE);//未完成
+		bankBusinessInfoVo.setOpSource(opSource);
+		bankBusinessInfoVo.setOpStation(opStation);
+		bankBusinessInfoVo.setIp(ip);
+		bankBusinessInfoVo.setFundAccount(fundAccount);
+		bankBusinessInfoVo.setOpType(ThirdBankContants.THIRDBANK_OP_TYPE_CANCELANDBIND);//分两个function的方式，先注销，后绑定
+		bankBusinessInfoVo.setOldBankcode(oldBankConfigId.toString());
+		bankBusinessInfoVo.setNewBankcode(newBankConfigId.toString());
+		bankBusinessInfoVo.setOldBanknum(bank.getAccount());
+		bankBusinessInfoVo.setBindErrorCount(0);
+		return thirdBankService.addThirdBankBusinessInfoVo(bankBusinessInfoVo);
+	}
+}

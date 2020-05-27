@@ -1,0 +1,195 @@
+package com.thinkive.fxc.ismp.bus.base.business.utils;
+
+import java.util.List;
+import java.util.Map;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.model.AgreeRecordModel;
+import com.thinkive.fxc.ismp.bus.base.business.service.SignAndVerifyService;
+
+/**
+ * @描述: 签名验签服务实现类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月29日 下午10:14:33
+ */
+public class SignAndVerifyUtil
+{
+	
+	private static SignAndVerifyService signAndVerifyService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_SIGNANDVERIFY, SignAndVerifyService.class);
+	
+	/**
+	 * @描述：验签
+	 * @作者：刘恺
+	 * @时间：2017年2月20日 下午12:11:16
+	 * @param sign_source_flag
+	 * @param signList
+	 * @param certuid
+	 * @param cert_type
+	 * @param checksign
+	 * @return
+	 * @throws Exception
+	 */
+	@Deprecated
+	@SuppressWarnings("rawtypes")
+	public static List<DataRow> verify(String sign_source_flag, List signList, String certuid, String cert_type, String checksign) throws Exception
+	{
+		return signAndVerifyService.verify(sign_source_flag, signList, certuid, cert_type, checksign);
+	}
+	
+	/**
+	 * @描述：批量验签
+	 * @作者：刘恺
+	 * @时间：2017年2月20日 下午12:11:20
+	 * @param signSourceFlag
+	 * @param signList
+	 * @param certuid
+	 * @param certType
+	 * @param checkSign
+	 * @return
+	 * @throws Exception
+	 */
+	@Deprecated
+	@SuppressWarnings("rawtypes")
+	public static List<DataRow> verifyBatch(String signSourceFlag, List signList, String certuid, String certType, String checkSign) throws Exception
+	{
+		return signAndVerifyService.verifyBatch(signSourceFlag, signList, certuid, certType, checkSign);
+	}
+	
+	/**
+	 * @描述：单个验签
+	 * @作者：刘恺
+	 * @时间：2017年2月20日 下午12:11:22
+	 * @param signSourceFlag
+	 * @param signList
+	 * @param certuid
+	 * @param certType
+	 * @param checkSign
+	 * @return
+	 * @throws Exception
+	 */
+	@Deprecated
+	@SuppressWarnings("rawtypes")
+	public static List<DataRow> verifySingle(String signSourceFlag, List signList, String certuid, String certType, String checkSign) throws Exception
+	{
+		return signAndVerifyService.verifySingle(signSourceFlag, signList, certuid, certType, checkSign);
+	}
+	
+	/**
+	 * @描述：调用证书bus接口，查询证书信息
+	 * @作者：刘恺
+	 * @时间：2016年9月2日 下午3:35:27
+	 * @param cert_type
+	 * @param certuid
+	 * @return
+	 */
+	@Deprecated
+	public static String queryCert(String cert_type, String certuid)
+	{
+		return signAndVerifyService.queryCert(cert_type, certuid);
+	}
+	
+	/**
+	 * @描述：使用托管证书签名
+	 * @作者：刘恺
+	 * @时间：2017年2月20日 下午12:11:38
+	 * @param textList
+	 * @param cert_type
+	 * @param userInfo
+	 * @param ipaddr
+	 * @param macaddr
+	 * @param password
+	 * @return
+	 * @throws Exception
+	 */
+	@Deprecated
+	public static DataRow signByTg(String textList, String cert_type, DataRow userInfo, String ipaddr, String macaddr, String password) throws Exception
+	{
+		return signAndVerifyService.signByTg(textList, cert_type, userInfo, ipaddr, macaddr, password);
+	}
+	
+	/**
+	 * @描述：验签
+	 * @作者：刘恺
+	 * @时间：2017年2月20日 下午12:11:46
+	 * @param userId
+	 * @param jsondata
+	 * @param signType
+	 * @param signSourceFlag
+	 * @return
+	 * @throws Exception
+	 */
+	@Deprecated
+	public static List<DataRow> verifySignText(Long userId, String jsondata, String signType, String signSourceFlag) throws Exception
+	{
+		return signAndVerifyService.verifySignText(userId, jsondata, signType, signSourceFlag);
+	}
+	
+	/**
+	 * @描述：验签
+	 * @作者：刘恺
+	 * @时间：2016年9月1日 下午4:11:38
+	 * @param userId
+	 * @param jsondata		协议json
+	 * @param signParamsMap	节点属性
+	 * @throws Exception
+	 */
+	@Deprecated
+	public static Map<String, List<Map<String, String>>> verifySignText(String jsondata, Map<String, DataRow> signParamsMap) throws Exception
+	{
+		return signAndVerifyService.verifySignText(jsondata, signParamsMap);
+	}
+	
+	/**
+	 * @描述：讲验签后的协议数据打包为协议model
+	 * @作者：刘恺
+	 * @时间：2016年9月2日 下午3:49:07
+	 * @param allSignList
+	 * @param businessId
+	 * @param nodeId
+	 * @return
+	 * @throws Exception
+	 */
+	@Deprecated
+	public static List<AgreeRecordModel> getAgreeRecordModels(Long userId, List<Map<String, String>> allSignList, Long businessId, String nodeId,String checksign) throws Exception
+	{
+		return signAndVerifyService.getAgreeRecordModels(userId, allSignList, businessId, nodeId,"");
+	}
+	
+	/**
+	 * @描述：验签，并在验签成功后保存协议信息
+	 * @作者：刘恺
+	 * @时间：2016年9月2日 下午4:39:32
+	 * @param userId
+	 * @param businessId
+	 * @param nodeId
+	 * @param jsondata
+	 * @param signParamsMap
+	 * @return
+	 * @throws Exception
+	 */
+	@Deprecated
+	public static List<AgreeRecordModel> verifyAndSave(Long userId, Long businessId, String nodeId, String jsondata, Map<String, DataRow> signParamsMap) throws Exception
+	{
+		return signAndVerifyService.verifyAndSave(userId, businessId, nodeId, jsondata, signParamsMap);
+	}
+	
+	/**
+	 * @描述：验签，如果需要提交第三方则直接提交
+	 * @作者：刘恺
+	 * @时间：2016年9月13日 下午4:31:24
+	 * @param jsondata
+	 * @param signParamsMap
+	 * @return
+	 * @throws Exception
+	 */
+	@Deprecated
+	public static List<Map<String, String>> verifySignTextAndSubmitThird(String jsondata, Map<String, DataRow> signParamsMap) throws Exception
+	{
+		return signAndVerifyService.verifySignTextAndSubmitThird(jsondata, signParamsMap);
+	}
+}

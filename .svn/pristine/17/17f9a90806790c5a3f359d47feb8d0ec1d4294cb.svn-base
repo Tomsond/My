@@ -1,0 +1,144 @@
+package com.thinkive.fxc.ismp.bus.business.resetpwd.function;
+
+
+import com.thinkive.base.exception.BusinessException;
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.model.UserExtendModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.UserInfoModel;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.business.constants.ErrorCodeBusiness;
+import com.thinkive.fxc.ismp.bus.business.util.DataFormatUtils;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdDictionaryConstants;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdInterface;
+import com.thinkive.server.InvokeException;
+import com.thinkive.server.ResultVo;
+import com.thinkive.server.util.SpringUtil;
+
+import java.util.Date;
+
+/**
+ * @描述: 重置密码---输入资金帐号、证件重要信息，获取用户基本信息
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 易龙
+ * @版本: 2.0.0
+ * @创建时间: 2017年09月20日 下午6:34:10
+ */
+public class Function1004940 extends ISMPBaseFunction {
+
+    protected String opSource;          // 客户端类型
+
+    protected String fundAccount;       // 资金账号
+
+    protected String name;              // 用户姓名（身份证）
+
+    protected String identityNum;       // 身份证号
+
+    @Override
+    public ResultVo execute() throws InvokeException, Exception {
+
+        initVar();
+
+        UserInfoModel userInfo = getAndsynUserInfo(fundAccount, name, identityNum);
+
+        ResultVo resultVo = new ResultVo();
+        resultVo.setResult(userInfo);
+        resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+        resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+        return resultVo;
+
+    }
+
+    /**
+     * @描述: 获取业务入参
+     */
+    private void initVar() {
+        opSource = this.getAndCheckBlankStrParam("op_source", ErrorCodeCheckInput.BLANK_OP_SOURCE);
+        fundAccount = this.getAndCheckBlankStrParam("account", ErrorCodeCheckInput.BLANK_FUNDACCOUNT);
+        identityNum = this.getAndCheckBlankStrParam("identity_num", ErrorCodeCheckInput.BLANK_IDNO);
+        name = this.getAndCheckBlankStrParam("name", ErrorCodeCheckInput.BLANK_USER_NAME);
+    }
+
+
+    /**
+     * @描述: 获取并同步用户基本信息
+     * @作者: 刘恺
+     * @时间: 2017年09月20日下午7:49:20
+     * @param account       资金账户
+     * @param name          证件姓名
+     * @param identity_num  证件号
+     * @return userInfo     用户基本信息集合
+     * @throws Exception
+     */
+    private UserInfoModel getAndsynUserInfo(String account, String name, String identity_num) throws Exception {
+        ThirdInterface thirdInterface = SpringUtil.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDINTERFACE, ThirdInterface.class);
+
+        DataRow thirdInput = new DataRow();
+        thirdInput.set("identity_num", identity_num);
+        thirdInput.set("name", name);
+        thirdInput.set("account", account);
+
+        DataRow thirdUserInfo = thirdInterface.queryUserInfoByAccount(thirdInput);
+
+        if (thirdUserInfo == null || thirdUserInfo.isEmpty() || !name.equals(thirdUserInfo.getString("name"))) {
+            throw new BusinessException(ErrorCodeBusiness.LOGIN_QUERYTHIRDUSERINFO_FAIL);
+        }
+
+        String identity_type = thirdUserInfo.getString("identity_type");
+        String client_id = thirdUserInfo.getString("client_id");
+
+        // 根据身份证在我们本地数据库查找用户信息
+        UserInfoService userInfoService = (UserInfoService) SpringUtil.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO, UserInfoService.class);
+        UserInfoModel userInfo = userInfoService.queryUserInfobyIdNumAndName(identity_type, identity_num, thirdUserInfo.getString("name"), client_id);
+        if (userInfo == null) {
+            if (DictionaryConstants.IDENTITYNUM_EIGHTEEN == identity_num.length()) {
+                String newIdentityNum = DataFormatUtils.idNum18To15(identity_num);
+                userInfo = userInfoService.queryUserInfobyIdNumAndName(identity_type, newIdentityNum, thirdUserInfo.getString("name"), client_id);
+            }
+        }
+
+        boolean isNewUser = userInfo == null;
+        if (isNewUser) {
+            userInfo = new UserInfoModel();
+        }
+
+        userInfo.setIdentityType(thirdUserInfo.getString("identity_type"));     // 证件类型
+        userInfo.setIdentityNum(thirdUserInfo.getString("identity_num"));       // 证件号码
+        userInfo.setName(thirdUserInfo.getString("name"));                      // 姓名
+        userInfo.setNickName(thirdUserInfo.getString("nick_name"));             // 昵称
+        userInfo.setSex(thirdUserInfo.getString("sex"));                        // 性别
+        userInfo.setBirthday(thirdUserInfo.getString("birthday"));              // 生日
+        userInfo.setMobile(thirdUserInfo.getString("mobile"));                  // 手机号码
+        userInfo.setSignOffice(thirdUserInfo.getString("sign_office"));         // 证件签署机构
+        userInfo.setPapersAddr(thirdUserInfo.getString("papers_addr"));         // 证件地址
+        userInfo.setValidityBegin(thirdUserInfo.getString("validity_begin"));   // 证件有效期开始日期
+        userInfo.setValidityEnd(thirdUserInfo.getString("validity_end"));       // 证件有效期结束日期
+        userInfo.setNationality(thirdUserInfo.getString("country"));            // 国籍
+        userInfo.setBranchNo(thirdUserInfo.getString("org_id"));                // 营业部
+        userInfo.setClientId(thirdUserInfo.getString("client_id"));
+
+        UserExtendModel userExtend = new UserExtendModel();
+        userExtend.setEmail(thirdUserInfo.getString("email"));                  // 邮箱
+        userExtend.setTelephone(thirdUserInfo.getString("telephone"));          // 联系电话
+        userExtend.setAddress(thirdUserInfo.getString("address"));              // 联系地址
+        userExtend.setPostCode(thirdUserInfo.getString("post_code"));           // 邮政编码
+        userExtend.setOccupation(thirdUserInfo.getString("occupational"));      // 职业
+        userExtend.setEducation(thirdUserInfo.getString("adapter"));            // 学历
+        userExtend.setEthnicName(thirdUserInfo.getString("nation_id"));//民族编号
+		userExtend.setOpStation(opStation);//操作站点
+        userExtend.setLastLoginTime(new Date());
+
+        if (isNewUser) {
+            userInfoService.addUserInfoAndExtend(userInfo, userExtend);
+        } else {
+            userInfoService.updateUserInfoAndExtend(userInfo, userExtend);
+        }
+
+        return userInfo;
+    }
+
+}

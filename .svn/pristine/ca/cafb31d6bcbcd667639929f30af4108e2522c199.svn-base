@@ -1,0 +1,70 @@
+package com.thinkive.fxc.ismp.bus.business.zccx;
+
+import java.util.List;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.business.vo.UserInfoVo;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.business.util.DataFormatUtils;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdDictionaryConstants;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdInterfaceConstant;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdInterface;
+import com.thinkive.server.InvokeException;
+import com.thinkive.server.ResultVo;
+
+/**
+ * 
+ *描述：根据资金帐号和密码，查询资产
+ *公司:思迪信息
+ *作者:孔小波
+ *版本:1.0
+ *创建日期:2017年1月14日
+ *创建时间:下午5:42:05
+ */
+public class Function1004405 extends ISMPBaseFunction
+{
+	
+	private Long userId;//用户编号
+	
+	private String money_type;//货币类型   0:人民币   1:港币   2:美元
+	
+	private ThirdInterface thirdInterface;
+	
+	@Override
+	public ResultVo execute() throws InvokeException, Exception
+	{
+		
+		//step1:获取人参并校验
+		checkInput();
+		UserInfoService service = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO, UserInfoService.class);
+		UserInfoVo userInfoVo = service.queryAndCheckUserByUserIdAndType(userId, ThirdInterfaceConstant.USER_ACCOUNT_TYPE_ZQ);
+		//对入参打包
+		//step4:调用第三方接口，修改用户信息
+		DataRow thirdInput = DataFormatUtils.packThirdInput(userInfoVo);
+		thirdInput.set("money_type", money_type);
+		thirdInterface = SpringHelper.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDINTERFACE, ThirdInterface.class);
+		List<DataRow> resultList = thirdInterface.getAllAssetInfo(thirdInput);
+		//step3:打包出参
+		ResultVo resultVo = new ResultVo();
+		resultVo.setResult(resultList);
+		resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+		resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+		return resultVo;
+	}
+	
+	/**
+	 * 验证入参
+	 * @throws InvokeException 
+	 */
+	private void checkInput() throws InvokeException
+	{
+		userId = Long.valueOf(this.getAndCheckBlankStrParam("user_id", ErrorCodeCheckInput.BLANK_USERID));
+		money_type = this.getAndCheckBlankStrParam("money_type", ErrorCodeCheckInput.MONEY_TYPE);
+	}
+	
+}

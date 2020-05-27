@@ -1,0 +1,23 @@
+package com.thinkive.fxc.ismp.bus.business.assets.zhth.constants;
+
+/**
+ * @描述: 变更主辅直接帐号数据字典
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2017年3月15日 下午1:25:24
+ */
+public class ZhthConstatans
+{
+	
+	/**
+	 * 变更主辅资金帐号扩展信息表
+	 */
+	public static final String T_ISMP_B_CHANGEMAINFUND = "T_ISMP_B_CHANGEMAINFUND";
+	
+	/**
+	 * 变更主辅资金帐号服务类
+	 */
+	public static final String SERVICE_ID_CHANGEMAINFUND = "com.thinkive.fxc.ismp.changeMainFundService";
+}

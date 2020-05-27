@@ -1,0 +1,62 @@
+package com.thinkive.fxc.ismp.bus.base.basicdata.dao.impl;
+
+import java.util.Date;
+
+import org.apache.commons.lang.StringUtils;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.fxc.ismp.bus.base.basicdata.contants.BaseTableConstants;
+import com.thinkive.fxc.ismp.bus.base.basicdata.dao.SurveyDefineDao;
+import com.thinkive.fxc.ismp.bus.base.basicdata.model.SurveyDefineModel;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseDao;
+import com.thinkive.fxc.ismp.bus.base.constants.SystemConstants;
+import com.thinkive.fxc.ismp.bus.base.util.ModelUtil;
+
+/**
+ * @描述: 公共-测评问卷等级定义表(T_FXC_SURVEY_DEFINE)数据层接口实现类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月19日 下午1:36:10
+ */
+public class SurveyDefineDaoImpl extends ISMPBaseDao implements SurveyDefineDao
+{
+	
+	@Override
+	public SurveyDefineModel add(SurveyDefineModel surveyDefineModel)
+	{
+		String id = getSeqValue(SystemConstants.DB_ISMP,BaseTableConstants.T_FXC_SURVEY_DEFINE);
+		surveyDefineModel.setId(Long.valueOf(id));
+		surveyDefineModel.setCreateDate(new Date());
+		this.getJdbcTemplate().insert(BaseTableConstants.T_FXC_SURVEY_DEFINE, surveyDefineModel);
+		return surveyDefineModel;
+	}
+	
+	@Override
+	public int update(SurveyDefineModel surveyDefineModel)
+	{
+		surveyDefineModel.setUpdateDate(new Date());
+		return this.getJdbcTemplate().update(BaseTableConstants.T_FXC_SURVEY_DEFINE, surveyDefineModel, "ID", surveyDefineModel.getId());
+	}
+	
+	@Override
+	public SurveyDefineModel queryBySubjectIdAndScore(Long SubjectId, Long score, String state)
+	{
+		//三个参数都必传，否则返回null
+		if (null == SubjectId || null == score || StringUtils.isBlank(state))
+		{
+			return null;
+		}
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT ID,SUBJECT_ID,UPLIMIT,DOWNLIMIT,DEFINE,STATE,DEFINE_VALUE,REMARK FROM ");
+		sql.append(BaseTableConstants.T_FXC_SURVEY_DEFINE);
+		sql.append(" WHERE SUBJECT_ID = ?");
+		sql.append(" AND UPLIMIT >= ?");
+		sql.append(" AND DOWNLIMIT <= ?");
+		sql.append(" AND state = ?");
+		DataRow queryResult = this.getJdbcTemplate().queryMap(sql.toString(), new Object[] { SubjectId, score, score, state });
+		return ModelUtil.packInfo(queryResult, SurveyDefineModel.class);
+	}
+	
+}

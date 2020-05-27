@@ -1,0 +1,26 @@
+package com.thinkive.fxc.ismp.bus.base.business.dao;
+
+import com.thinkive.fxc.ismp.bus.base.business.model.SmsModelModel;
+
+/**
+ * @描述: 短信模版表操作类
+ * @版权: Copyright (c) 2013
+ * @公司: 思迪科技
+ * @作者: 刘恺
+ * @版本: 1.0
+ * @创建时间: 2014-8-4  18:00
+ */
+public interface SmsModelDao
+{
+	
+	/**
+	 * @描述：根据短信类型和发送类型查询短信模版
+	 * @作者：刘恺
+	 * @时间：2016年8月26日 下午11:35:27
+	 * @param smsType
+	 * @param sendType
+	 * @return
+	 */
+	public SmsModelModel queryModelByType(String smsType, String sendType);
+	
+}

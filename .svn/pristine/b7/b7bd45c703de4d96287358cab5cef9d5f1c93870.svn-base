@@ -1,0 +1,20 @@
+package com.thinkive.fxc.ismp.bus.base.basicdata.dao;
+
+import com.thinkive.fxc.ismp.bus.base.basicdata.model.BranchInfoModel;
+
+/**
+ * @描述:  公共-营业部信息表(T_FXC_BRANCH_INFO) 数据层接口
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 尹杰民
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月18日 下午4:27:14
+ */
+public interface BranchInfoDao
+{
+    public BranchInfoModel add(BranchInfoModel branchInfoModel) throws Exception;
+    
+    public int update(BranchInfoModel branchInfoModel) throws Exception;
+    
+    public BranchInfoModel queryByBranchNo(String branchNo, String isDisplay) throws Exception;
+}

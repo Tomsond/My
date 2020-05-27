@@ -1,0 +1,58 @@
+package com.thinkive.fxc.ismp.bus.base.basicdata.dao;
+
+import java.util.List;
+
+import com.thinkive.fxc.ismp.bus.base.basicdata.model.SurveyQuestionModel;
+
+/**
+ * @描述: 公共-问卷问题表(T_FXC_SURVEY_QUESTION)数据层接口
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月18日 下午4:45:42
+ */
+public interface SurveyQuestionDao
+{
+	
+	/**
+	 * @描述：添加问卷问题
+	 * @作者：田源
+	 * @时间：2016年8月18日 下午4:58:34
+	 * @param surveyQuestionModel
+	 * @return SurveyQuestionModel
+	 * @
+	 */
+	public SurveyQuestionModel add(SurveyQuestionModel surveyQuestionModel);
+	
+	/**
+	 * @描述：修改问题问卷，返回更新成功记录条数
+	 * @作者：田源
+	 * @时间：2016年8月18日 下午5:00:02
+	 * @param surveyQuestionModel
+	 * @return int
+	 * @
+	 */
+	public int update(SurveyQuestionModel surveyQuestionModel);
+	
+	/**
+	 * @描述：根据ID查询问卷问题
+	 * @作者：田源
+	 * @时间：2016年8月18日 下午5:00:43
+	 * @param id
+	 * @return SurveyQuestionModel
+	 * @
+	 */
+	public SurveyQuestionModel queryById(Long id);
+	
+	/**
+	 * @描述：根据问卷主题ID和问题状态查询问卷问题(两个参数至少传一个)
+	 * @作者：田源
+	 * @时间：2016年8月18日 下午5:01:16
+	 * @param SubId
+	 * @param state(0:无效;1:有效)
+	 * @return List<SurveyQuestionModel>
+	 * @
+	 */
+	public List<SurveyQuestionModel> queryBySubIdAndState(Long SubId, String state);
+}

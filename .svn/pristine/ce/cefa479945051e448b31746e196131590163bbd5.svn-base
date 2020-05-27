@@ -1,0 +1,171 @@
+package com.thinkive.fxc.ismp.bus.base.business.model;
+
+import java.sql.Timestamp;
+import java.util.Date;
+
+import com.thinkive.base.jdbc.DataRow;
+
+/**
+ * @描述: 用户操作日志表(T_USER_LOG)模型
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月25日 下午2:18:14
+ */
+public class UserLoginLogModel extends DataRow
+{
+
+    private static final long serialVersionUID = -4732587842786007040L;
+    
+    private static final String LOG_ID="log_id";
+    
+    private static final String USER_ID="user_id";
+    
+    private static final String CLIENT_ID="client_id";
+    
+    private static final String CREATE_BY="create_by";
+    
+    private static final String CREATE_DATE="create_date";  
+    
+    private static final String MODIFIED_BY="modified_by";
+    
+    private static final String MODIFIED_DATE="modified_date";
+    
+    private static final String OP_SOURCE="op_source";
+    
+    private static final String OP_STATION="op_station";
+    
+    /**
+     * 获取流水编号
+     */
+    public Long getLogId() {
+        return getLong(LOG_ID);
+    }
+
+    /**
+     * 设置流水编号
+     */
+    public void setLogId(Long logId) {
+        set(LOG_ID, logId);
+    }    
+    
+    /**
+     * 获取用户ID
+     */
+    public Long getUserId() {
+        return getLong(USER_ID);
+    }
+
+    /**
+     * 设置用户ID
+     */
+    public void setUserId(Long userId) {
+        set(USER_ID, userId);
+    }  
+    
+    
+    /**
+     * 获取客户编号
+     */
+    public String getClientId() {
+        return getString(CLIENT_ID);
+    }
+
+    /**
+     * 设置客户编号
+     */
+    public void setClientId(String client_id) {
+        set(CLIENT_ID, client_id);
+    } 
+    
+    /**
+     * 获取创建者用户帐号
+     */
+    public String getCreateBy() {
+        return getString(CREATE_BY);
+    }
+
+    /**
+     * 设置创建者用户帐号
+     */
+    public void setCreateBy(String createBy) {
+        set(CREATE_BY, createBy);
+    } 
+    
+    
+    /**
+     * 获取修改者用户帐号
+     */
+    public String getModifiedBy() {
+        return getString(MODIFIED_BY);
+    }
+
+    /**
+     * 设置修改者用户帐号
+     */
+    public void setModifiedBy(String modifiedBy) {
+        set(MODIFIED_BY, modifiedBy);
+    }
+    
+    /**
+     * 获取创建时间
+     */
+    public Date getCreateDate()
+    {
+        return (Date) get(CREATE_DATE);
+    }
+    
+    /**
+     * 设置创建时间
+     */
+    public void setCreateDate(Date createDate)
+    {
+        Timestamp timestamp = new Timestamp(createDate.getTime());
+        set(CREATE_DATE, timestamp);
+    }
+    
+    
+    /**
+     * 获取更新时间
+     */
+    public Date getUpdateDate() {
+        return (Date) get(MODIFIED_DATE);
+    }
+
+    /**
+     * 设置更新时间
+     */
+    public void setUpdateDate(Date modifiedDate) {
+        Timestamp timestamp=new Timestamp(modifiedDate.getTime());
+        set(MODIFIED_DATE, timestamp);
+    }
+    
+    /**
+     * 获取操作渠道  0：pc/web，2： Android平板客户端，3： Android手机客户端，4：  iPhone客户端
+     */
+    public String getOpSource() {
+        return getString(OP_SOURCE);
+    }
+
+    /**
+     * 设置操作渠道  0：pc/web，2： Android平板客户端，3： Android手机客户端，4：  iPhone客户端
+     */
+    public void setOpSource(String opSource) {
+        set(OP_SOURCE, opSource);
+    } 
+    
+    /**
+     * 获取操作站点
+     */
+    public String getOpStation() {
+        return getString(OP_STATION);
+    }
+
+    /**
+     * 设置操作站点
+     */
+    public void setOpStation(String opStation) {
+        set(OP_STATION, opStation);
+    } 
+}

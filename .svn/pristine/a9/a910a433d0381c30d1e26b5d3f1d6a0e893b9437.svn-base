@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="GBK"?>
+<system>
+	<category name="system" description="系统相关配置">
+		<item name="ismpDataSource" value="db_ismp" description="云柜台数据库ID" />
+		<item name="isUseError" value="0" description="1:表示使用自定义错误，0:表示不使用自定义错误" />
+		<item name="pwdSaveType" value="1" description="用户密码保存方式，1入库，2缓存，3不做任何处理" />
+		<item name="countpwderror" value="1" description="是否记录密码错误次数  0：不记录 1：记录" />
+		<item name="dbtype" value="oracle" description="数据库类型 o:oracle,m:mysql" />
+		<item name="startcache" value="1" description="是否启用缓存，0：否，1：是" />
+		<item name="third_need_pwd" value="0" description="第三方接口是否需要密码，0：否，1：是" />
+		<item name="fileServerUrl" value="192.168.1.142:8091"
+			description="文件服务器地址" />
+		<item name="redisKey" value="ismp" description="云柜台redis缓存前缀" />
+		<item name="passwordFields"
+			value="password|bank_pwd|zj_password|jy_password|oldPassword|cardPassword|pwd_value|trd_pwd|fund_pwd|bank_password|privatekey_pwd|pwd_value|zjpassword|jypassword"
+			description="需要解密的字段,多个用|分割" />
+		<item name="webType" value="c" description="web接入层类型，j：java，c：c++" />
+		<item name="randomCodeCacheTime" value="120" description="图片验证码缓存时间/秒" />
+	</category>
+
+	<category name="sms" description="短信发送配置">
+		<item name="mobileMsgSetServer" value="GA" description="短信发送平台选择" />
+		<item name="sendUrl"
+			value="http://sdk2.zucp.net:8060/webservice.asmx/mt?sn=SDK-SKY-010-00408&amp;pwd=8AA57FEE0AD1949E44F26B103FE8C4C0&amp;ext=&amp;stime=&amp;rrid="
+			description="短信发送平台路径" />
+		<item name="setPWD" value="www.kh.zszq.com.cn" description="短信发送平台路径" />
+		<item name="smsValidate" value="0" description="短信验证码是否校验，0测试不校验，1生产校验" />
+		<item name="smscodesend_time" value="60" description="短信验证码发送时间间隔(秒)" />
+		<item name="smscodesave_time" value="60" description="短信验证码存储时间(秒)" />
+		<item name="mobile" value="mobile" description="短信mobile对应的参数" />
+		<item name="content" value="content" description="短信content对应的参数" />
+		<item name="name" value="[中山证券]" description="是否需要在短信后面公司名称" />
+		<item name="userBusinessSendMax" value="10" description="每种类型的短信，同一个用户每天最大的发送次数" />
+		<item name="ipBusinessSendMax" value="20" description="每种类型的短信，同一个IP每天最大的发送次数" />
+		<item name="url" value="http://36.101.204.2:8050/SendSms2014.aspx"
+			description="请求地址" />
+		<item name="spid" value="" description="客户代码" />
+		<item name="pwd" value="" description="密码" />
+
+	</category>
+	<category name="sysConfig" description="综合业务受理平台-相关参数设置">
+		<item name="updateBankErrorMax" value="3"
+			description="三方存管修改业务中，绑定三方存管最多错误次数（超过次数自动预指定）" />
+		<item name="bankNumMax" value="5" description="三方存管中允许绑定最多的银行卡张数" />
+		<item name="bankNumMin" value="0" description="三方存管中允许绑定最少的银行卡张数" />
+		<item name="maxErrorInput" value="8" description="每天登录密码最大错误次数" />
+	</category>
+
+	<category name="cert" description="证书配置">
+		<item name="verify_type" value="1" description="验签类型 0：单个验签，1：批量验签"></item>
+		<item name="certSourceZD" value="1" description="中登证书 1"></item>
+		<item name="certSourceZJ" value="2" description="自建证书 2:天威; 3:信安"></item>
+	</category>
+
+	<category name="FileBusNo" description="附件相关BUS功能号">
+		<item name="CheckTokenFuncNo" value="5001" description="校验TOKEN功能号" />
+		<item name="UploadFileInfoFuncNo" value="5004" description="更新附件信息的功能号" />
+		<item name="DownloadFileInfoFuncNo" value="5005" description="查询下载附件信息的功能号" />
+		<item name="CheckDownloadTokenFuncNo" value="5002" description="校验下载TOKEN功能号" />
+	</category>
+	<category name="UploadConfig" description="附件上传相关配置">
+		<item name="SizeThreshold" value="4" description="临时文件夹的临界值" />
+		<item name="SizeMax" value="4" description="上传文件的最大值，单位M" />
+		<item name="ExclusionExtName" value="jar|jsp|exe|sh|bat|war"
+			description="禁止上传文件的扩展名，多个用|分隔" />
+	</category>
+	<category name="DownloadConfig" description="附件下载相关配置">
+		<item name="ImageType"
+			value="bmp|jpg|png|tiff|gif|pcx|tga|exif|fpx|svg|psd|cdr|pcd|dxf|ufo|eps|ai|raw|wmf"
+			description="临时文件夹的临界值" />
+	</category>
+	<category name="ht" description="协议合同相关配置">
+	   <item name="beforePdfPath" value="D://Test//" description="协议转存PDF存储的位置" />
+	   <item name="template" value="D://Test//" description="PDF模版路径位置" />
+	   <item name="pdfFont" value="C://Windows//fonts//simsun.ttc" description="转 PDF 处理中文的字体位置" />
+	</category>
+	<category name="fileServer" description="文件服务器配置">
+		<item name="writeURL" value="http://192.168.1.144:8091/UploadFile" descript="文件上传地址"/>
+		<item name="readURL" value="http://192.168.1.144:8091/ViewFile" descript="文件读取地址"/>
+		<item name="getSEC" value="http://192.168.1.144:8091/FileSercet" descript=""/>
+		<item name="version" value="1" descript="文件服务器版本号"/>
+		<item name="fileSaveAddr" value="" descript="文件存放路径--文件服务器"/>
+	</category>
+</system>

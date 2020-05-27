@@ -1,0 +1,33 @@
+package com.thinkive.fxc.ismp.bus.base.basicdata.dao.impl;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.fxc.ismp.bus.base.basicdata.contants.BaseTableConstants;
+import com.thinkive.fxc.ismp.bus.base.basicdata.dao.TradeDateDao;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseDao;
+import com.thinkive.fxc.ismp.bus.base.constants.SystemConstants;
+
+/**
+ * @描述: 公共--交易日信息表(T_FXC_TRADEDATE)数据层实现类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月25日 下午10:24:12
+ */
+public class TradeDateDaoImpl extends ISMPBaseDao implements TradeDateDao
+{
+	
+	@Override
+	public DataRow queryIfTradingDayByDate(String date)
+	{
+		if (SystemConstants.DB_TYPE_MYSQL.equals(getDbType()))
+		{
+			StringBuilder sql = new StringBuilder("SELECT TRADINGDATE,IFTRADINGDAY FROM ");
+			sql.append(BaseTableConstants.T_FXC_TRADEDATE).append(" WHERE DATE_FORMAT(?,'%Y-%M-%D')=TRADINGDATE");
+			return getJdbcTemplate().queryMap(sql.toString(), new Object[] { date });
+		}
+		StringBuilder sql = new StringBuilder("SELECT TRADINGDATE,IFTRADINGDAY FROM ");
+		sql.append(BaseTableConstants.T_FXC_TRADEDATE).append(" WHERE TO_DATE(?,'YYYY-MM-DD')=TRADINGDATE");
+		return getJdbcTemplate().queryMap(sql.toString(), new Object[] { date });
+	}
+}

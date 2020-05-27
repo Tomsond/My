@@ -1,0 +1,184 @@
+package com.thinkive.fxc.ismp.bus.base.business.service.impl;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+
+import com.thinkive.base.exception.BusinessException;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.model.BusinessEntityModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.NodePropertyConfigModel;
+import com.thinkive.fxc.ismp.bus.base.business.service.BprocNodeConfigService;
+import com.thinkive.fxc.ismp.bus.base.business.service.BusinessEntityService;
+import com.thinkive.fxc.ismp.bus.base.business.service.FlowNodeManageService;
+import com.thinkive.fxc.ismp.bus.base.business.service.NodePropertyConfigService;
+import com.thinkive.fxc.ismp.bus.base.business.vo.BprocNodeConfigAndDefineVO;
+import com.thinkive.fxc.ismp.bus.base.business.vo.BusinessEntityAndConfigVO;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeSystem;
+
+/**
+ * @描述: 流程节点管理服务实现类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月22日 下午2:01:02
+ */
+public class FlowNodeManageServiceImpl implements FlowNodeManageService
+{
+	
+	@Override
+	public Map<String, Object> checkNodeAuthAndReturnInfo(Long userId, String businessCode, int functionNo, String opSource, String nodeId)
+	{
+		BprocNodeConfigAndDefineVO submitBprocNodeConfigAndDefineVO = getBprocNodeConfigService(businessCode, opSource, nodeId, functionNo);
+		Map<String, Object> checkResult = checkBusinessEntityCrrNode(submitBprocNodeConfigAndDefineVO, userId, businessCode, nodeId);
+		checkResult.put("submitBprocNodeConfigAndDefineVO", submitBprocNodeConfigAndDefineVO);//当前操作的流程节点配置和定义
+		return checkResult;
+	}
+	
+	@Override
+	public Map<String, Object> checkNodeAuthAndReturnInfo(Long userId, String businessCode, String opSource, String nodeId)
+	{
+		BprocNodeConfigAndDefineVO submitBprocNodeConfigAndDefineVO = getBprocNodeConfigService(businessCode, opSource, nodeId);
+		Map<String, Object> checkResult = checkBusinessEntityCrrNode(submitBprocNodeConfigAndDefineVO, userId, businessCode, nodeId);
+		checkResult.put("submitBprocNodeConfigAndDefineVO", submitBprocNodeConfigAndDefineVO);//当前操作的流程节点配置和定义
+		return checkResult;
+	}
+	
+	private Map<String, Object> checkBusinessEntityCrrNode(BprocNodeConfigAndDefineVO submitBprocNodeConfigAndDefineVO, Long userId, String businessCode, String nodeId)
+	{
+		Map<String, Object> result = new HashMap<String, Object>();
+		if (userId != null && 0 != userId)
+		{
+			BusinessEntityService businessEntityService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_BUSINESSENTITY, BusinessEntityService.class);
+			BusinessEntityAndConfigVO businessEntityAndConfigVO = businessEntityService.queryEacVoNotCompleteByUserIdAndBusinessCode(userId, businessCode);
+			//如果没有业务办理数据，则当前执行的不是第一步，抛出异常
+			if (businessEntityAndConfigVO == null && !DictionaryConstants.FLOW_FIRSTSTEP_PRENODE.equals(submitBprocNodeConfigAndDefineVO.getPreBpNodeId()))
+			{
+				throw new BusinessException(ErrorCodeSystem.FLOW_OPERATION_SEQUENCE_ERROR);
+			}
+			
+			if (businessEntityAndConfigVO != null)
+			{
+				BprocNodeConfigAndDefineVO userCurrBprocNodeConfigAndDefineVO = checkFlowNodeAndReturnUserCurrBprocNode(businessEntityAndConfigVO, submitBprocNodeConfigAndDefineVO);
+				result.put("userCurrBprocNodeConfigAndDefineVO", userCurrBprocNodeConfigAndDefineVO);//用户当前流程节点配置和定义
+			}
+			result.put("businessEntityAndConfigVO", businessEntityAndConfigVO);//业务实例
+		}
+		if (!StringUtils.isBlank(submitBprocNodeConfigAndDefineVO.getNodeType()))
+		{
+			NodePropertyConfigService nodePropertyConfigService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_NODEPROPERTYCONFIG, NodePropertyConfigService.class);
+			List<NodePropertyConfigModel> nodePropertyConfigModelList = nodePropertyConfigService.queryByNodeIdAndState(nodeId, DictionaryConstants.BOL_TRUE);
+			if (nodePropertyConfigModelList == null || nodePropertyConfigModelList.size() == 0)
+			{
+				throw new BusinessException(ErrorCodeSystem.FLOW_NODE_NO_PROPERTY);
+			}
+			result.put("nodePropertyConfigModelList", nodePropertyConfigModelList);//节点属性列表
+		}
+		return result;
+	}
+	
+	@Override
+	public Map<String, Object> checkBusinessEntityCrrNode(BprocNodeConfigAndDefineVO submitBprocNodeConfigAndDefineVO, BusinessEntityAndConfigVO businessEntityAndConfigVO)
+	{
+		Map<String, Object> result = new HashMap<String, Object>();
+		if (businessEntityAndConfigVO == null && !DictionaryConstants.FLOW_FIRSTSTEP_PRENODE.equals(submitBprocNodeConfigAndDefineVO.getPreBpNodeId()))
+		{
+			throw new BusinessException(ErrorCodeSystem.FLOW_OPERATION_SEQUENCE_ERROR);
+		}
+		
+		if (businessEntityAndConfigVO != null)
+		{
+			BprocNodeConfigAndDefineVO userCurrBprocNodeConfigAndDefineVO = checkFlowNodeAndReturnUserCurrBprocNode(businessEntityAndConfigVO, submitBprocNodeConfigAndDefineVO);
+			result.put("userCurrBprocNodeConfigAndDefineVO", userCurrBprocNodeConfigAndDefineVO);//用户当前流程节点配置和定义
+		}
+		result.put("businessEntityAndConfigVO", businessEntityAndConfigVO);//业务实例
+		if (!StringUtils.isBlank(submitBprocNodeConfigAndDefineVO.getNodeType()))
+		{
+			NodePropertyConfigService nodePropertyConfigService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_NODEPROPERTYCONFIG, NodePropertyConfigService.class);
+			List<NodePropertyConfigModel> nodePropertyConfigModelList = nodePropertyConfigService.queryByNodeIdAndState(submitBprocNodeConfigAndDefineVO.getNodeId(), DictionaryConstants.BOL_TRUE);
+			if (nodePropertyConfigModelList == null || nodePropertyConfigModelList.size() == 0)
+			{
+				throw new BusinessException(ErrorCodeSystem.FLOW_NODE_NO_PROPERTY);
+			}
+			result.put("nodePropertyConfigModelList", nodePropertyConfigModelList);//节点属性列表
+		}
+		return result;
+	}
+	
+	@Override
+	public BprocNodeConfigAndDefineVO getBprocNodeConfigService(String businessCode, String opSource, String nodeId, int functionNo)
+	{
+
+		BprocNodeConfigAndDefineVO bprocNodeConfigAndDefineVO = getBprocNodeConfigService(businessCode, opSource, nodeId);
+		if (functionNo != bprocNodeConfigAndDefineVO.getFuncNo())
+		{			
+			throw new BusinessException(ErrorCodeSystem.FLOW_NODE_FUNCNO_ERROR);
+		}	
+		return bprocNodeConfigAndDefineVO;
+	}
+	
+	@Override
+	public BprocNodeConfigAndDefineVO getBprocNodeConfigService(String businessCode, String opSource, String nodeId)
+	{
+		BprocNodeConfigService bprocNodeConfigService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_BPROCNODECONFIG, BprocNodeConfigService.class);
+		BprocNodeConfigAndDefineVO bprocNodeConfigAndDefineVO = bprocNodeConfigService.queryNadVoByBCodeAndOpSouAndNodeId(businessCode, opSource, nodeId);
+		
+		if (bprocNodeConfigAndDefineVO == null)
+		{
+			throw new BusinessException(ErrorCodeSystem.FLOW_NODE_NOTEXIST);
+		}
+		return bprocNodeConfigAndDefineVO;
+	}
+	
+	@Override
+	public BprocNodeConfigAndDefineVO checkFlowNodeAndReturnUserCurrBprocNode(BusinessEntityAndConfigVO businessEntityAndConfigVO, BprocNodeConfigAndDefineVO submitBprocNodeConfigAndDefineVO)
+	{
+		if (businessEntityAndConfigVO.getNodeId().equals(DictionaryConstants.FLOW_LASTSTEP_NEXT))
+		{
+			throw new BusinessException(ErrorCodeSystem.BUSINESS_RESUBMIT);
+		}
+		
+		if (!businessEntityAndConfigVO.getBtypeId().equals(submitBprocNodeConfigAndDefineVO.getBtypeId()))
+		{
+			throw new BusinessException(ErrorCodeSystem.FLOW_DIFFRENT_BTYPE);
+		}
+		
+		BprocNodeConfigService bprocNodeConfigService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_BPROCNODECONFIG, BprocNodeConfigService.class);
+		BprocNodeConfigAndDefineVO userCurrBprocNodeConfigAndDefineVO = bprocNodeConfigService.queryNadVoByBtypeIdAndNodeId(businessEntityAndConfigVO.getBtypeId(),
+				businessEntityAndConfigVO.getNodeId());
+		
+		if (submitBprocNodeConfigAndDefineVO.getBpNodePosition() > userCurrBprocNodeConfigAndDefineVO.getBpNodePosition())
+		{
+			throw new BusinessException(ErrorCodeSystem.FLOW_OPERATION_SEQUENCE_ERROR);
+		}
+		return userCurrBprocNodeConfigAndDefineVO;
+	}
+	
+	@Override
+	@SuppressWarnings("unchecked")
+	public void changeBusinessFlowNode(BusinessEntityAndConfigVO businessEntityAndConfigVO, BprocNodeConfigAndDefineVO submitBprocNodeConfigAndDefineVO, String isComplete, String dealResult,
+			String opSource, String opStation, String ip) throws Exception
+	{
+		String nextBpNodeId = submitBprocNodeConfigAndDefineVO.getNextBpNodeId();
+		BusinessEntityModel updateBusinessEntityModel = new BusinessEntityModel();
+		updateBusinessEntityModel.setId(businessEntityAndConfigVO.getId());//ID
+		updateBusinessEntityModel.setNodeId(nextBpNodeId);//设置用户当前步骤为操作的节点的下一步
+		updateBusinessEntityModel.setOpSource(opSource);//客户端类型
+		updateBusinessEntityModel.setOpStation(opStation);//操作站点
+		updateBusinessEntityModel.setIp(ip);//ID地址
+		if (nextBpNodeId.equals(DictionaryConstants.FLOW_LASTSTEP_NEXT) && DictionaryConstants.BOL_TRUE.equals(isComplete))
+		{
+			updateBusinessEntityModel.setIsComplete(DictionaryConstants.BOL_TRUE);
+			updateBusinessEntityModel.setDealResult(dealResult);
+		}
+		//修改业务实例节点
+		BusinessEntityService businessEntityService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_BUSINESSENTITY, BusinessEntityService.class);
+		businessEntityService.changeBusinessFlowNode(updateBusinessEntityModel, submitBprocNodeConfigAndDefineVO.getNodeId());
+		businessEntityAndConfigVO.putAll(updateBusinessEntityModel);
+	}
+}

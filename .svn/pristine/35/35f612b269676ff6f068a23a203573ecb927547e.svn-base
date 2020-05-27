@@ -1,0 +1,37 @@
+package com.thinkive.fxc.ismp.bus.base.business.dao;
+
+import java.util.List;
+
+import com.thinkive.fxc.ismp.bus.base.business.model.ProcNodeDefineModel;
+
+/**
+ * @描述: 业务流程节点定义表(T_ISMP_PROCNODE_DEFINE)数据层接口
+ * @版权: Copyright (c) 2016 
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0 
+ * @创建时间: 2016年8月16日 上午9:53:38
+ */
+public interface ProcNodeDefineDao
+{
+	
+	/**
+	 * @描述: 根据节点英文标识nodeId来查询业务流程节点
+	 * @作者: 田源  
+	 * @时间：2016年8月17日 下午3:59:13
+	 * @param nodeId
+	 * @return ProcNodeDefineModel
+	 * @
+	 */
+	public ProcNodeDefineModel queryByNodeId(String nodeId);
+	
+	/**
+	 * @描述: 根据业务类型编号businessType来查询业务流程节点
+	 * @作者: 田源  
+	 * @时间：2016年8月17日 下午3:59:13
+	 * @param businessType
+	 * @return List<ProcNodeDefineModel>
+	 * @
+	 */
+	public List<ProcNodeDefineModel> queryByBusinessType(String businessType);
+}

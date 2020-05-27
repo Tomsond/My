@@ -1,0 +1,223 @@
+package com.thinkive.fxc.ismp.bus.business.otc.function;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.basicdata.contants.BasicServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.basicdata.service.TradeTimeService;
+import com.thinkive.fxc.ismp.bus.base.business.constants.AgreeNodePropertyConstants;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessConstants;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.dao.ChoiceAccountRecordDao;
+import com.thinkive.fxc.ismp.bus.base.business.dao.impl.ChoiceAccountRecordDaoImpl;
+import com.thinkive.fxc.ismp.bus.base.business.function.IsmpFlowBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.business.model.BusinessConfigModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.BusinessEntityModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.ChoiceAccountRecordModel;
+import com.thinkive.fxc.ismp.bus.base.business.service.BusinessConfigService;
+import com.thinkive.fxc.ismp.bus.base.business.service.BusinessEntityService;
+import com.thinkive.fxc.ismp.bus.base.business.service.SignAndVerifyService;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.business.vo.UserInfoVo;
+import com.thinkive.fxc.ismp.bus.base.constants.CertConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.business.otc.constants.OtcConstants;
+import com.thinkive.fxc.ismp.bus.business.otc.model.OtcInfo;
+import com.thinkive.fxc.ismp.bus.business.otc.service.OtcOpenService;
+import com.thinkive.fxc.ismp.bus.business.util.DataFormatUtils;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdDictionaryConstants;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdInterfaceConstant;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdInterface;
+import com.thinkive.server.InvokeException;
+import com.thinkive.server.ResultVo;
+
+/**
+ * 描述: OTC开户---签署协议,提交跑批
+ * 版权: Copyright (c) 2010
+ * 公司: 思迪科技 
+ * 作者: 刘恺
+ * 版本: 1.0 
+ * 创建日期: 2014年12月12日 
+ * 创建时间: 下午5:28:05
+ */
+public class Function1004440 extends IsmpFlowBaseFunction
+{
+	
+	private String otccodes;//OTC编号  逗号分割
+	
+	private String jsondata;//签名json字符串
+	
+	@SuppressWarnings("unchecked")
+	public ResultVo execute() throws Exception
+	{
+		initVar();
+		
+		//获取需要提交的协议信息
+		Map<String, DataRow> signParamsMap = getNeedSignAgereeInfo(otccodes);
+		
+		//提交的所有需要签署的协议
+		SignAndVerifyService signAndVerifyService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_SIGNANDVERIFY, SignAndVerifyService.class);
+		List<Map<String, String>> allSignList = signAndVerifyService.verifySignTextAndSubmitThird(jsondata, signParamsMap);
+		
+		//查询业务属性
+		BusinessConfigService businessConfigService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_BUSINESSCONFIG, BusinessConfigService.class);
+		BusinessConfigModel businessConfigModel = businessConfigService.queryByOpSourceAndBusinessCode(businessCode, opSource);
+		BusinessEntityService businessEntityService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_BUSINESSENTITY, BusinessEntityService.class);
+		
+		//获取新业务实例对象
+		BusinessEntityModel businessEntityModel = getNewBusinessEntity();
+		businessEntityModel.setNodeId(submitBprocNodeConfigAndDefineVO.getNextBpNodeId());
+		
+		//格式化选择账号
+		List<ChoiceAccountRecordModel> choiceAccountRecordModels = DataFormatUtils.packInputStkbdInfo(otccodes, DictionaryConstants.CHOICEACCOUNT_DEALRESULT_NOTSTART);
+		
+		//如果没有配置业务属性,或者配置为需要审核
+		if (businessConfigModel == null || DictionaryConstants.BOL_TRUE.equals(businessConfigModel.getNeedAudit()))
+		{
+			businessEntityService.addEntityAndAgreeAndAccountAndAuditTask(businessEntityModel, submitBprocNodeConfigAndDefineVO.getNodeId(), allSignList, choiceAccountRecordModels,"");
+		}
+		//如果是统一跑批,或者
+		else if (DictionaryConstants.BUSINESS_DATA_SUBMITTYPE_PP.equals(businessConfigModel.getDataSubmitType()))
+		{
+			businessEntityService.addEntityAndAgreeAndAccountAndPpTask(businessEntityModel, submitBprocNodeConfigAndDefineVO.getNodeId(), allSignList, choiceAccountRecordModels,"");
+		}
+		//如果是实时提交
+		else if (DictionaryConstants.BUSINESS_DATA_SUBMITTYPE_THIRD.equals(businessConfigModel.getDataSubmitType()))
+		{
+			Map<String, Object> openResult = openOtcResult(choiceAccountRecordModels);
+			choiceAccountRecordModels = (List<ChoiceAccountRecordModel>) openResult.get("choiceAccountRecordModels");
+			String dealResult = (String) openResult.get("dealResult");
+			businessEntityModel.setDealResult(dealResult);
+			businessEntityModel.setIsComplete(DictionaryConstants.BOL_TRUE);
+			businessEntityService.addEntityAndAgreeAndAccount(businessEntityModel, submitBprocNodeConfigAndDefineVO.getNodeId(), allSignList, choiceAccountRecordModels,"");
+		}
+		//如果中登服务时间提交第三方、非服务时间跑批
+		else if (DictionaryConstants.BUSINESS_DATA_SUBMITTYPE_SERVICETIME.equals(businessConfigModel.getDataSubmitType()))
+		{
+			TradeTimeService tradeTimeService = SpringHelper.getBean(BasicServiceBeanIdConstants.SERVICE_ID_TRADETIME, TradeTimeService.class);
+			//如果不是中登时间则跑批
+			if (!tradeTimeService.checkZdTradeTime())
+			{
+				businessEntityService.addEntityAndAgreeAndAccountAndPpTask(businessEntityModel, submitBprocNodeConfigAndDefineVO.getNodeId(), allSignList, choiceAccountRecordModels,"");
+			}
+			else
+			{
+				Map<String, Object> openResult = openOtcResult(choiceAccountRecordModels);
+				choiceAccountRecordModels = (List<ChoiceAccountRecordModel>) openResult.get("choiceAccountRecordModels");
+				String dealResult = (String) openResult.get("dealResult");
+				businessEntityModel.setDealResult(dealResult);
+				businessEntityModel.setIsComplete(DictionaryConstants.BOL_TRUE);
+				businessEntityService.addEntityAndAgreeAndAccount(businessEntityModel, submitBprocNodeConfigAndDefineVO.getNodeId(), allSignList, choiceAccountRecordModels,"");
+			}
+		}
+		
+		ResultVo resultVo = new ResultVo();
+		resultVo.setResult(choiceAccountRecordModels); //返回选择的账户信息
+		resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);//返回成功标示
+		resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+		return resultVo;
+	}
+	
+	/**
+	 * @描述：开通
+	 * @作者：谢能琥
+	 * @时间：2016年11月3日上午10:42:04
+	 * @return
+	 * @throws Exception 
+	 */
+	private Map<String, Object> openOtcResult(List<ChoiceAccountRecordModel> choiceAccountRecordModels) throws Exception
+	{
+		//查询用户基本信息
+		UserInfoService userInfoService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO, UserInfoService.class);
+		UserInfoVo userInfoVo = userInfoService.queryAndCheckUserByUserIdAndType(userId, ThirdInterfaceConstant.USER_ACCOUNT_TYPE_ZQ);
+		
+		ThirdInterface thirdInterface = SpringHelper.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDINTERFACE, ThirdInterface.class);
+		DataRow thirdInput = DataFormatUtils.packThirdInput(userInfoVo);
+		String dealResult = DictionaryConstants.DEAL_RESULT_SUCCESS;
+
+
+
+		OtcOpenService otcOpenService = SpringHelper.getBean(OtcConstants.SERVICE_ID_OTCOPEN, OtcOpenService.class);
+		for (ChoiceAccountRecordModel choiceAccountRecordModel : choiceAccountRecordModels)
+		{
+			try
+			{
+				thirdInput.set("otccode", choiceAccountRecordModel.getStkbd());
+				DataRow result = thirdInterface.openOTCAccount(thirdInput);//开通otc.三方接口无结果返回
+
+				//由于开通无结果返回,故调用查询otc开通结果,取出otc_code
+				List<DataRow> openedOtcAccounts = thirdInterface.queryOTCAccount(thirdInput);
+				if(openedOtcAccounts!= null && openedOtcAccounts.size()>0){
+					for(DataRow octInfo: openedOtcAccounts){
+						if(octInfo.getString("otc_code").equals(choiceAccountRecordModel.getStkbd())){
+							//无otc_name,故查询数据库配置的OTC信息,取出otc_name值
+							List<OtcInfo> otcInfoList = otcOpenService.queryByCodes(new String[]{choiceAccountRecordModel.getStkbd()});
+							for(OtcInfo otcInfoDB: otcInfoList){
+								choiceAccountRecordModel.set("otc_name",otcInfoDB.getString("otc_name"));
+								choiceAccountRecordModel.setTrdAccount(octInfo.getString("otc_acct")); //otc账号
+							}
+						}
+					}
+				}
+
+				choiceAccountRecordModel.setState(DictionaryConstants.CHOICEACCOUNT_DEALRESULT_SUCCESS);
+				choiceAccountRecordModel.setDescription(DictionaryConstants.CHOICE_ACCOUNT_OPENSUCCESS);
+
+			}
+			catch (InvokeException e)
+			{
+				dealResult = DictionaryConstants.DEAL_RESULT_REAL_TIME_FAILURE;
+				String msg = e.getMessage();
+				List<OtcInfo> otcInfoList = otcOpenService.queryByCodes(new String[]{choiceAccountRecordModel.getStkbd()});
+				for(OtcInfo otcInfoDB: otcInfoList){
+					choiceAccountRecordModel.set("otc_name",otcInfoDB.getString("otc_name"));
+				}
+				choiceAccountRecordModel.setDescription(msg);
+				choiceAccountRecordModel.setState(DictionaryConstants.CHOICEACCOUNT_DEALRESULT_FAIL);
+			}
+		}
+		Map<String, Object> result = new HashMap<String, Object>();
+		result.put("choiceAccountRecordModels", choiceAccountRecordModels);
+		result.put("dealResult", dealResult);
+		return result;
+	}
+	
+	private void initVar()
+	{
+		jsondata = this.getAndCheckBlankStrParam("jsondata", ErrorCodeCheckInput.BLANK_FORMAT_SIGNJSON);
+		otccodes = this.getAndCheckBlankStrParam("otccodes", ErrorCodeCheckInput.BLANK_OTCCODE);
+	}
+	
+	/**
+	 * @描述：获取业务办理需要签署的协议信息
+	 * @作者：刘恺
+	 * @时间：2017年2月22日 下午1:12:41
+	 * @param otccodes
+	 * @return
+	 */
+	private Map<String, DataRow> getNeedSignAgereeInfo(String otccodes)
+	{
+		OtcOpenService otcOpenService = SpringHelper.getBean(OtcConstants.SERVICE_ID_OTCOPEN, OtcOpenService.class);
+		String[] otccodeArr = otccodes.split(",");
+		List<OtcInfo> otcInfos = otcOpenService.queryByCodes(otccodeArr);
+		Map<String, DataRow> signParamsMap = new HashMap<String, DataRow>();
+		for (OtcInfo otcInfo : otcInfos)
+		{
+			String agreeNos = otcInfo.getAgreeNo();
+			String[] agreeNoArr = agreeNos.split(",");
+			for (String agreeNo : agreeNoArr)
+			{
+				DataRow signParams = new DataRow();
+				signParams.set(AgreeNodePropertyConstants.PROPERTY_KEY_SIGNTYPE, CertConstants.SIGN_TYPE_NOCERT);//签署类型 0-不签署，1-中登证书签署，2-自建证书签署,默认值0
+				signParams.set(AgreeNodePropertyConstants.PROPERTY_KEY_SUBMITTYPE, CertConstants.SUBMIT_TYPE_LOCAL);//提交方式 0-否，1-是，默认值0
+				signParams.set(AgreeNodePropertyConstants.PROPERTY_KEY_SIGNTEXTTYPE, CertConstants.SIGN_SOURCE_FLAG_MD5);//签署类型 0-不签署，1-中登证书签署，2-自建证书签署,默认值0
+				signParamsMap.put(agreeNo, signParams);
+			}
+		}
+		return signParamsMap;
+	}
+}

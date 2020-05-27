@@ -1,0 +1,34 @@
+package com.thinkive.fxc.ismp.bus.base.business.dao;
+
+import java.util.Date;
+
+import com.thinkive.fxc.ismp.bus.base.business.model.UserLoginLogModel;
+
+/**
+ * @描述: 用户登录日志表(T_USER_LOGIN_LOG)数据层接口
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月25日 下午6:20:35
+ */
+public interface UserloginLogDao
+{
+    /**
+     * @描述：添加用户操作日志
+     * @作者：田源
+     * @时间：2016年8月25日 下午6:22:36
+     * @param userLoginLogModel
+     * @return UserLogModel
+     */
+    public UserLoginLogModel add(UserLoginLogModel userLoginLogModel);
+    
+    /**
+     * @描述：根据用户编号userId获取最后登录时间
+     * @作者：田源
+     * @时间：2016年8月25日 下午6:24:01
+     * @param userId
+     * @return Date
+     */
+    public Date queryLastLogDate(Long userId);
+}

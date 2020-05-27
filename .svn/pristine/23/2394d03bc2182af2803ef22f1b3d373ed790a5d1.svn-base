@@ -1,0 +1,83 @@
+package com.thinkive.fxc.ismp.bus.business.entrust.function;
+
+import org.apache.commons.lang.StringUtils;
+
+import com.thinkive.server.ResultVo;
+import com.thinkive.base.exception.BusinessException;
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.business.entrust.contants.EntrustErrorCodeContants;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdDictionaryConstants;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdInterface;
+import com.thinkive.server.InvokeException;
+
+/**
+ * @描述: 取消委托方式---作废
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0.0 
+ * @创建时间: 2016年9月6日 下午5:16:06
+ */
+public class Function1004166 extends ISMPBaseFunction
+{
+    private Long           userId;        //用户ID
+                                           
+    private String         entrustCode;   //委托方式代码
+                                           
+    private ThirdInterface thirdInterface;
+    
+    public ResultVo execute() throws Exception
+    {
+        //step1;获取入参并校验
+        checkInput();
+        ResultVo resultVo = new ResultVo();
+        
+        //step2: 调用第三方接口,取消委托方式
+        DataRow param = new DataRow();
+        param.set("user_id", userId);
+        param.set("entrust_code", entrustCode);
+        thirdInterface = SpringHelper.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDINTERFACE, ThirdInterface.class);
+        DataRow dr = thirdInterface.closeEntrust(param);
+        
+        //setp3:解析取消结果，打包出参
+        if ( null != dr && StringUtils.isNotBlank(dr.getString(ThirdDictionaryConstants.DATAROWSTATUS)) )
+        {
+            //取消委托方式有返回结果的情况下，做如下判断：
+            String cancelResult = dr.getString(ThirdDictionaryConstants.DATAROWSTATUS);//取消结果
+            if ( DictionaryConstants.INVOKE_FUNCTION_SUCCESS == Integer.parseInt(cancelResult) )
+            {
+                resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+                resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+            }
+            else
+            {
+                throw new BusinessException(EntrustErrorCodeContants.CANCEL_WT_FAILURE,
+                        dr.getString(ThirdDictionaryConstants.DATAROWDESCRIPTION));
+            }
+            
+        }
+        else
+        {
+            throw new BusinessException(EntrustErrorCodeContants.CANCEL_WT_FAILURE,
+                    dr.getString(ThirdDictionaryConstants.DATAROWDESCRIPTION));
+        }
+        
+        return resultVo;
+    }
+    
+    /**
+     * @描述：入参并校验
+     * @作者：田源
+     * @时间：2016年9月6日 下午5:58:47
+     * @throws InvokeException
+     */
+    private void checkInput() throws InvokeException
+    {
+        userId = Long.valueOf(this.getAndCheckBlankStrParam("user_id", ErrorCodeCheckInput.BLANK_USERID));
+        entrustCode = this.getAndCheckBlankStrParam("entrust_code", EntrustErrorCodeContants.BLANK_ENTRUT);
+    }
+}

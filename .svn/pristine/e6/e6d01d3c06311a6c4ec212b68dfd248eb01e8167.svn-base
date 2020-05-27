@@ -1,0 +1,82 @@
+package com.thinkive.fxc.ismp.bus.base.basicdata.service.impl;
+
+
+import java.util.List;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.fxc.ismp.bus.base.basicdata.dao.ProvinceCityDao;
+import com.thinkive.fxc.ismp.bus.base.basicdata.service.ProvinceCityService;
+
+/**
+ * 作者：MIKE
+ * 公司：深圳市思迪信息技术股份公司
+ * 日期时间：2017年1月6日 下午2:11:59
+ * 说明：省份城市数据服务类
+ */
+public class ProvinceCityServiceImpl implements ProvinceCityService
+{
+	private ProvinceCityDao provincecityDao;
+	
+	public void setprovinceCityDao(ProvinceCityDao provinceCityDao)
+	{
+		this.provincecityDao = provinceCityDao;
+	}
+	
+	
+	/**
+	 * @return 省份数据集合
+	 * @throws Exception
+	 */
+	public List<DataRow> getProvinceList() throws Exception
+	{
+		return provincecityDao.getProvinceList();
+	}
+	
+	/**
+	 * @param province_no 省份编号
+	 * @return 城市数据集合
+	 * @throws Exception
+	 */
+	public List<DataRow> getCityList(String province_no) throws Exception
+	{
+		return provincecityDao.getCityList(province_no);
+	}
+	
+	/**
+     * @param regional_id 区域编号
+    * @return 区域下城市数据信息
+    * @throws Exception
+    */
+	public List<DataRow> getPostList(String regional_id) throws Exception
+	{
+		return provincecityDao.getPostList(regional_id);
+	}
+
+	 /**
+     * @param regional_id 区域编号
+     * @return 区域下省份数据信息
+     * @throws Exception
+     */
+	@Override
+	public List<DataRow> getRegionIdList(String regional_id) throws Exception {
+		return provincecityDao.getRegionIdList(regional_id);
+	}
+
+	 /**
+     * @param mobile_no 手机号
+     * @return 根据手机号查询渠道信息
+     * @throws Exception
+     */
+	@Override
+	public DataRow getChannel(String mobile_no) throws Exception {
+		return provincecityDao.getChannel(mobile_no);
+	}
+
+	/**
+     * @return 区域数据信息
+     * @throws Exception
+     */
+	public List<DataRow> getRegionList() throws Exception {
+		return provincecityDao.getRegionList();
+	}
+}

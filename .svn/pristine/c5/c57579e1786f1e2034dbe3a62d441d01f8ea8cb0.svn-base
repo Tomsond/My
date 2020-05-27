@@ -1,0 +1,30 @@
+package com.thinkive.fxc.ismp.bus.business.entrust.dao.impl;
+
+import java.util.Date;
+
+import com.thinkive.base.jdbc.session.Session;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseDao;
+import com.thinkive.fxc.ismp.bus.business.entrust.contants.EntrustDictionaryInfoContants;
+import com.thinkive.fxc.ismp.bus.business.entrust.dao.UserEntrustBusinessDao;
+import com.thinkive.fxc.ismp.bus.business.entrust.model.UserEntrustBusinessModel;
+
+/**
+ * @描述: 用户委托方式表(T_ISMP_USER_ENTRUST)数据层接口实现类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0.0 
+ * @创建时间: 2016年9月6日 上午10:10:46
+ */
+public class UserEntrustBusinessDaoImpl extends ISMPBaseDao implements UserEntrustBusinessDao
+{
+
+    @Override
+    public UserEntrustBusinessModel add(UserEntrustBusinessModel userEntrustBusinessModel,Session session)
+    {
+        userEntrustBusinessModel.setCreateDate(new Date());
+        session.insert(EntrustDictionaryInfoContants.T_ISMP_USERENTRUST_BUSINESS, userEntrustBusinessModel);
+        return userEntrustBusinessModel;
+    }
+    
+}

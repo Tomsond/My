@@ -1,0 +1,32 @@
+package com.thinkive.fxc.ismp.bus.business.fundaccount.dao.impl;
+
+import java.util.List;
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseDao;
+import com.thinkive.fxc.ismp.bus.base.util.ModelUtil;
+import com.thinkive.fxc.ismp.bus.business.fundaccount.constants.JjConstants;
+import com.thinkive.fxc.ismp.bus.business.fundaccount.dao.FundInfoDao;
+import com.thinkive.fxc.ismp.bus.business.fundaccount.model.FundInfo;
+
+/**
+ * @描述: 基金信息表DAO实现类
+ * @版权: Copyright (c) 2013
+ * @公司: 思迪科技
+ * @作者: 刘恺
+ * @版本: 1.0
+ * @创建时间: 2014-8-4  18:00
+ */
+public class FundInfoDaoImpl extends ISMPBaseDao implements FundInfoDao
+{
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<FundInfo> queryAll()
+	{
+		StringBuffer sql = new StringBuffer("select id,name,first_spell,state,agree_type,tacode  from ");
+		sql.append(JjConstants.T_ISMP_FUND_INFO);
+		sql.append(" where state = '1' ");
+		List<DataRow> dataRow = getJdbcTemplate().query(sql.toString());
+		return ModelUtil.packList(dataRow, FundInfo.class);
+	}
+}

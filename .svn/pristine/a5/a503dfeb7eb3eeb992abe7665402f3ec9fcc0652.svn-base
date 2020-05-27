@@ -1,0 +1,24 @@
+package com.thinkive.fxc.ismp.bus.business.resetpwd.dao;
+
+import com.thinkive.base.jdbc.session.Session;
+import com.thinkive.fxc.ismp.bus.base.business.vo.BusinessEntityAndConfigVO;
+import com.thinkive.fxc.ismp.bus.business.resetpwd.model.ResetPwdExtendModel;
+
+public interface ResetPwdEntityDao
+{
+	
+	public BusinessEntityAndConfigVO queryEacVoNotCompleteByFundAccount(String fundAccount);
+	
+	public BusinessEntityAndConfigVO queryEacVoNotCompleteByFundAccountNew(String fundAccount,String flag);
+	
+	/**
+	 * 通过资金账号和业务类型查询未完成的业务实例
+	 * @param fundAccount
+	 * @return
+     */
+	BusinessEntityAndConfigVO queryEacVoNotCompleteByFundAccount(String fundAccount, String businessCode);
+	
+	public int addResetPwdExtend(ResetPwdExtendModel resetPwdExtendModel);
+
+	public int addResetPwdExtend(ResetPwdExtendModel resetPwdExtendModel, Session session);
+}

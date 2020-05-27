@@ -1,0 +1,69 @@
+package com.thinkive.fxc.ismp.bus.business.assets.thirdbank.dao;
+
+import java.util.List;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.jdbc.session.Session;
+import com.thinkive.fxc.ismp.bus.business.assets.thirdbank.model.ThirdBankExtendModel;
+import com.thinkive.fxc.ismp.bus.business.assets.thirdbank.vo.ThirdBankBusinessInfoVo;
+
+/**
+ * @描述: 三方存管业务实例和其要拓展信息(T_ISMP_BUSINESS_FLOW和T_ISMP_B_THIRDBANK)数据层接口
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月29日 下午1:59:28
+ */
+public interface ThirdBankBusinessInfoDao
+{
+    /**
+     * @描述：根据参数查询三方存管业务和拓展信息,目前支持参数id,user_id,nodeId,isComplete,opType,fundAccount,参数可任意组装
+     * @作者：田源
+     * @时间：2016年8月29日 下午2:03:02
+     * @param thirdBankBusinessInfoVo
+     * @return List<ThirdBankBusinessInfoVo>
+     */
+    public List<ThirdBankBusinessInfoVo> queryByParams(ThirdBankBusinessInfoVo thirdBankBusinessInfoVo);
+    
+    /**
+     * @描述：根据业务实例ID查询三方存管业务办理信息
+     * @作者：田源
+     * @时间：2016年9月2日 下午1:41:36
+     * @param businessId
+     * @return ThirdBankBusinessInfoVo
+     */
+    public ThirdBankBusinessInfoVo queryByBusinessId(Long businessId); 
+    public DataRow queryThirdbankByBusinessId(Long businessId);
+    
+    
+    /**
+     * @描述： 添加三方存管业务拓展信息
+     * @作者：田源
+     * @时间：2016年8月29日 下午4:06:14
+     * @param thirdBankExtendModel
+     * @return ThirdBankModel
+     * @throws Exception
+     */
+    public ThirdBankExtendModel addThirdBankModel(ThirdBankExtendModel thirdBankExtendModel,Session session)throws Exception;
+    public ThirdBankExtendModel addThirdBankModel(ThirdBankExtendModel thirdBankExtendModel);
+    
+    /**
+     * @描述： 修改三方存管业务拓展信息,返回成功更新记录数
+     * @作者：田源
+     * @时间：2016年9月2日 下午3:51:56
+     * @param bankExtendModel
+     * @return int
+     */
+    public int update(ThirdBankExtendModel bankExtendModel);
+    
+    /**
+     * @描述： 修改三方存管业务拓展信息,返回成功更新记录数
+     * @作者：田源
+     * @时间：2016年9月2日 下午3:51:56
+     * @param bankExtendModel
+     * @param session
+     * @return int
+     */
+    public int update(ThirdBankExtendModel bankExtendModel,Session session);
+}

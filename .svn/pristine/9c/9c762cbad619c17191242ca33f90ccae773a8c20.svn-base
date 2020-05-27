@@ -1,0 +1,30 @@
+package com.thinkive.fxc.ismp.bus.business.fundaccount.test;
+
+import com.thinkive.fxc.ismp.bus.BaseTest;
+import com.thinkive.fxc.ismp.bus.business.fundaccount.function.Function1004190;
+import com.thinkive.server.Function;
+
+public class Function1004190Test extends BaseTest
+{
+	
+	public void testInvoke()
+	{
+	    getRequest().setFuncNo(1004190);
+		getRequest().addFieldValue("user_id", "45");
+		getRequest().addFieldValue("op_source", "1");
+		getRequest().addFieldValue("tacodes", "1");
+		getRequest().addFieldValue("tanames", "2");
+		getRequest().addFieldValue("nodeId", "openfundaccount_choose_account");
+		getRequest().addFieldValue("occupational", "03");
+		getRequest().addFieldValue("email", "sxyc_yangrui@163.com");
+		getRequest().addFieldValue("address", "辽宁省大连市沙河口区台山街122号2－6－1");
+		getRequest().addFieldValue("businessCode", "openfundaccount");
+		getRequest().addFieldValue("adapter", "大专");
+		getRequest().addFieldValue("postcode", "044100");
+		getRequest().addFieldValue("ip", "192.168.5.198");
+		getRequest().addFieldValue("mobile", "59");
+		Function function = new Function1004190();
+		function.invoke(getContext());
+		System.out.println("结果数据为：" + getResponse().getData());
+	}
+}

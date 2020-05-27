@@ -1,0 +1,313 @@
+package com.thinkive.fxc.ismp.bus.business.smjjCancel.function;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.thinkive.base.config.Configuration;
+import com.thinkive.base.exception.BusinessException;
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.DateHelper;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.fileupload.bean.FileUploadResultVo;
+import com.thinkive.fxc.fileupload.util.FileUploadClientHelper;
+import com.thinkive.fxc.ismp.bus.base.basicdata.contants.BasicServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.basicdata.model.EnumValueModel;
+import com.thinkive.fxc.ismp.bus.base.basicdata.service.BranchInfoService;
+import com.thinkive.fxc.ismp.bus.base.basicdata.service.EnumInfoService;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.model.AgreeRecordModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.BusinessEntityModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.ChoiceAccountRecordModel;
+import com.thinkive.fxc.ismp.bus.base.business.service.BusinessConfigService;
+import com.thinkive.fxc.ismp.bus.base.business.service.BusinessEntityService;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.business.vo.UserInfoVo;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeSystem;
+import com.thinkive.fxc.ismp.bus.base.constants.SystemConstants;
+import com.thinkive.fxc.ismp.bus.business.util.HtmlToPDFUtils;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdInterfaceConstant;
+import com.thinkive.server.InvokeException;
+import com.thinkive.server.ResultVo;
+
+/**
+ * @描述: 私募基金合格投资者取消-提交跑批
+ * @版权: Copyright (c) 2019 
+ * @公司: 思迪科技 
+ * @作者: 江昶
+ * @版本: 1.0 
+ * @创建日期: 2019年11月29日 
+ * @创建时间: 上午11:03:52
+ */
+public class Function1004228 extends ISMPBaseFunction{
+	
+	private Long userId;//用户编号
+	
+	private String jsondata;//请求签名字符串 
+
+	@Override
+	public ResultVo execute() throws InvokeException, Exception {
+		
+		checkInput();
+		//查询用户信息
+		UserInfoService userInfoService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO, UserInfoService.class);
+        UserInfoVo userInfo = userInfoService.queryAndCheckUserByUserIdAndType(userId, ThirdInterfaceConstant.USER_ACCOUNT_TYPE_ZQ);
+        if (userInfo == null){
+            throw new BusinessException(ErrorCodeSystem.NOTEXIST_USER, "用户不存在");
+        }
+        //选择的帐号开通结果
+        List<ChoiceAccountRecordModel> choiceAccountRecordModels = new ArrayList<ChoiceAccountRecordModel>();
+        
+        //查询业务属性
+        BusinessEntityService businessEntityService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_BUSINESSENTITY, BusinessEntityService.class);
+        
+        //获取新业务实例对象
+        BusinessEntityModel businessEntity = getNewBusinessEntity();
+        businessEntity.setNodeId("finish");//取消不设节点，默认finish
+        BusinessEntityModel businessEntityModel = businessEntityService.add(businessEntity);
+        //提交跑批
+        ChoiceAccountRecordModel choiceAccountRecordModel = new ChoiceAccountRecordModel();
+        choiceAccountRecordModel.setState(DictionaryConstants.CHOICEACCOUNT_DEALRESULT_NOTSTART);
+        choiceAccountRecordModel.setTrdAccount(userInfo.getClientId());
+        choiceAccountRecordModel.setStkbd(userInfo.getFundAccount());
+        choiceAccountRecordModels.add(choiceAccountRecordModel);
+        businessEntityService.updateAccountAndPpTask(businessEntityModel, "finish", choiceAccountRecordModels,"");
+        
+        ResultVo resultVo = new ResultVo();
+		resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);//返回成功标示
+		resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+        return resultVo;
+	}
+	
+	private void checkInput() throws InvokeException {
+	    userId = Long.valueOf(this.getAndCheckBlankStrParam("user_id", ErrorCodeCheckInput.BLANK_USERID));
+//	    jsondata = this.getAndCheckBlankStrParam("jsondata", ErrorCodeCheckInput.BLANK_FORMAT_SIGNJSON);
+	}
+	
+	/**
+	 * @描述: 获取协议模型
+	 * @作者: 杨成 
+	 * @时间: 2019年9月25日 下午15:47:54
+	 * @param userInfo
+	 * @param allSignList
+	 * @param businessId
+	 * @param nodeId
+	 * @param checksign
+	 * @return
+	 * @throws Exception
+	 */
+    private List<AgreeRecordModel> getAgreeRecordModels(UserInfoVo userInfo, List<Map<String, String>> allSignList, Long businessId, String nodeId) throws Exception
+    {
+
+        if (allSignList == null || allSignList.isEmpty())
+        {
+            return null;
+        }
+        List<AgreeRecordModel> agreeRecordModels = new ArrayList<AgreeRecordModel>();
+        for (Map<String, String> signItem : allSignList)
+        {
+            AgreeRecordModel agreeRecordModel = new AgreeRecordModel();
+            agreeRecordModel.setBusinessId(businessId);
+            agreeRecordModel.setNodeId(nodeId);
+            agreeRecordModel.setAgreeName(signItem.get("agreeName"));
+            agreeRecordModel.setAgreeNo(signItem.get("agreeId"));
+            agreeRecordModel.setAgreeVersion(signItem.get("agreeVersion"));
+            agreeRecordModel.setProtocolDcsign(signItem.get("agreeSign"));
+            agreeRecordModel.setSignType(signItem.get("signType"));
+            agreeRecordModel.setSignSourceFlag(signItem.get("signTextType"));
+            String agreeContent = signItem.get("agreeContent");
+            String aggreCode = signItem.get("agreeCode");
+            
+            //协议生成PDF上传文件服务器
+            DataRow row = createPDFAndUploadPdfToServer(agreeContent, userInfo, aggreCode);
+            agreeRecordModel.setAgreePath(row.getString("agree_path"));
+            agreeRecordModel.setSecret(row.getString("secret"));
+            
+            agreeRecordModels.add(agreeRecordModel);
+        }
+        return agreeRecordModels;
+    }
+    
+    /**
+	 * @描述: 协议生成PDF，并上传文件服务器
+	 * @作者: 农仕冰
+	 * @时间: 2019年9月25日 下午15:48:12
+	 * @param agreeContent
+	 * @param userInfoVo
+	 * @param aggreCode
+	 * @return
+	 * @throws Exception
+	 */
+	private DataRow createPDFAndUploadPdfToServer(String agreeContent, UserInfoVo userInfoVo, String aggreCode) throws Exception
+    {
+        //协议内容，转成PDF
+        StringBuilder htmlContent = new StringBuilder();
+        htmlContent.append("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">");
+        htmlContent.append("<html xmlns=\"http://www.w3.org/1999/xhtml\">");
+        htmlContent.append("<head>");
+        htmlContent.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" \"/>");
+        htmlContent.append("<style type=\"text/css\">body {font-family: SimSun;}</style>");
+        htmlContent.append("</head>");
+        htmlContent.append("<body>");
+        htmlContent.append(agreeContent);
+        htmlContent.append("</body>");
+        htmlContent.append("</html>");
+        String datetimestart = DateHelper.formatDate(new Date(), "yyyyMMdd");
+        String pdfName = userInfoVo.getClientId() + "_" + aggreCode + ".pdf";
+        String pdfSavePath = Configuration.getString(SystemConstants.CONFIG_PDF_PATH) + datetimestart + File.separatorChar;
+        File file = new File(pdfSavePath);
+        if ( !file.exists() && !file.isDirectory() )
+        {//判断文件夹是否存在，不存在就创建
+            file.mkdir();
+        }
+        String pdfpath = pdfSavePath + pdfName;
+        
+        Map<String, String> keyWords = new HashMap<String, String>();
+        Calendar now = Calendar.getInstance();
+        keyWords.put("username", userInfoVo.getName());//客户名称
+        keyWords.put("fundaccount", userInfoVo.getFundAccount());
+        keyWords.put("clientid", userInfoVo.getClientId());//客户号
+        keyWords.put("fundaccount", userInfoVo.getFundAccount());
+        keyWords.put("branchname", getBranchNameByNO(userInfoVo.getBranchNo()));
+        keyWords.put("identitytype", getIdentityVal(userInfoVo.getIdentityType()));
+        keyWords.put("address", userInfoVo.getAddress());
+        keyWords.put("mobile", userInfoVo.getMobile());
+        keyWords.put("email", userInfoVo.getEmail());
+        keyWords.put("postcode", userInfoVo.getPostcode());
+        keyWords.put("identitynum", userInfoVo.getIdentityNum());
+        keyWords.put("year", now.get(Calendar.YEAR)+"");//占位符替换为当年 年份
+        keyWords.put("month", (now.get(Calendar.MONTH) + 1) + "");//占位符替换为当年 月份
+        keyWords.put("day", now.get(Calendar.DAY_OF_MONTH) + "");//占位符替换为当年 日
+        keyWords.put("create_date",now.get(Calendar.YEAR)+"年"+(now.get(Calendar.MONTH) + 1) + "月"+ now.get(Calendar.DAY_OF_MONTH) + "日");//占位符替换为当年 日
+        keyWords.put("client_id", userInfoVo.getClientId());//客户号
+        keyWords.put("name", userInfoVo.getName());//姓名
+        //html转PDF
+        HtmlToPDFUtils.htmlContentToPDF(htmlContent.toString(), pdfpath, keyWords);
+        
+        //上传PDF到文件服务器
+        FileUploadResultVo fileUploadResultVo = uploadPdfToServer(pdfpath, pdfName, userInfoVo.getUserId() + "");
+        if ( fileUploadResultVo.getErrorNo() != 0 )
+        {
+            throw new InvokeException("上传签署的PDF文件到文件服务器失败！！！", -1);
+        }
+        logger.info(aggreCode +"协议PDF保存成功！文件服务器保存路径：" + fileUploadResultVo.getFilePath());
+        //成功后，删除临时文件
+        if ( deleteFile(pdfpath) )
+        {
+            logger.info("PDF签署后清除完成！清除的文件：" + pdfpath);
+        }
+        DataRow resultdata = new DataRow();
+        resultdata.set("agree_path", fileUploadResultVo.getFilePath());
+        resultdata.set("secret", fileUploadResultVo.getSecret());
+        return resultdata;
+    }
+	
+	/**
+     * 上传PDF文件到文件服务器
+     * @param pdfPath pdf文件路径
+     * @param pdfName 文件名称
+     * @param user_id 用户编号
+     */
+    private static FileUploadResultVo uploadPdfToServer(String pdfPath, String pdfName, String user_id)
+            throws Exception
+    {
+        String writeURL = Configuration.getString(SystemConstants.CONFIG_FILESERVER_WRITEURL);
+        String version = Configuration.getString(SystemConstants.CONFIG_FILESERVER_VERSION);
+        byte[] file = getBytes(pdfPath);
+        FileUploadResultVo fileUploadResultVo = null;
+        try
+        {
+            fileUploadResultVo = FileUploadClientHelper.uploadFile(writeURL, file, pdfName, version, user_id, "0");
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.getMessage());
+        }
+        
+        return fileUploadResultVo;
+    }
+    
+    /** 
+     * 获得指定文件的byte数组 
+     */
+    private static byte[] getBytes(String filePath)
+    {
+        byte[] buffer = null;
+        try
+        {
+            File file = new File(filePath);
+            FileInputStream fis = new FileInputStream(file);
+            ByteArrayOutputStream bos = new ByteArrayOutputStream(1000);
+            byte[] b = new byte[1000];
+            int n;
+            while ((n = fis.read(b)) != -1)
+            {
+                bos.write(b, 0, n);
+            }
+            fis.close();
+            bos.close();
+            buffer = bos.toByteArray();
+        }
+        catch (FileNotFoundException e)
+        {
+            logger.info(e, e);
+        }
+        catch (IOException e)
+        {
+            logger.info(e, e);
+        }
+        return buffer;
+    }
+    
+    /** 
+     * 删除单个文件 
+     * @param   sPath    被删除文件的文件名 
+     * @return 单个文件删除成功返回true，否则返回false 
+     */
+     public static boolean deleteFile(String sPath)
+     {
+         boolean flag = false;
+         File file = new File(sPath);
+         // 路径为文件且不为空则进行删除  
+         if ( file.isFile() && file.exists() )
+         {
+             file.delete();
+             flag = true;
+         }
+         return flag;
+     }
+     
+     private String getBranchNameByNO(String branch_no){
+         BranchInfoService branchInfoService = SpringHelper.getBean(BasicServiceBeanIdConstants.SERVICE_ID_BRANCHINFO, BranchInfoService.class);
+         String branch_name ="";
+         try {
+             List<DataRow> branchinfo = branchInfoService.queryList(branch_no);
+             if(branchinfo!=null && branchinfo.size()>0){
+                 branch_name = branchinfo.get(0).getString("branch_name");
+             }
+         } catch (Exception e) {
+             e.printStackTrace();
+         }
+         return branch_name;
+     }
+     
+     private  String getIdentityVal(String identitytype){
+         EnumInfoService enumService = SpringHelper.getBean(BasicServiceBeanIdConstants.SERVICE_ID_ENUMINFO, EnumInfoService.class);
+         EnumValueModel enumValueModel = enumService.getEnumByTypeAndValue(DictionaryConstants.ENUMNO_IDENTITY_TYPE, identitytype);
+         String identityVal = enumValueModel.getItemName();
+         return identityVal;
+
+     }
+
+}

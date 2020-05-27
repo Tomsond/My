@@ -1,0 +1,73 @@
+package com.thinkive.fxc.ismp.bus.base.business.utils;
+
+import java.util.List;
+import java.util.Map;
+
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.model.ImageInformationModel;
+import com.thinkive.fxc.ismp.bus.base.business.service.ImageUploadService;
+
+/**
+ * @描述: 影像资料上传工具类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年9月10日 下午1:57:51
+ */
+public class ImageUploadUtil
+{
+	
+	private static ImageUploadService imageUploadService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_IMAGEUPLOAD, ImageUploadService.class);
+	
+	/**
+	 * @描述：校验影像节点照片是否全部上传
+	 * @作者：刘恺
+	 * @时间：2016年9月10日 下午2:25:44
+	 * @param mediaCodes 
+	 * @param businessId 
+	 * @param nodeId	 
+	 * @param needUploadTotalMedias 
+	 * @return
+	 */
+	@Deprecated
+	public static boolean checkImgUploadComplete(List<String> mediaCodeList, Long businessId, String nodeId, int needUploadTotalMedias)
+	{
+		return imageUploadService.checkImgUploadComplete(mediaCodeList, businessId, nodeId, needUploadTotalMedias);
+	}
+	
+	/**
+	 * @描述：校验影像上传节点用户上传数据
+	 * @作者：刘恺
+	 * @时间：2016年9月11日 下午5:17:02
+	 * @param imgNodePropertyMap
+	 * @param businessId
+	 * @param nodeId
+	 * @param imageInformationModel
+	 * @throws Exception 
+	 */
+	@Deprecated
+	public static void checkImgNodeUploadData(Map<String, Object> imgNodePropertyMap, Long businessId, String nodeId, Long userId, ImageInformationModel imageInformationModel, String businessCode)
+			throws Exception
+	{
+		imageUploadService.checkImgNodeUploadData(imgNodePropertyMap, businessId, nodeId, userId, imageInformationModel, businessCode);
+	}
+	
+	/**
+	 * @描述：校验影像上传节点用户上传数据并保存
+	 * @作者：刘恺
+	 * @时间：2016年9月11日 下午5:17:02
+	 * @param imgNodePropertyMap
+	 * @param businessId
+	 * @param nodeId
+	 * @param imageInformationModel
+	 * @throws Exception 
+	 */
+	@Deprecated
+	public static void checkImgNodeUploadDataAndSave(Map<String, Object> imgNodePropertyMap, Long businessId, String nodeId, Long userId, ImageInformationModel imageInformationModel,
+			String businessCode) throws Exception
+	{
+		imageUploadService.checkImgNodeUploadDataAndSave(imgNodePropertyMap, businessId, nodeId, userId, imageInformationModel, businessCode);
+	}
+}

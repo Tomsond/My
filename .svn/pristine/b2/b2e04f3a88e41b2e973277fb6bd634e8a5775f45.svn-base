@@ -1,0 +1,302 @@
+package com.thinkive.fxc.ismp.bus.base.basicdata.model;
+
+import java.sql.Timestamp;
+import java.util.Date;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.DateHelper;
+
+/**
+ * 作者：MIKE
+ * 公司：深圳市思迪信息技术股份公司
+ * 日期时间：2017年6月2日 下午4:45:22
+ * 说明：问卷流水表数据字典定义类
+ */
+public class QuestionnaireFlowModel extends DataRow
+{
+    
+    private static final long serialVersionUID = 6702715830919886101L;
+    
+    private static final String ID = "id";
+    private static final String FUNDACCOUNT = "fundaccount";
+    private static final String USER_ID= "user_id"; 
+    private static final String NAME = "name";
+    private static final String QUESTIONNAIRE_TYPE="questionnaire_type";
+	private static final String QUESTIONNAIRE_NAME="questionnaire_name";
+	private static final String QUESTIONNAIRE_VERSION="questionnaire_version";
+	private static final String PRE_TEST_SCORES="pre_test_scores";
+	private static final String POST_EVALUATION_SCORE="post_evaluation_score";
+	private static final String PRE_EVALUATION_LEVEL="pre_evaluation_level";
+	private static final String POST_RATING="post_rating";
+	private static final String LATEST_EVALUATION_DATE="latest_evaluation_date";
+	private static final String QUESTIONNAIRE_TITLE="questionnaire_title";
+	private static final String QUESTIONNAIRE_OPTIONS="questionnaire_options";
+	private static final String QUESTIONNAIRE_ANSWER="questionnaire_answer";
+	private static final String ASSESSMENT_CHANNEL="assessment_channel";
+	private static final String QUESTIONNAIRE_EXPIRATION_DATE="questionnaire_expiration_date";
+	private static final String DEVICE_ID="device_id";
+	private static final String IP="ip";
+	private static final String XDTX="xdtx";
+	private static final String MAC="mac";
+    private static final String CREATE_DATE  = "create_date";
+    private static final String UPDATE_DATE = "update_date";
+    
+    private static final String BUSSINESS_CODE = "business_code";
+    private static final String BUSSINESS_ID= "business_id";
+    
+    
+    /**
+     * 获取自增主键
+     */
+    public Long getId() {
+        return getLong(ID);
+    }
+
+    /**
+     * 设置自增主键
+     */
+    public void setId(Long id) {
+        set(ID, id);
+    }
+    
+    /**
+     * 获取用户帐号
+     */
+    public String getAccount() {
+        return getString(FUNDACCOUNT);
+    }
+
+    /**
+     * 设置用户帐号
+     */
+    public void setAccount(String account) {
+        set(FUNDACCOUNT, account);
+    }
+    
+    public String getUserid() {
+        return getString(USER_ID);
+    }
+    
+    public void setUserid(Long userid) {
+        set(USER_ID, userid);
+    }
+    
+    /**
+     * 获取用户名称
+     */
+    public String getName() {
+        return getString(NAME);
+    }
+
+    /**
+     * 设置用户名称
+     */
+    public void setName(String name) {
+        set(NAME, name);
+    }
+
+    /**
+     * 获取创建时间
+     */
+    public Date getCreateDate() {
+       return (Date) get(CREATE_DATE);
+    }
+
+    /**
+     * 设置创建时间
+     */
+    public void setCreateDate(Date createDate) {
+    	   Timestamp timestamp = new Timestamp(createDate.getTime());
+        set(CREATE_DATE, timestamp);
+    }
+    
+    /**
+     * 获取更新时间
+     */
+    public Date getUpdateDate() {
+       return (Date) get(UPDATE_DATE);
+    }
+
+    /**
+     * 设置更新时间
+     */
+    public void setUpdateDate(Date updateDate) {
+        Timestamp timestamp = new Timestamp(updateDate.getTime());
+		set(UPDATE_DATE, timestamp);
+    }
+    
+    public String getDeviceid() {
+        return getString(DEVICE_ID);
+    }
+
+    
+    public void setDeviceid(String device_id) {
+        set(DEVICE_ID, device_id);
+    }
+    
+    public String getXdtx() {
+        return getString(XDTX);
+    }
+
+    
+    public void setXdtx(String xdtx) {
+        set(XDTX, xdtx);
+    }
+    
+    public String getMac() {
+        return getString(MAC);
+    }
+
+    
+    public void setMac(String mac) {
+        set(MAC, mac);
+    }
+    
+    public String getIp() {
+        return getString(IP);
+    }
+
+    
+    public void setIp(String ip) {
+        set(IP, ip);
+    }
+    
+    
+    public String getQuestionnairetype() {
+        return getString(QUESTIONNAIRE_TYPE);
+    }
+
+    
+    public void setQuestionnairetype(String questionnaire_type) {
+        set(QUESTIONNAIRE_TYPE, questionnaire_type);
+    }
+    
+    public String getQuestionnairename() {
+        return getString(QUESTIONNAIRE_NAME);
+    }
+
+    
+    public void setQuestionnairename(String questionnaire_names) {
+        set(QUESTIONNAIRE_NAME,questionnaire_names);
+    }
+    
+    public String getQuestionnaireversion() {
+        return getString(QUESTIONNAIRE_VERSION);
+    }
+
+    
+    public void setQuestionnaireversion(String questionnaire_version) {
+        set(QUESTIONNAIRE_VERSION, questionnaire_version);
+    }
+    
+    public String getPretestscores() {
+        return getString(PRE_TEST_SCORES);
+    }
+
+    public void setPretestscores(String pre_test_scores){
+        set(PRE_TEST_SCORES, pre_test_scores);
+    }
+   
+    
+    public String getPostevaluationscore() {
+        return getString(POST_EVALUATION_SCORE);
+    }
+
+    
+    public void setPostevaluationscore(String post_evaluation_score) {
+        set(POST_EVALUATION_SCORE, post_evaluation_score);
+    }
+    
+    public String getPreevaluationlevel() {
+        return getString(PRE_EVALUATION_LEVEL);
+    }
+
+    
+    public void setPreevaluationlevel(String pre_evaluation_level) {
+        set(PRE_EVALUATION_LEVEL, pre_evaluation_level);
+    }
+    
+    public String getPostrating() {
+        return getString(POST_RATING);
+    }
+
+    
+    public void setPostrating(String post_rating) {
+        set(POST_RATING, post_rating);
+    }
+    
+    public String getAssessmentchannel() {
+        return getString(ASSESSMENT_CHANNEL);
+    }
+
+    
+    public void setAssessmentchannel(String assessment_channel) {
+        set(ASSESSMENT_CHANNEL, assessment_channel);
+    }
+    
+    public Date getLatestevaluationdate() {
+        return (Date)get(LATEST_EVALUATION_DATE);
+    }
+
+    
+    public void setLatestevaluationdate(Date latest_evaluation_date) {
+    	Timestamp timestamp = new Timestamp(latest_evaluation_date.getTime());
+        set(LATEST_EVALUATION_DATE, timestamp);
+    }
+    
+    public String getQuestionnairetitle() {
+        return getString(QUESTIONNAIRE_TITLE);
+    }
+
+    
+    public void setQuestionnairetitle(String questionnaire_title) {
+        set(QUESTIONNAIRE_TITLE, questionnaire_title);
+    }
+    
+    public String getQuestionnaireoptions() {
+        return getString(QUESTIONNAIRE_OPTIONS);
+    }
+
+    
+    public void setQuestionnaireoptions(String questionnaire_options) {
+        set(QUESTIONNAIRE_OPTIONS, questionnaire_options);
+    }
+    
+    public String getQuestionnaireanswer() {
+        return getString(QUESTIONNAIRE_ANSWER);
+    }
+
+    
+    public void setQuestionnaireanswer(String questionnaire_answer) {
+        set(QUESTIONNAIRE_ANSWER, questionnaire_answer);
+    }
+    
+    public Date getQuestionnaireexpirationdate() {
+        return (Date) get(QUESTIONNAIRE_EXPIRATION_DATE);
+    }
+
+    
+    public void setQuestionnaireexpirationdate(Date questionnaire_expiration_date) {
+    	Timestamp timestamp = new Timestamp(questionnaire_expiration_date.getTime());
+        set(QUESTIONNAIRE_EXPIRATION_DATE, timestamp);
+    }
+    
+    public String getbusinesscode() {
+        return getString(BUSSINESS_CODE);
+    }
+
+    
+    public void setbusinesscode(String business_code) {
+        set(BUSSINESS_CODE, business_code);
+    }
+    
+    public String getbusinessid() {
+        return getString(BUSSINESS_ID);
+    }
+
+    
+    public void setbusinessid(String business_id) {
+        set(BUSSINESS_ID, business_id);
+    }
+}
+

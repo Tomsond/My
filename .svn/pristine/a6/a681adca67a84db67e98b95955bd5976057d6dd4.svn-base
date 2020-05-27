@@ -1,0 +1,434 @@
+package com.thinkive.fxc.ismp.bus.business.user.function;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+
+import com.thinkive.base.config.Configuration;
+import com.thinkive.base.exception.BusinessException;
+import com.thinkive.base.jdbc.DataRow; 
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.base.util.StringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.model.UserExtendModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.UserFundAccountModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.UserInfoModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.UserLoginLogModel;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserLoginLogService;
+import com.thinkive.fxc.ismp.bus.base.business.vo.UserInfoVo;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.base.constants.SystemConstants;
+import com.thinkive.fxc.ismp.bus.business.constants.RedisCacheKeyConstants;
+import com.thinkive.fxc.ismp.bus.business.rzrq.preMarginTrading.constant.ErrorCodeBusiness;
+import com.thinkive.fxc.ismp.bus.business.util.DataFormatUtils; 
+import com.thinkive.fxc.ismp.bus.business.util.EncryptionUtil;
+import com.thinkive.fxc.ismp.bus.business.util.PwdEncryptUtil;
+import com.thinkive.fxc.ismp.bus.business.util.RSAUtils;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdDictionaryConstants;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdInterfaceConstant;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdTBASConstants;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdInterface;
+import com.thinkive.redis.client.JedisClient;
+import com.thinkive.server.InvokeException;
+import com.thinkive.server.ResultVo;
+
+/**
+ * @描述: 云柜台登录
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年9月5日 下午11:02:10
+ */
+public class Function1004903 extends ISMPBaseFunction
+{ 
+    
+    private String account;//帐号，包含3种帐号类型：资金帐号、交易帐号、股东号
+    
+    private String accountType;//资金帐号类型,缺省值：4,证券资金帐号
+    
+    private String pwdValue;//密码
+    
+    private String loginType;//登录类型,缺省值：资金帐号
+    
+    private String pwd_type;//密码类型  0普通登录 1统一登录
+    
+    private ThirdInterface thirdInterface;
+    
+    private UserInfoService userInfoService;
+    
+    private UserLoginLogService  userloginlogservice;
+    
+    private boolean needcountpwderror = DictionaryConstants.BOL_TRUE.equals(Configuration.getString(SystemConstants.CONFIG_KEY_SYSTEM_COUNTPWDERROR));
+    
+    public ResultVo execute() throws Exception{
+        
+        initVar();
+        
+        ResultVo resultVo = new ResultVo();
+        userInfoService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO, UserInfoService.class);
+        userloginlogservice = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERLOGINLOG, UserLoginLogService.class);
+        thirdInterface = SpringHelper.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDINTERFACE, ThirdInterface.class);
+        
+        if (needcountpwderror){
+            JedisClient jedisClient = new JedisClient(SystemConstants.REDIS_DATASOURCE);
+            String currErrorTimeString = jedisClient.getString(RedisCacheKeyConstants.ACCOUNT_PWD_ERROR_TIME + account);
+            Long currErrorTime = 0L;
+            if (StringUtils.isNotBlank(currErrorTimeString)){
+                currErrorTime = Long.parseLong(currErrorTimeString);
+                int maxErrorInput = Configuration.getInt(SystemConstants.CONFIG_KEY_SYSTEM_MAXERRORINPUT);
+                Long leaveCount = maxErrorInput - currErrorTime;
+                if (leaveCount <= 0){
+                    throw new BusinessException(ErrorCodeBusiness.LOGIN_LOGINPWDERROTIME_NOTIME);
+                }
+            }
+        }
+        
+        //判断登录密码是否需要解密
+        if("1".equals(pwd_type)){
+            logger.info("account:"+account);
+            logger.info("pwdValue:"+pwdValue);
+            
+            String privateKey ="";
+            //5，同花顺Android手机客户端，6 同花顺iPhone客户端
+            //7，鑫财通Android手机客户端，8 鑫财通iPhone客户端
+           if("5,6".contains(opSource)){
+                privateKey=Configuration.getString("recommend.privateKey_ths");//获取同花顺私钥 
+            }
+           if("7,8".contains(opSource)){
+                privateKey=Configuration.getString("recommend.privateKey_xct");//获取鑫财通私钥 
+            }
+
+           logger.info("opSource："+opSource); 
+           logger.info("privateKey："+privateKey); 
+            if(StringHelper.isEmpty(privateKey)){
+                throw new BusinessException(ErrorCodeBusiness.LOGIN_PWDTY_RSA,"私钥为空");
+            }
+            
+            try {
+                //IOS客户端解密
+                account = RSAUtils.decryptByPrivateKey(account, privateKey);
+                pwdValue = RSAUtils.decryptByPrivateKey(pwdValue, privateKey); 
+                logger.info("IOS====account=======:"+account);
+                logger.info("IOS====pwdValue=======:"+pwdValue.length());
+            }catch (Exception e) {
+                logger.info("解密失败："+e.getMessage());
+                if(e.getMessage().contains("Blocktype mismatch")){
+                    try{
+                        //安卓客户端解密
+                        logger.info("调用安卓客户端解密方法");
+                        account = EncryptionUtil.decrypt(account, privateKey);
+                        pwdValue = EncryptionUtil.decrypt(pwdValue, privateKey);
+                        logger.info("Android=====account=======:"+account);
+                        logger.info("Android=====pwdValue=======:"+pwdValue.length());
+                    }catch (Exception e2){
+                        logger.info("解密失败："+e2);
+                        throw new InvokeException("解密失败",-1);
+                    }
+                }else{
+                    throw new InvokeException("解密失败",-1);
+                }
+            }
+        }
+        
+        //资金帐号、交易密码登录
+        if (DictionaryConstants.LOGIN_TYPE_LOGIN_FOR_FUNDACCOUNT.equals(loginType)){
+            //判断资金账号和交易密码是否正确
+            DataRow loginResult= thirdInterface.checkLogin(account, pwdValue, ThirdTBASConstants.LOGIN_TYPE_CAPITALACCOUNT,opStation);
+                if (!loginResult.getBoolean("loginflag")){
+                    dealFundAccountPwdError(account);
+                }else{
+                    if (needcountpwderror){
+                        JedisClient jedisClient = new JedisClient(SystemConstants.REDIS_DATASOURCE);
+                        jedisClient.delete(RedisCacheKeyConstants.ACCOUNT_PWD_ERROR_TIME + account);
+                    }
+                }
+                        
+            //登录成功,获取参数
+            String thirdFundAccount = loginResult.getString("fund_account");
+            String clientId = loginResult.getString("client_id");
+            String branchNo = loginResult.getString("org_id");
+            
+            if (!StringUtils.isBlank(thirdFundAccount)){
+                account = thirdFundAccount;
+            }
+            //获取资金帐号类型
+            if (StringUtils.isBlank(accountType)){
+                //TODO  查询资金帐号对应类型
+            }
+            //同步用户信息到数据库
+            Map<String, Object> accountMap = synUserInfo(account, pwdValue, branchNo, clientId, accountType,opStation);
+            UserInfoModel userInfo = (UserInfoModel) accountMap.get("userInfo");
+            UserExtendModel userExtendModel = (UserExtendModel) accountMap.get("userExtend");
+            UserFundAccountModel userFundAccount = (UserFundAccountModel) accountMap.get("userFundAccount");
+            DataRow result = packResult(userInfo, userExtendModel, userFundAccount);
+            
+            resultVo.setResult(result);
+        }
+        
+        // 客户号、交易密码登录
+        if (DictionaryConstants.LOGIN_TYPE_LOGIN_FOR_CLIENTID.equals(loginType)) {
+            // 判断资金账号和交易密码是否正确
+            DataRow loginResult = thirdInterface.checkLogin(account, pwdValue,ThirdTBASConstants.LOGIN_TYPE_CLIENTID, opStation);
+            if (!loginResult.getBoolean("loginflag")) {
+                dealFundAccountPwdError(account);
+            } else {
+                if (needcountpwderror) {
+                    JedisClient jedisClient = new JedisClient(SystemConstants.REDIS_DATASOURCE);
+                    jedisClient.delete(RedisCacheKeyConstants.ACCOUNT_PWD_ERROR_TIME + account);
+                }
+            }
+
+            // 登录成功,获取参数
+            String thirdFundAccount = loginResult.getString("fund_account");
+            String clientId = loginResult.getString("client_id");
+            String branchNo = loginResult.getString("org_id");
+
+            if (!StringUtils.isBlank(thirdFundAccount)) {
+                account = thirdFundAccount;
+            }
+            // 获取资金帐号类型
+            if (StringUtils.isBlank(accountType)) {
+                // TODO 查询资金帐号对应类型
+            }
+            // 同步用户信息到数据库
+            Map<String, Object> accountMap = synUserInfo(account, pwdValue,branchNo, clientId, accountType, opStation);
+            UserInfoModel userInfo = (UserInfoModel) accountMap.get("userInfo");
+            UserExtendModel userExtendModel = (UserExtendModel) accountMap.get("userExtend");
+            UserFundAccountModel userFundAccount = (UserFundAccountModel) accountMap.get("userFundAccount");
+            DataRow result = packResult(userInfo, userExtendModel,userFundAccount);
+            resultVo.setResult(result);
+        }
+        
+        //股东、手机号、未实现登录。。。
+        resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+        resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+        return resultVo;
+    }
+    
+    private DataRow packResult(UserInfoModel userInfo, UserExtendModel userExtendModel, UserFundAccountModel userFundAccount)
+    {
+        DataRow dataRow = new DataRow();
+        dataRow.set("user_id", userInfo.getUserId());//用户编号
+        dataRow.set("birthday", userInfo.getBirthday());//生日
+        dataRow.set("branch_no", userInfo.getBranchNo());//营业部
+        dataRow.set("client_id", userInfo.getClientId());//客户号
+        dataRow.set("identity_num", userInfo.getIdentityNum());//证件号码
+        dataRow.set("identity_type", userInfo.getIdentityType());//证件类型
+        dataRow.set("mobile", userInfo.getMobile());//手机号
+        dataRow.set("name", userInfo.getName());//姓名
+        dataRow.set("nationality", userInfo.getNationality());//国籍
+        dataRow.set("nick_name", userInfo.getNickName());//昵称
+        dataRow.set("papers_addr", userInfo.getPapersAddr());//证件地址
+        dataRow.set("sex", userInfo.getSex());//性别
+        dataRow.set("sign_office", userInfo.getSignOffice());//签发机构
+        dataRow.set("validity_begin", userInfo.getValidityBegin());//证件有效期开始日期
+        dataRow.set("validity_end", userInfo.getValidityEnd());//证件有效期结束日期
+        dataRow.set("address", userExtendModel.getAddress());//联系地址
+        dataRow.set("education", userExtendModel.getEducation());//学历
+        dataRow.set("email", userExtendModel.getEmail());//邮箱
+        dataRow.set("ethnicname", userExtendModel.getEthnicName());//民族
+        dataRow.set("postcode", userExtendModel.getPostCode());//邮编
+        dataRow.set("telephone", userExtendModel.getTelephone());//电话号码
+        dataRow.set("fundAccount", userFundAccount.getFundAccount());//登录的资金帐号
+        dataRow.set("fundAccountType", userFundAccount.getType());//登录的资金帐号
+        dataRow.set("fundAccountState", userFundAccount.getState());//登录的资金帐号状态
+        dataRow.set("occupation", userExtendModel.getOccupation());//职业
+        dataRow.set("education", userExtendModel.getEducation());//学历
+        
+        dataRow.set("credit_record", userExtendModel.getCreditrecord());//诚信记录
+        dataRow.set("control_person", userExtendModel.getControlPerson());//操作人
+        dataRow.set("benefit_person", userExtendModel.getBenefitPerson());//受益人
+        return dataRow;
+    }
+    
+    /**
+     * @描述：根据登录基本信息，同步用户基本信息
+     * @作者：刘恺
+     * @时间：2016年9月7日 下午11:37:36
+     * @param account
+     * @param pwdValue
+     * @param org_id
+     * @param client_id
+     * @param accountType 
+     * @return
+     * @throws Exception
+     */
+    private Map<String, Object> synUserInfo(String account, String pwdValue, String org_id, String client_id, String accountType,String op_station) throws Exception
+    {
+        //调用第三方接口，根据资金账号查询用户信息
+        DataRow input = new DataRow();
+        input.set("client_id", client_id);
+        //      input.set("password", pwdValue);
+        input.set("org_id", org_id);
+        input.set("op_station", op_station);
+        DataRow thirdUserInfo = thirdInterface.queryUserInfoByAccount(input);
+        if (thirdUserInfo == null || thirdUserInfo.isEmpty())
+        {
+            throw new BusinessException(ErrorCodeBusiness.LOGIN_QUERYTHIRDUSERINFO_FAIL);
+        }
+        if (StringHelper.isBlank(thirdUserInfo.getString("org_id")))
+        {
+            thirdUserInfo.set("org_id", org_id);
+        }
+        pwdValue = PwdEncryptUtil.encryptionPsw(pwdValue);
+        String identity_type = thirdUserInfo.getString("identity_type");
+        String identity_num = thirdUserInfo.getString("identity_num");
+        String fund_account = thirdUserInfo.getString("fund_account");//资金账号
+        //根据身份证在我们本地数据库查找用户信息
+        UserInfoModel userInfo = userInfoService.queryUserInfobyIdNumAndName(identity_type, identity_num, thirdUserInfo.getString("name"), client_id);
+        if (userInfo == null)
+        {
+            if (DictionaryConstants.IDENTITYNUM_EIGHTEEN == identity_num.length())
+            {
+                String newIdentityNum = DataFormatUtils.idNum18To15(identity_num);
+                userInfo = userInfoService.queryUserInfobyIdNumAndName(identity_type, newIdentityNum, thirdUserInfo.getString("name"), client_id);
+            }
+        }
+        
+        boolean isNewUser = userInfo == null;
+        if (isNewUser)
+        {
+            userInfo = new UserInfoModel();
+        }
+        userInfo.setIdentityType(thirdUserInfo.getString("identity_type"));//证件类型
+        userInfo.setIdentityNum(thirdUserInfo.getString("identity_num"));//证件号码
+        userInfo.setName(thirdUserInfo.getString("name"));//姓名
+        userInfo.setNickName(thirdUserInfo.getString("nick_name"));//昵称
+        userInfo.setSex(thirdUserInfo.getString("sex"));//性别
+        userInfo.setBirthday(thirdUserInfo.getString("birthday"));//生日
+        userInfo.setMobile(thirdUserInfo.getString("mobile"));//手机号码
+        userInfo.setSignOffice(thirdUserInfo.getString("sign_office"));//证件签署机构
+        userInfo.setPapersAddr(thirdUserInfo.getString("papers_addr"));//证件地址
+        userInfo.setValidityBegin(thirdUserInfo.getString("validity_begin"));//证件有效期开始日期
+        userInfo.setValidityEnd(thirdUserInfo.getString("validity_end"));//证件有效期结束日期
+        userInfo.setNationality(thirdUserInfo.getString("country"));//国籍
+        userInfo.setBranchNo(thirdUserInfo.getString("org_id"));//营业部
+        userInfo.setClientId(thirdUserInfo.getString("client_id"));
+        
+        UserExtendModel userExtend = new UserExtendModel();
+        userExtend.setEmail(thirdUserInfo.getString("email"));//邮箱
+        userExtend.setTelephone(thirdUserInfo.getString("telephone"));//联系电话
+        userExtend.setAddress(thirdUserInfo.getString("address"));//联系地址
+        userExtend.setPostCode(thirdUserInfo.getString("post_code"));//邮政编码
+        userExtend.setOccupation(thirdUserInfo.getString("occupational"));//职业
+        userExtend.setEducation(thirdUserInfo.getString("adapter"));//学历
+        userExtend.setEthnicName(thirdUserInfo.getString("nation_id"));//民族编号
+        userExtend.setControlPerson(thirdUserInfo.getString("control_person"));//操作人
+        userExtend.setBenefitPerson(thirdUserInfo.getString("benefit_person"));//受益人
+        userExtend.setCreditrecord(thirdUserInfo.getString("credit_record"));//诚信记录
+        userExtend.setOpStation(op_station);//操作站点
+        userExtend.setLastLoginTime(new Date());
+        
+        
+        
+        DataRow data = new DataRow();
+        data.set("linkman_name", thirdUserInfo.getString("emergency_name"));
+        data.set("linkman_relation", thirdUserInfo.getString("emergency_relation"));
+        data.set("linkman_mobile", thirdUserInfo.getString("emergency_mobile"));
+        
+        UserFundAccountModel userFundAccount = new UserFundAccountModel();
+        userFundAccount.setFundAccount(fund_account);
+        if(!StringHelper.isNotEmpty(fund_account)){
+            userFundAccount.setFundAccount(account);
+        }
+        userFundAccount.setType(accountType);
+        userFundAccount.setIsMain(DictionaryConstants.BOL_TRUE);
+        userFundAccount.setPwd(pwdValue);
+        userFundAccount.setState(ThirdTBASConstants.FUNDACCOUNT_THIRDSTATE_NOMAL);
+        if (isNewUser)
+        {
+            userInfoService.addUserInfoAndExtendAndAccount(userInfo, userExtend, userFundAccount,data);
+        }
+        else
+        {
+            userInfoService.updateUserInfoAndExtendAndAccount(userInfo, userExtend, userFundAccount,data);
+        }
+        
+        UserLoginLogModel model = new UserLoginLogModel();
+        model.setUserId(userInfo.getUserId());
+        model.setClientId(userInfo.getClientId());
+        model.setCreateBy(userInfo.getName());
+        model.setModifiedBy(userInfo.getName());
+        model.setOpSource(opSource);
+        model.setOpStation(opStation);
+        userloginlogservice.addLog(model);//增加登录日志记录
+        
+        Map<String, Object> resultMap = new HashMap<String, Object>();
+        resultMap.put("userInfo", userInfo);
+        resultMap.put("thirdUserInfo", thirdUserInfo);
+        resultMap.put("userExtend", userExtend);
+        resultMap.put("userFundAccount", userFundAccount);
+        return resultMap;
+    }
+    
+    /**
+     * @描述：校验密码错误次数
+     * @作者：刘恺
+     * @时间：2016年9月7日 下午10:51:49
+     */
+    private void checkPwdErrorTime(Long userId, String account)
+    {
+        if (needcountpwderror)
+        {
+            JedisClient jedisClient = new JedisClient(SystemConstants.REDIS_DATASOURCE);
+            Long currErrorTime = jedisClient.incr(RedisCacheKeyConstants.ACCOUNT_PWD_ERROR_TIME + account);
+            logger.info("currErrorTime:"+currErrorTime);
+            if (1 == currErrorTime)
+            {
+                logger.info("currErrorTime:"+currErrorTime);
+                Calendar calendar = Calendar.getInstance();
+                int hours = calendar.get(Calendar.HOUR_OF_DAY);
+                int minutes = calendar.get(Calendar.MINUTE);
+                int seconds = calendar.get(Calendar.SECOND);
+                int time = (24 - hours) * 60 * 60 + (60 - minutes) * 60 + (60 - seconds);
+                jedisClient.expire(RedisCacheKeyConstants.ACCOUNT_PWD_ERROR_TIME + account, time);
+            }
+            int maxErrorInput = Configuration.getInt(SystemConstants.CONFIG_KEY_SYSTEM_MAXERRORINPUT);
+            logger.info("maxErrorInput:"+maxErrorInput);
+            Long leaveCount = maxErrorInput - currErrorTime;
+            if (leaveCount <= 0)
+            {
+                throw new BusinessException(ErrorCodeBusiness.LOGIN_LOGINPWDERROTIME_NOTIME);
+            }
+            logger.info("leaveCount:"+leaveCount);
+            throw new BusinessException(ErrorCodeBusiness.LOGIN_LOGINPWDERROTIME_LEAVE, new String[] { String.valueOf(leaveCount) });
+        }
+    }
+    
+    /**
+     * @描述：资金帐号和交易密码登录失败处理
+     * @作者：刘恺
+     * @时间：2016年9月7日 下午10:56:38
+     * @param fundAccount
+     */
+    private void dealFundAccountPwdError(String fundAccount)
+    {
+        UserInfoVo localUserInfoVo = userInfoService.queryUserInfoVoByFundAccount(account);
+        if (localUserInfoVo != null)
+        {
+            checkPwdErrorTime(localUserInfoVo.getUserId(), fundAccount);
+        }
+        throw new BusinessException(ErrorCodeBusiness.LOGIN_FUNDACCOUNTOROWD_ERROR);
+    }
+    
+    /**
+     * @描述：初始化入参
+     * @作者：刘恺
+     * @时间：2016年9月9日 下午2:08:07
+     */
+    private void initVar()
+    {
+        account = this.getAndCheckBlankStrParam("account", ErrorCodeCheckInput.BALNK_LOGIN_ACCOUNT);
+        pwdValue = this.getAndCheckBlankStrParam("pwd_value", ErrorCodeCheckInput.BALNK_PASSWORD);
+        loginType = this.getStrParameter("login_type", DictionaryConstants.LOGIN_TYPE_LOGIN_FOR_FUNDACCOUNT);
+        accountType = this.getStrParameter("account_type", ThirdInterfaceConstant.USER_ACCOUNT_TYPE_ZQ);
+        pwd_type = this.getStrParameter("pwd_type", "0");
+    }
+}

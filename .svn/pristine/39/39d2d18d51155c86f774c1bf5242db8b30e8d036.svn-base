@@ -1,0 +1,62 @@
+package com.thinkive.fxc.ismp.bus.base.business.service;
+
+import java.util.List;
+
+import com.thinkive.fxc.ismp.bus.base.business.model.SurveyAnswerResultModel;
+
+public interface SurveyAnswerResultService
+{
+	
+	/**
+	 * @描述：添加或者更新
+	 * @作者：刘恺
+	 * @创建时间: 2017年3月13日 下午4:59:33
+	 * @param businessId
+	 * @param subId
+	 * @param nodeId
+	 * @param subValue
+	 * @param valueLevel
+	 * @param valueName
+	 * @throws Exception
+	 */
+	public void addOrUpdateAnswer(Long businessId, Long subId, String nodeId, String subValue, String valueLevel, String valueName) throws Exception;
+	
+	/**
+	 * @描述：根据业务ID和节点ID查询问卷结果
+	 * @作者：刘恺
+	 * @创建时间: 2017年3月13日 下午4:30:06
+	 * @param businessId
+	 * @param nodeId
+	 * @return
+	 */
+	public SurveyAnswerResultModel queryByBusinessIdAndNodeId(Long business_id, String node_id);
+	
+	/**
+	 * @描述：条件查询    业务编号：business_id,节点编号 node_id
+	 * @作者：刘恺
+	 * @创建时间: 2017年3月13日 下午4:30:06
+	 * @param businessId
+	 * @param nodeId
+	 * @return
+	 */
+	public List<SurveyAnswerResultModel> queryByParams(SurveyAnswerResultModel surveyAnswerResultModel);
+	
+	/**
+	 * @描述：查询业务办理中所有的问卷结果
+	 * @作者：刘恺
+	 * @创建时间: 2017年3月13日 下午5:47:39
+	 * @param businessId
+	 * @return
+	 */
+	public List<SurveyAnswerResultModel> queryByBusinessId(Long businessId);
+	
+	/**
+	 * @描述：根据businessID和nodeId更新数据
+	 * @作者：刘恺
+	 * @创建时间: 2017年3月14日 上午9:44:12
+	 * @param surveyAnswerResultModel
+	 * @return
+	 */
+	public int update(SurveyAnswerResultModel surveyAnswerResultModel);
+	
+}

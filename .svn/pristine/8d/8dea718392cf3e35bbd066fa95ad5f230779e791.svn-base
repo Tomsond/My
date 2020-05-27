@@ -1,0 +1,117 @@
+/**
+ * 
+ */
+package com.thinkive.fxc.ismp.bus.business.rzrq.preMarginTrading.model;
+
+import com.thinkive.base.jdbc.DataRow;
+
+/**
+ * 描述: 帐号类
+ * 版权: Copyright (c) 2010
+ * 公司: 思迪科技 
+ * 作者: 刘恺
+ * 版本: 1.0 
+ * 创建日期: 2016年6月27日 
+ * 创建时间: 下午5:36:42
+ */
+public class Account extends DataRow
+{
+	
+	private static final long serialVersionUID = -6652385555999083886L;
+	
+	private static final String ID = "id"; //自增主键
+	
+	private static final String TRDACCOUNT = "trdaccount"; //交易帐号
+	
+	private static final String STKBD = "stkbd"; //证券市场
+	
+	private static final String STATE = "state"; //办理状态
+	
+	private static final String DESCRIPTION = "description"; //描述
+	
+	private static final String CREATEDATE = "create_date"; //创建时间
+	
+	private static final String UPDATEDATE = "update_date"; //更新时间
+	
+	private static final String BUSINESSID = "business_id"; //业务ID
+	
+	public String getId()
+	{
+		return getString(ID);
+	}
+	
+	public void setId(String id)
+	{
+		set(ID, id);
+	}
+	
+	public String getTrdaccount()
+	{
+		return getString(TRDACCOUNT);
+	}
+	
+	public void setTrdaccount(String trdaccount)
+	{
+		set(TRDACCOUNT, trdaccount);
+	}
+	
+	public String getStkbd()
+	{
+		return getString(STKBD);
+	}
+	
+	public void setStkbd(String stkbd)
+	{
+		set(STKBD, stkbd);
+	}
+	
+	public String getState()
+	{
+		return getString(STATE);
+	}
+	
+	public void setState(String state)
+	{
+		set(STATE, state);
+	}
+	
+	public String getDescription()
+	{
+		return getString(DESCRIPTION);
+	}
+	
+	public void setDescription(String description)
+	{
+		set(DESCRIPTION, description);
+	}
+	
+	public String getCreatedate()
+	{
+		return getString(CREATEDATE);
+	}
+	
+	public void setCreatedate(String createdate)
+	{
+		set(CREATEDATE, createdate);
+	}
+	
+	public String getUpdatedate()
+	{
+		return getString(UPDATEDATE);
+	}
+	
+	public void setUpdatedate(String updatedate)
+	{
+		set(UPDATEDATE, updatedate);
+	}
+	
+	public String getBusinessid()
+	{
+		return getString(BUSINESSID);
+	}
+	
+	public void setBusinessid(String businessid)
+	{
+		set(BUSINESSID, businessid);
+	}
+}

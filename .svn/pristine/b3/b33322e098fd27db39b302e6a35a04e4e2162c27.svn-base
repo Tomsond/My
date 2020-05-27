@@ -1,0 +1,58 @@
+package com.thinkive.fxc.ismp.bus.business.kc.service;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.fxc.ismp.bus.base.business.model.BusinessEntityModel;
+import com.thinkive.fxc.ismp.bus.business.kc.model.KCEditionReservationModel;
+
+/**
+ * 作者：MIKE
+ * 公司：深圳市思迪信息技术股份公司
+ * 日期时间：2019年3月6日 下午4:39:22
+ * 说明：科创版权限开通服务接口类
+ */
+public interface KCEditionReservationService {
+        
+	/**
+	 * 添加预约记录
+	 * @param cancelaccountmodel
+	 * @throws Exception
+	 */
+	public void InsertKCEditionReservation(KCEditionReservationModel model)throws Exception;
+	
+	
+	/**
+	 * 查询科创版权限开通预约信息
+	 * @param cancelaccountmodel
+	 * @throws Exception
+	 */
+	public DataRow queryKCEditionReservation(KCEditionReservationModel model)throws Exception;
+	
+	
+	/**
+	 * @描述：查询或新增科创板业务实例
+	 * @作者：田源
+	 * @时间：2016年9月19日 下午5:07:32
+	 * @param userId
+	 * @param nodeId
+	 * @param opSource
+	 * @param opStation
+	 * @param ip
+	 * @return BusinessEntityModel
+	 * @throws Exception 
+	 */
+	public BusinessEntityModel queryOrAddBusinessInfo(Long userId, String nodeId, String opSource, String opStation, String ip) throws Exception;
+	
+	/**
+	 * @描述：更新港股通业务流程（适用于风险测评和业务知识测评两个节点）
+	 * @作者：田源
+	 * @时间：2016年9月21日 上午10:05:55
+	 * @param businessId
+	 * @param nodeId
+	 * @param opSource
+	 * @param opStation
+	 * @param ip
+	 * @throws Exception 
+	 */
+	public void UpdateKCBNode(Long businessId, String nodeId, String opSource, String opStation, String ip) throws Exception;
+	
+}

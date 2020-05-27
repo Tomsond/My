@@ -1,0 +1,55 @@
+package com.thinkive.fxc.ismp.bus.base.business.dao;
+
+import java.util.List;
+
+import com.thinkive.base.jdbc.session.Session;
+import com.thinkive.fxc.ismp.bus.base.business.model.SurveyAnswerResultModel;
+
+/**
+ * @描述: 问卷测评结果记录表(T_ISMP_SURVEY_ANSWER_RESULT)数据层接口
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2017年3月13日 下午4:19:34
+ */
+public interface SurveyAnswerResultDao
+{
+	
+	/**
+	 * @描述：添加问卷结果记录
+	 * @作者：刘恺
+	 * @创建时间: 2017年3月13日 下午4:29:39
+	 * @param surveyAnswerResultModel
+	 * @return
+	 */
+	public SurveyAnswerResultModel add(SurveyAnswerResultModel surveyAnswerResultModel);
+	
+	/**
+	 * @描述：条件查询    业务编号：business_id,节点编号 node_id
+	 * @作者：刘恺
+	 * @创建时间: 2017年3月13日 下午4:30:06
+	 * @param businessId
+	 * @param nodeId
+	 * @return
+	 */
+	public List<SurveyAnswerResultModel> queryByParams(SurveyAnswerResultModel surveyAnswerResultModel);
+	
+	/**
+	 * @描述：根据业务编号和节点编号删除记录
+	 * @作者：刘恺
+	 * @时间：2016年8月29日 下午5:12:36
+	 * @param businessId
+	 */
+	public int deleteByBusinessId(Long businessId, String nodeId, Session session);
+	
+	/**
+	 * @描述：根据businessID和nodeId更新数据
+	 * @作者：刘恺
+	 * @创建时间: 2017年3月14日 上午9:42:36
+	 * @param surveyAnswerResultModel
+	 * @return
+	 */
+	public int update(SurveyAnswerResultModel surveyAnswerResultModel);
+	
+}

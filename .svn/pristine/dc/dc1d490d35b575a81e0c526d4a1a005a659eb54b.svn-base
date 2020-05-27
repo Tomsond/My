@@ -1,0 +1,79 @@
+package com.thinkive.fxc.ismp.bus.business.assets.thirdbank.function;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.business.vo.UserInfoVo;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.business.util.DataFormatUtils;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdDictionaryConstants;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdInterface;
+import com.thinkive.server.ResultVo;
+
+/**
+ * @描述: 查询银行卡余额
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2017年3月17日 下午2:47:02
+ */
+public class Function1004803 extends ISMPBaseFunction
+{
+	
+	private Long userId; //用户编号
+	
+	private String fundAccount; //资金账号
+	
+	private String opAccount;//操作的银行资金帐号
+	
+	private String moneyType;//货币类型
+	
+	private String cardNum;//银行卡号
+	
+	private String fundPassword;//资金密码
+	
+	private String cardPassword;//银行卡密码
+	
+	@Override
+	public ResultVo execute() throws Exception
+	{
+		//step1:接收参数并校验
+		initVar();
+		
+		//step2:根据资金账号获取用户信息
+		UserInfoService userInfoService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO, UserInfoService.class);
+		UserInfoVo userInfoVo = userInfoService.queryAndCheckUserByUserIdAndAccount(userId, fundAccount);
+		
+		//step3:根据资金账号获取与其绑定的所有银行卡信息
+		ThirdInterface thirdInterface = SpringHelper.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDINTERFACE, ThirdInterface.class);
+		DataRow thirdInput = DataFormatUtils.packThirdInput(userInfoVo);
+		thirdInput.set("op_account", opAccount);//操作的银行卡的资金帐号
+		thirdInput.set("bankcode", cardNum);//银行卡号
+		thirdInput.set("fund_password", fundPassword);//资金密码
+		thirdInput.set("bank_password", cardPassword);//银行卡密码
+		thirdInput.set("money_type", moneyType);//货币类型
+		DataRow info = thirdInterface.queryBankBalance(thirdInput);
+		
+		//step6:打包出参
+		ResultVo resultVo = new ResultVo();
+		resultVo.setResult(info);
+		resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+		resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+		return resultVo;
+	}
+	
+	private void initVar()
+	{
+		userId = this.formatLongParam(this.getAndCheckBlankStrParam("user_id", ErrorCodeCheckInput.BLANK_USERID), ErrorCodeCheckInput.LONG_FORMAT_ERROR);
+		fundAccount = this.getAndCheckBlankStrParam("fundAccount", ErrorCodeCheckInput.BLANK_FUNDACCOUNT);
+		opAccount = this.getAndCheckBlankStrParam("opAccount", ErrorCodeCheckInput.BALNK_OP_ACCOUNT);
+		moneyType = this.getAndCheckBlankStrParam("moneyType", ErrorCodeCheckInput.MONEY_TYPE);
+		fundPassword = this.getAndCheckBlankStrParam("fundPassword", ErrorCodeCheckInput.BLANK_ZJPWD);
+		cardNum = this.getAndCheckBlankStrParam("cardNum", ErrorCodeCheckInput.BLANK_BANKCARD);//银行卡号
+		cardPassword = this.getAndCheckBlankStrParam("cardPassword", ErrorCodeCheckInput.BLANK_BANKCARDPWD);//银行卡密码
+	}
+}

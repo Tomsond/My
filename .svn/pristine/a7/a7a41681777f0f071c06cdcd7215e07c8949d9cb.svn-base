@@ -1,0 +1,346 @@
+package com.thinkive.fxc.ismp.bus.base.basicdata.model;
+
+import java.sql.Timestamp;
+import java.util.Date;
+
+import com.thinkive.base.jdbc.DataRow;
+
+/**
+ * @描述: 公共-营业部信息表(T_FXC_BRANCH_INFO) 模型
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 尹杰民
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月18日 下午1:34:31
+ */
+public class BranchInfoModel extends DataRow
+{
+    
+    private static final long   serialVersionUID = -2498624321138722276L;
+    
+    private static final String ID               = "id";
+    
+    private static final String BRANCH_NAME      = "branch_name";
+    
+    private static final String BRANCH_NO        = "branch_no";
+    
+    private static final String ORDER_NUM        = "order_num";
+    
+    private static final String IS_DISPLAY       = "is_display";
+    
+    private static final String REGION_NO        = "region_no";
+    
+    private static final String PROVINCE_NO      = "province_no";
+    
+    private static final String CITY_NO          = "city_no";
+    
+    private static final String ADDRESS          = "address";
+    
+    private static final String BRANCH_TEL       = "branch_tel";
+    
+    private static final String INTRO            = "intro";
+    
+    private static final String LAT              = "lat";
+    
+    private static final String LOT              = "lot";
+    
+    private static final String CREATE_DATE      = "create_date";
+    
+    private static final String CREATE_BY        = "create_by";
+    
+    private static final String UPDATE_DATE      = "update_date";
+    
+    private static final String UPDATE_BY        = "update_by";
+    
+    private static final String COMMISSION       = "commission";
+    
+    /**
+     * 获取自增主键
+     */
+    public Long getId()
+    {
+        return getLong(ID);
+    }
+    
+    /**
+     * 设置自增主键
+     */
+    public void setId(Long id)
+    {
+        set(ID, id);
+    }
+    
+    /**
+     * 获取营业部名称
+     */
+    public String getBranchName()
+    {
+        return getString(BRANCH_NAME);
+    }
+    
+    /**
+     * 设置营业部名称
+     */
+    public void setBranchName(String branchName)
+    {
+        set(BRANCH_NAME, branchName);
+    }
+    
+    /**
+     * 获取营业部编号
+     */
+    public String getBranchNo()
+    {
+        return getString(BRANCH_NO);
+    }
+    
+    /**
+     * 设置营业部编号
+     */
+    public void setBranchNo(String branchNo)
+    {
+        set(BRANCH_NO, branchNo);
+    }
+    
+    /**
+     * 获取排序值
+     */
+    public Long getOrderNum()
+    {
+        return getLong(ORDER_NUM);
+    }
+    
+    /**
+     * 设置排序值
+     */
+    public void setOrderNum(Long orderNum)
+    {
+        set(ORDER_NUM, orderNum);
+    }
+    
+    /**
+     * 获取是否显示
+     */
+    public String getIsDisplay()
+    {
+        return getString(IS_DISPLAY);
+    }
+    
+    /**
+     * 设置是否显示
+     */
+    public void setIsDisplay(String isDisplay)
+    {
+        set(IS_DISPLAY, isDisplay);
+    }
+    
+    /**
+     * 获取所属区域ID
+     */
+    public Long getRegionNo()
+    {
+        return getLong(REGION_NO);
+    }
+    
+    /**
+     * 设置所属区域ID
+     */
+    public void setRegionNo(Long regionNo)
+    {
+        set(REGION_NO, regionNo);
+    }
+    
+    /**
+     * 获取所属省份ID
+     */
+    public Long getProvinceNo()
+    {
+        return getLong(PROVINCE_NO);
+    }
+    
+    /**
+     * 设置所属省份ID
+     */
+    public void setProvinceNo(Long provinceNo)
+    {
+        set(PROVINCE_NO, provinceNo);
+    }
+    
+    /**
+     * 获取所属城市ID
+     */
+    public Long getCityNo()
+    {
+        return getLong(CITY_NO);
+    }
+    
+    /**
+     * 设置所属城市ID
+     */
+    public void setCityNo(Long cityNo)
+    {
+        set(CITY_NO, cityNo);
+    }
+    
+    /**
+     * 获取营业部地址
+     */
+    public String getAddress()
+    {
+        return getString(ADDRESS);
+    }
+    
+    /**
+     * 设置营业部地址
+     */
+    public void setAddress(String address)
+    {
+        set(ADDRESS, address);
+    }
+    
+    /**
+     * 获取营业部电话
+     */
+    public String getBranchTel()
+    {
+        return getString(BRANCH_TEL);
+    }
+    
+    /**
+     * 设置营业部电话
+     */
+    public void setBranchTel(String branchTel)
+    {
+        set(BRANCH_TEL, branchTel);
+    }
+    
+    /**
+     * 获取营业部介绍
+     */
+    public String getIntro()
+    {
+        return getString(INTRO);
+    }
+    
+    /**
+     * 设置营业部介绍
+     */
+    public void setIntro(String intro)
+    {
+        set(INTRO, intro);
+    }
+    
+    /**
+     * 获取纬度
+     */
+    public String getLat()
+    {
+        return getString(LAT);
+    }
+    
+    /**
+     * 设置纬度
+     */
+    public void setLat(String lat)
+    {
+        set(LAT, lat);
+    }
+    
+    /**
+     * 获取经度
+     */
+    public String getLot()
+    {
+        return getString(LOT);
+    }
+    
+    /**
+     * 设置经度
+     */
+    public void setLot(String lot)
+    {
+        set(LOT, lot);
+    }
+    
+    /**
+     * 获取创建时间
+     */
+    public Date getCreateDate()
+    {
+      return (Date) get(CREATE_DATE);
+    }
+    
+    /**
+     * 设置创建时间
+     */
+    public void setCreateDate(Date createDate)
+    {
+        Timestamp tieTimes=new Timestamp(createDate.getTime());
+        set(CREATE_DATE, tieTimes);
+    }
+    
+    /**
+     * 获取创建人
+     */
+    public Long getCreateBy()
+    {
+        return getLong(CREATE_BY);
+    }
+    
+    /**
+     * 设置创建人
+     */
+    public void setCreateBy(Long createBy)
+    {
+        set(CREATE_BY, createBy);
+    }
+    
+    /**
+     * 获取更新时间
+     */
+    public Date getUpdateDate()
+    {
+       return (Date) get(UPDATE_DATE);
+    }
+    
+    /**
+     * 设置更新时间
+     */
+    public void setUpdateDate(Date updateDate)
+    {
+        Timestamp time=new Timestamp(updateDate.getTime());
+        set(UPDATE_DATE, time);
+    }
+    
+    /**
+     * 获取修改人
+     */
+    public Long getUpdateBy()
+    {
+        return getLong(UPDATE_BY);
+    }
+    
+    /**
+     * 设置修改人
+     */
+    public void setUpdateBy(Long updateBy)
+    {
+        set(UPDATE_BY, updateBy);
+    }
+    
+    /**
+     * 获取佣金率
+     */
+    public String getCommission()
+    {
+        return getString(COMMISSION);
+    }
+    
+    /**
+     * 设置佣金率
+     */
+    public void setCommission(String commission)
+    {
+        set(COMMISSION, commission);
+    }
+}

@@ -1,0 +1,137 @@
+package com.thinkive.fxc.ismp.bus.business.ggtCancel.function;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.business.vo.UserInfoVo;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.business.util.DataFormatUtils;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdDictionaryConstants;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdInterfaceConstant;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdInterface;
+import com.thinkive.server.InvokeException;
+import com.thinkive.server.ResultVo;
+import com.thinkive.server.util.SpringUtil;
+/**
+ * @描述: 港股通权限取消 -查询股东户持仓、在途交易
+ * @版权: Copyright (c) 2010 
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 农仕冰
+ * @版本: 2.0.0
+ * @创建时间: 2019.9.24 14:06:22
+ */
+public class Function1004224  extends ISMPBaseFunction{
+	
+	private long userId;
+	
+	private String trdaccount;//股东户多个用“,” 分隔,格式：股东户|市场
+
+	@SuppressWarnings({ "deprecation" })
+    @Override
+	public ResultVo execute() throws InvokeException, Exception {
+	    
+	    String assistRepositoryFlag = DictionaryConstants.BOL_FALSE;//是否有港股通持仓  0无，1有
+	    String onWayTradeFlag = DictionaryConstants.BOL_FALSE;//是否有港股通在途交易  0无，1有
+	    String assistEntrustFlag = DictionaryConstants.BOL_FALSE;//是否有港股通委托  0无，1有
+		
+		//step1.校验入参
+		checkInput();
+		
+		ResultVo resultVo = new ResultVo();
+		
+		//step2:查询用户基本信息和用户账号信息
+		UserInfoService userInfoService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO, UserInfoService.class);
+		UserInfoVo userInfoVo = userInfoService.queryAndCheckUserByUserIdAndType(userId, ThirdInterfaceConstant.USER_ACCOUNT_TYPE_ZQ);
+		ThirdInterface thirdInterface = SpringUtil.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDINTERFACE, ThirdInterface.class);
+		DataRow thirdInput = DataFormatUtils.packThirdInput(userInfoVo);
+		List<DataRow> checkList = new ArrayList<DataRow>();
+		
+		String[] trdAccounts = trdaccount.split(",");
+		for (String trdaccts : trdAccounts)
+        {
+		    assistRepositoryFlag = DictionaryConstants.BOL_FALSE;
+		    onWayTradeFlag = DictionaryConstants.BOL_FALSE;
+		    assistEntrustFlag = DictionaryConstants.BOL_FALSE;
+		    
+		    String[] accountStkbd = trdaccts.split("\\|");
+		    if(accountStkbd.length != 2){
+		        throw new InvokeException(-1,"股东账户入参信息不全");
+		    }
+		    String trdacct = accountStkbd[0];
+		    thirdInput.set("trdacct", trdacct);//股东户
+		    thirdInput.set("exchange_type", "G");//交易类别  G-沪HK,S-深HK
+		    if(accountStkbd[1].equals(ThirdInterfaceConstant.STKBD_SZA)){
+		        thirdInput.set("exchange_type", "S");//交易类别  G-沪HK,S-深HK
+		    }
+	        /**校验是否有在途交易*/
+	        List<DataRow> wayList = thirdInterface.isOnWayTrade(thirdInput);
+	        if(wayList != null && wayList.size() > 0)
+	        {
+	            for(DataRow wayData : wayList)
+	            {
+	                if(trdacct.equals(wayData.getString("trdacct")))
+	                {
+	                    onWayTradeFlag = DictionaryConstants.BOL_TRUE;
+	                }
+	            }
+	        }
+	        /**校验港股持仓*/
+            List<DataRow> repList = thirdInterface.checkAssistRepository(thirdInput);
+            if(repList != null && repList.size() > 0)
+            {
+                for(DataRow repDate : repList)
+                {
+                    if(trdacct.equals(repDate.getString("trdacct")))
+                    {
+                        assistRepositoryFlag = DictionaryConstants.BOL_TRUE;
+                    }
+                }
+            }
+            
+            /**校验港股委托*/
+            List<DataRow> entrusList = thirdInterface.isEntrustTrade(thirdInput);
+            if(entrusList != null && entrusList.size() > 0)
+            {
+                for(DataRow entrusData : entrusList)
+                {
+                    if(trdacct.equals(entrusData.getString("stock_account")))
+                    {
+                        assistEntrustFlag = DictionaryConstants.BOL_TRUE;
+                    }
+                }
+            }
+            
+            
+            DataRow other = new DataRow();
+            other.set("trdacct", trdacct);//股东户
+            other.set("stkbd", accountStkbd[1]);//市场
+            other.set("onWayTradeFlag", onWayTradeFlag);//是否有港股通在途交易  0无，1有
+            other.set("assistRepositoryFlag", assistRepositoryFlag);//是否有港股通持仓  0无，1有
+            other.set("assistEntrustFlag", assistEntrustFlag);//是否有港股通委托  0无，1有
+            checkList.add(other);
+        }
+            
+        resultVo.setResult("checkInfo", checkList);
+		resultVo.setErrorNo(0);
+		resultVo.setErrorMsg("调用成功");
+		return resultVo;
+	}
+	
+	/**
+	 * @描述：获取入参并校验
+	 * @作者：农仕冰
+	 * @时间：2019年9月24日 下午14:22
+	 * @throws Exception
+	 */
+	private void checkInput() throws Exception{
+		userId = Long.valueOf(this.getAndCheckBlankStrParam("user_id", ErrorCodeCheckInput.BLANK_USERID));
+		trdaccount = this.getAndCheckBlankStrParam("trdaccount", ErrorCodeCheckInput.BLANK_TRDACCOUNT);
+	}
+
+}

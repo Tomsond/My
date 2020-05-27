@@ -1,0 +1,156 @@
+package com.thinkive.fxc.ismp.bus.base.business.dao;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.jdbc.session.Session;
+import com.thinkive.fxc.ismp.bus.base.business.model.UserInfoModel;
+import com.thinkive.fxc.ismp.bus.base.business.vo.CertUserInfoVo;
+import com.thinkive.fxc.ismp.bus.base.business.vo.UserInfoVo;
+
+/**
+ * @描述: 用户信息表(T_ISMP_USER_INFO)数据层接口
+ * @版权: Copyright (c) 2016 
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0 
+ * @创建时间: 2016年8月11日 下午6:55:35
+ */
+public interface UserInfoDao
+{
+	
+	/**
+	* @描述: 新增用户信息
+	* @作者: 田源
+	* @时间：2016年8月17日 下午3:59:13
+	* @param UserInfoModel
+	* @return UserInfoModel    
+	 */
+	public UserInfoModel add(UserInfoModel userInfoModel);
+	
+	/**
+	 * @描述: 修改用户信息,返回更新成功记录数
+	 * @作者: 田源
+	 * @时间：2016年8月17日 下午3:59:13
+	 * @param UserInfoModel
+	 * @return int    
+	  */
+	public int update(UserInfoModel userInfoModel);
+	
+	/**
+	* @描述: 根据userId查询用户信息
+	* @作者: 田源
+	* @时间：2016年8月17日 下午3:59:13
+	* @param  userId
+	* @return UserInfoModel    
+	 */
+	public UserInfoModel queryByUserId(Long userId);
+	
+	/**
+	 * @描述：根据用户编号userId、资金帐号fundAccount和资金帐号类型type查询用户和用户有效账号信息,最少传两个
+	 * @作者：刘恺
+	 * @时间：2016年8月25日 下午12:02:41
+	 * @param params userId:用户编号，fundAccount资金帐号，type：资金帐号类型
+	 * @return UserInfoVo
+	 */
+	public UserInfoVo queryUserInfoVo(DataRow params);
+	
+	/**
+	 * @描述：根据用户编号查询证书用户信息
+	 * @作者：刘恺
+	 * @时间：2016年8月30日 下午3:03:43
+	 * @param userId
+	 * @return
+	 */
+	public CertUserInfoVo queryCertUser(Long userId);
+	
+	/**
+	 * @描述：条件查询用户信息
+	 * @作者：刘恺
+	 * @时间：2016年9月7日 下午11:53:15
+	 * @param userInfoModel
+	 * @return
+	 */
+	public UserInfoModel queryByParams(UserInfoModel userInfoModel);
+	
+	/**
+	 * @描述：根据手机号码统计
+	 * @作者：田源
+	 * @时间：2016年9月8日 下午6:34:58
+	 * @param mobile
+	 * @return
+	 */
+	public int countByMobile(String mobile);
+	
+	/**
+	 * @描述：添加用户信息，需要控制事务
+	 * @作者：刘恺
+	 * @时间：2016年9月9日 上午10:54:01
+	 * @param userInfoModel
+	 * @param session
+	 * @return
+	 * @throws Exception
+	 */
+	public UserInfoModel add(UserInfoModel userInfoModel, Session session) throws Exception;
+	
+	
+
+	/**
+	 * @描述：添加用户第二联系人信息，需要控制事务
+	 * @作者：刘恺
+	 * @时间：2016年9月9日 上午10:54:01
+	 * @param userInfoModel
+	 * @param session
+	 * @return
+	 * @throws Exception
+	 */
+	public DataRow addLinkman(DataRow data, Session session) throws Exception;
+	
+	
+	
+	/**
+	 * @描述：根据用户编号更新用户第二联系人信息，需要处理事务
+	 * @作者：刘恺
+	 * @时间：2016年9月9日 下午12:26:35
+	 * @param userInfoModel
+	 * @param session
+	 * @return
+	 */
+	public int updateLinkman(DataRow data, Session session) throws Exception;
+	
+	/**
+	 * @描述：根据用户编号更新用户信息，需要处理事务
+	 * @作者：刘恺
+	 * @时间：2016年9月9日 下午12:26:35
+	 * @param userInfoModel
+	 * @param session
+	 * @return
+	 */
+	public int update(UserInfoModel userInfoModel, Session session) throws Exception;
+
+	/**
+	 * @描述：根据用户ID查询用户全部信息（包含用户信息，拓展信息，营业部，紧急联系人）
+	 * @作者：田源
+	 * @时间：2016年9月18日 下午8:09:30
+	 * @param userId
+	 * @return DataRow
+	 */
+    public DataRow queryUserAllInfo(Long userId);
+	
+    
+    /**
+	 * @描述：根据用户ID查询用户信息
+	 * @作者：MIKE
+	 * @时间：2017年1月20日 下午17:09:30
+	 * @param userId
+	 * @return DataRow
+	 */
+    public DataRow getBillingContact(Long userId);
+    
+    /**
+     * @描述: 检查用户身份证是否过期
+     * @作者：MIKE
+     * @时间：2017年6月3日
+     * @param user_id
+     * @param endtime
+     */
+    public DataRow certificatesFlag(Long user_id, String endtime);
+}

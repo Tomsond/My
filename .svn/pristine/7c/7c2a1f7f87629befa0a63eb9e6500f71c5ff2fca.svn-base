@@ -1,0 +1,69 @@
+/**
+ * 
+ */
+package com.thinkive.fxc.ismp.bus.base.business.dao;
+
+import java.util.List;
+
+import com.thinkive.fxc.ismp.bus.base.business.model.ImageRecordModel;
+
+/**
+ * @描述: 影像资料记录表(t_ismp_image_record)数据层接口
+ * @版权: Copyright (c) 2016 
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 尹杰民
+ * @版本: 2.0 
+ * @创建时间: 2016年8月15日 下午4:40:21
+ */
+public interface ImageRecordDao
+{
+	
+	/** 
+	 * @描述: 添加 影像资料记录表 记录
+	 * @作者: 尹杰民
+	 * @时间：2016年8月17日 下午3:59:13
+	 * @param imageRecordModel
+	 * @
+	 * @return ImageRecordModel
+	*/
+	public ImageRecordModel add(ImageRecordModel imageRecordModel);
+	
+	/** 
+	 * @描述: 更新 影像资料记录
+	 * @作者: 尹杰民
+	 * @时间：2016年8月17日 下午3:59:13
+	 * @param imageRecordModel
+	 * @
+	 * @return int
+	*/
+	public int update(ImageRecordModel imageRecordModel);
+	
+	/**
+	 * @描述：条件查询影像资料记录
+	 * @作者：刘恺
+	 * @时间：2016年9月10日 下午2:45:42
+	 * @param imageRecordModel
+	 * @return
+	 */
+	public List<ImageRecordModel> queryByParams(ImageRecordModel imageRecordModel);
+	
+	/**
+	 * @描述：根据业务实例编号、节点标识、影像编号更新影像资料记录
+	 * @作者：刘恺
+	 * @时间：2016年9月10日 下午2:55:40
+	 * @param imageRecordModel
+	 * @return
+	 */
+	public int updateByBIdAndNIdAndCode(ImageRecordModel imageRecordModel);
+	
+	/**
+	 * @描述：根据影像编号组查询用户已提交的影像资料数量
+	 * @作者：刘恺
+	 * @时间：2016年9月10日 下午6:01:46
+	 * @param mediaCodes
+	 * @param businessId
+	 * @param nodeId
+	 * @return
+	 */
+	public Long queryCountByCodes(List<String> mediaCodes, Long businessId, String nodeId);
+}

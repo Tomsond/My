@@ -1,0 +1,1090 @@
+package com.thinkive.fxc.ismp.bus.business.constants;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import com.thinkive.base.config.Configuration;
+
+/**
+ * 描述: 
+ * 版权: Copyright (c) 2012 
+ * 公司: 思迪科技 
+ * 作者: 刘恺
+ * 版本: 1.0 
+ * 创建日期: Jul 8, 2013 
+ * 创建时间: 7:22:45 PM
+ */
+public class Constants
+{
+	
+	/**
+	 * 调用功能号成功标识
+	 */
+	public final static int INVOKE_FUNCTION_SUCCESS = 0;
+	
+	public final static String INVOKE_FUNCTION_SUCCESSMSG = "调用成功";
+	
+	/**
+	 * BUS数据库配置
+	 */
+	public static final String DB_FXC = "fxc_web";
+	
+	/**
+	 * 综合受理平台BUS数据库配置
+	 */
+	public static final String DB_ZHSL = "zhpt_web";
+	
+	
+	/**
+	 * 综合受理开户平台BUS数据库配置
+	 */
+	public static final String DB_ZHSL_KH = "kh_web";
+	
+	/**
+	 * 证书bus的ID
+	 */
+	public static final String CERT_BUS = "cert_bus";
+	
+	/**
+	 * cmsbus的ID
+	 */
+	public static final String CMS_BUS = "cms_bus";
+	
+	/**
+	 * pswbus的ID
+	 */
+	public static final String PWD_BUS = "pwd_bus";
+	
+	/**
+	 * 交易网关的ID
+	 */
+	public static final String TRADE_BUS = "trade_bus";
+	
+	/**
+	 * 托管bus地址
+	*/
+	public static final String TG_BUS = "tg_bus";
+	
+	/**
+	  * 第三方接口对接TBAS
+	 */
+	public static final String THIRD_BUS = "third_bus";
+	
+	/**
+	  * 跑批TBAS
+	 */
+	public static final String PP_BUS = "pp_bus";
+	
+	/**
+	 * 日志中发送短信的业务标识
+	 */
+	public static final String LOG_TYPE_SMS = "sms";
+	
+	/**
+	 * 手机验证码位数
+	 */
+	public static final int VERIFICATION_CODE_LENGTH = 6;
+	
+	/**
+	 * 用户登录密码类型标志
+	 */
+	public static final String USER_PWD_TYPE_LOGIN = "1";
+	
+	/**
+	 * @开户
+	 */
+	public static final String OPENACCOUNT = "0";
+	
+	/**
+	 * 转户
+	 */
+	public static final String CONNECACCOUNT = "1";
+	
+	/**
+	 * 深A
+	 */
+	
+	/**
+	 * 金正win版外围系统
+	 */
+	public static final String ZJ_GATEWAY_SYSTEM = "1";
+	
+	/**
+	 * 金正webService 系统
+	 */
+	public static final String ZJ_WEBSERVICE_SYSTEM = "2";
+	
+	/**
+	 *  数据字典配置的深圳A类型
+	 */
+	public static final String STKBD_SZA = "sz_a";
+	
+	/**
+	 *  数据字典配置的上海A类型
+	 */
+	public static final String STKBD_SHA = "sh_a";
+	
+	/**
+	 *  数据字典配置的深圳开基金
+	 */
+	public static final String STKBD_SZKJ = "sz_kj";
+	
+	/**
+	 *  数据字典配置的上海开基金
+	 */
+	public static final String STKBD_SHKJ = "sh_kj";
+	
+	/**
+	 *  数据字典配置的创业板
+	 */
+	public static final String STKBD_CYB = "cyb";
+	
+	/**
+	 *  数据字典配置的身份证类型
+	 */
+	public static final String ID_TYPE = "idtype";
+	
+	/**
+	 *  数据字典配置的股东类型
+	 */
+	public static final String STK_BD = "stkbd";
+	
+	/**
+	 *  股东状态及场内基金状态字段
+	 */
+	public static final String STOCK_STATUS = "stock_status";
+	
+	/**
+	 * 数据字典配置的职业代码
+	 */
+	public static final String PROFESSION_CODE = "occupational";
+	
+	/**
+	* 数据字典配置的学历
+	*/
+	public static final String EDU = "adapter";
+	
+	/**
+	* 数据字典配置的职业代码
+	*/
+	public static final String USERSEX = "sex";
+	
+	/**
+	* 数据字段民族类型代码
+	*/
+	public static final String ETHNICTYPE = "ethnicType";
+	
+	/**
+	 * 数据字典配置的基金种类
+	 */
+	public static final String OFACCTTYPE = "ofacct_type";
+	
+	/**
+	 * 数据字典配置的场外基金及登记基金状态 字段
+	 */
+	public static final String FUND_STATUS = "fund_status";
+	
+	/**
+	 * 账户类型：证券账户
+	 */
+	public static final String CATEGORY_STOCK = "stock";
+	
+	/**
+	 * 账户类型：场内基金
+	 */
+	public static final String CATEGORY_CN_FUND = "cn_fund";
+	
+	/**
+	 * 账户类别：资金账户
+	 */
+	public static final String CATEGORY_CAPITAL = "capital";
+	
+	/**
+	 * 账户类别：创业板
+	 */
+	public static final String CATEGORY_CYB = "cyb";
+	
+	/**
+	 * 资金账户类型
+	 */
+	public static final String CAPITAL_TYPE = "0";
+	
+	/**
+	 * 账户类别：客户账户
+	 */
+	public static final String CATEGORY_CUST = "cust";
+	
+	public static final String CUST_TYPE = "0";
+	
+	/**
+	 * 账户类别：基金账户
+	 */
+	public static final String CATEGORY_FUND = "fund";
+	
+	/**
+	 * 是否指定字段
+	 */
+	public static final String ISREG_FIELD = "isreg";
+	
+	/**
+	 * 密码保存数据库
+	 */
+	public static final String PWDSAVEDB = "1";
+	
+	/**
+	 * 密码保存缓存
+	 */
+	public static final String PWDSAVECACHE = "2";
+	
+	/**
+	 * 保存到数据库的密码类型-交易密码(即登录密码)
+	 */
+	public static final String PWD_SAVE_TYPE_1 = "1";
+	
+	/**
+	 * 用户渠道表中的渠道类型-资金账号登录
+	 */
+	public static final String LOGIN_CHANNEL_TYPE_1 = "1";
+	
+	/**
+	 * 调用第三方接口后，返回DataRow的状态码标示
+	 */
+	public static final String DATAROWSTATUS = "No";
+	
+	/**
+	 * 调用第三方接口后，返回DataRow的状态码对应的描述
+	 */
+	public static final String DATAROWDESCRIPTION = "Msg";
+	
+	/**
+	 * 重置资金/交易密码时上传图片类型-身份证正面
+	 */
+	public static final String IMAGE_TYPE_VALIDATION_1 = "1";
+	
+	/**
+	 * 重置资金/交易密码时上传图片类型-身份证反面
+	 */
+	public static final String IMAGE_TYPE_VALIDATION_2 = "2";
+	
+	/**
+	 * 重置资金/交易密码时上传图片类型-正面头像
+	 */
+	public static final String IMAGE_TYPE_VALIDATION_3 = "3";
+	
+	/**
+	 * 用户头像类型
+	 */
+	public static final String IMAGE_TYPE_USER = "4";
+	
+	/**
+	 * 用户账号级别-低
+	 */
+	public static final String USER_SAFY_LEVEL_LOW = "低";
+	
+	/**
+	 * 用户账号级别-中
+	 */
+	public static final String USER_SAFY_LEVEL_MIDDLE = "中";
+	
+	/**
+	 * 用户账号级别-高
+	 */
+	public static final String USER_SAFY_LEVEL_HIGH = "高";
+	
+	/**
+	 * T_USER_MESSAGE表MESSAGE_TYPE字段-系统消息
+	 */
+	public static final String USER_MESSAGE_TYPE_SYSTEM = "1";
+	
+	/**
+	 * T_USER_MESSAGE表MESSAGE_TYPE字段-电子账单消息
+	 */
+	public static final String USER_MESSAGE_TYPE_DZZD = "2";
+	
+	/**
+	 * 电子合同签署状态-未签署
+	 */
+	public static final String E_CONTRACT_STATUS_NO = "0";
+	
+	/**
+	 * 电子合同签署状态-已签署
+	 */
+	public static final String E_CONTRACT_STATUS_YES = "1";
+	
+	/**
+	 * 签署文本标准-原文
+	 */
+	public static final String SIGN_STANDARD_TEXT = "0";
+	
+	/**
+	 * 签署文本标准-MD5
+	 */
+	public static final String SIGN_STANDARD_MD5 = "1";
+	
+	/**
+	 * 是否是用数字证书签署-是
+	 */
+	public static final String DIGITAL_CERTIFICATE_SIGN_YES = "1";
+	
+	/**
+	 * 是否是用数字证书签署-否
+	 */
+	public static final String DIGITAL_CERTIFICATE_SIGN_NO = "0";
+	
+	/**
+	 * 页面默认显示记录数
+	 */
+	public static final String PAGE_COUNT_DEFAULT = "8";
+	
+	/**
+	 * 我的账户-指定
+	 */
+	public static final String ACCOUNT_ZD = "1";
+	
+	/**
+	 * 我的账户-撤销指定
+	 */
+	public static final String ACCOUNT_CXZD = "0";
+	
+	/**
+	 * 中登账户类型
+	 */
+	public static final String ZDZH_TYPE = "zdtype";
+	
+	/**
+	 * 数据字典-学历
+	 */
+	public static final String ENUM_ADAPTER = "adapter";
+	
+	/**
+	 * 数据字典-职业
+	 */
+	public static final String ENUM_OCCUPATIONAL = "occupational";
+	
+	/**
+	 * 三方存管-充值
+	 */
+	public static final String SFCG_CZ = "0";
+	
+	/**
+	 * 三方存管-提现
+	 */
+	public static final String SFCG_TX = "1";
+	
+	/**
+	 * 委托方式-未开通
+	 */
+	public static final String WTFS_CLOSE = "0";
+	
+	/**
+	 * 委托方式-已开通
+	 */
+	public static final String WTFS_OPEN = "1";
+	
+	/**
+	 * 失效
+	 */
+	public static final String SFCG_STATUS_0 = "0";
+	
+	/**
+	 * 未失效
+	 */
+	public static final String SFCG_STATUS_1 = "1";
+	
+	/**
+	 * 操作成功提示信息
+	 */
+	public static final String OPERATE_SUCCESS = "操作成功！";
+	
+	public static final String OPERATE_FAIL = "操作失败，请重新操作！";
+	
+	/**
+	 * 风险测评结果保质期（单位：年）
+	 */
+	public static final int FXCP_OUT_OF_DATE = 2;
+	
+	/**
+	 * 是否需要做视频
+	 */
+	public static final String VIDEO_FLAG_0 = "0";//不需要做视频
+	
+	public static final String VIDEO_FLAG_1 = "1";//需要做视频
+	
+	/**
+	 * 系统日志类型
+	 */
+	public static final String SYSTEM_LOG_TYPE_1 = "l";//登录
+	
+	public static final String SYSTEM_LOG_TYPE_2 = "2";//手机绑定
+	
+	public static final String SYSTEM_LOG_TYPE_3 = "3";//风险测评
+	
+	/**
+	 * 标准布尔
+	 */
+	public static final String BOL_FALSE = "0"; //否
+	
+	public static final String BOL_TRUE = "1"; //是
+	
+	public static HashMap<String, String> MAP_BOL = new HashMap<String, String>();
+	
+	/**
+	 * 短信类型
+	 */
+	public static HashMap<String, String> MAP_SMS_TYPE = new HashMap<String, String>();
+	
+	public static HashMap<String, String> MAP_SMS_ERROR_MSG = new HashMap<String, String>();
+	
+	public static final String SMS_TYPE_LOGIN_KEY = "ygt_sjdl"; //云桂台	  手机登录
+	
+	public static final String SMS_TYPE_REGIST_MOBILE = "ygt_sjzc"; //云桂台	  手机注册
+	
+	public static final String SMS_TYPE_FXCKH_LOGIN_KEY = "fxckh_sjdl"; //非现场开户   手机登录
+	
+	public static final String SMS_TYPE_CHANGE_MOBILE = "ygt_xgsj"; //   修改手机号码
+	
+	public static final String SMS_TYPE_CHANGE_THIRDBANK = "ygt_sfcgxg"; //修改三方存管
+	
+	public static final String SMS_TYPE_RESETPWD = "resetpwd"; //重置密码
+	
+	public static final String SMS_TYPE_APPLYCREDITACC_CONTACTMOBILE = "creditacc_contactmobile"; //   融资融券，确认手机号
+	
+	/**
+	 * 短信发送类型
+	 */
+	public static final String SEND_TYPE_CHECK = "1"; //校验类型（例如验证码）
+	
+	public static final String SEND_TYPE_OPCOMPLETE = "2"; //操作完成
+	
+	public static final String SEND_TYPE_REJECT = "3"; //驳回
+	
+	public static final String SEND_TYPE_BUSINESS_SUCCESS = "4"; //   业务办成功
+	
+	public static final String SEND_TYPE_BUSINESS_FAIL = "5"; //业务办理失败
+	
+	/**
+	 * 系统通用异常,错误编码
+	 */
+	public static final int SYS_ERROR = -100; //系统错误
+	
+	public static final int SMS_ERROR_HASSENT = -101; //您的验证码已经通过短信发送,请勿频繁点击发送按钮
+	
+	public static final int SMS_ERROR_OUTTIMES = -102; //超过短信发送次数
+	
+	public static final int SMS_ERROR_CODEPRDERROR = -103; //验证码生成错误
+	
+	public static final int SMS_ERROR_TIMEEXPIRED = -104; //验证码已经过期
+	
+	public static final int SMS_ERROR_ERRORCODE = -105; //验证码错误
+	
+	public static final int SMS_ERROR_CANNOTINSERTCODE = -106; //无法向缓存服务器新增缓存短信验证码
+	
+	public static final int SMS_ERROR_FXCHKLIMIT = -107; //非现场开户短信限制
+	
+	public static final int SMS_ERROR_SENDERROR = -108; //发送失败
+	
+	public static final int SMS_ERROR_NOMODEL = -109; //短信模版不存在
+	
+	public static final int ACCONUT_ERROR_EMPTY = -201; //资金帐号不存在 
+	
+	public static final int ACCONUT_ERROR_LOFINFAIL = -202; // 
+	
+	public static final int ACCONT_ERROR_NOTSYN = -203; //资金帐号尚未同步，无密码或者无帐号
+	
+	public static final int ACCONT_ERROR_TGPWD = -204; //托管证书密码错误
+	
+	public static final int ACCONT_ERROR_NOUSER = -205; //用户不存在
+	
+	public static final int ACCONT_ERROR_NOCERTUID = -206; //用户没有certuid
+	
+	public static final int MGS_ERROR_FRONTERROR = -510; //身份证正面照未能识别
+	
+	public static final int MGS_ERROR_BACKERROR = -511; //身份证正面照未能识别
+	
+	public static final int MGS_ERROR_OCRERROR = -512; //图片OCR识别异常
+	
+	public static final int BRECORD_ERROR_NOMODEL = -301; //业务办理记录描述模版不存在
+	
+	public static HashMap<Integer, Integer> MAP_SMS_ERROR = new HashMap<Integer, Integer>();
+	
+	/**
+	 * SERVICE服务类ID
+	 */
+	public static final String SERVICE_ID_CALLEXTERNAL = "CallExternalService";
+	
+	public static final String SERVICE_ID_ENUM = "EnumService";
+	
+	public static final String SERVICE_ID_SMSSEND = "SmsSendService";
+	
+	public static final String SERVICE_ID_ACCOUNT = "AccountService";
+	
+	public static final String SERVICE_ID_ACCOUNTMANAGE = "AccountManageService";
+	
+	public static final String SERVICE_ID_ASSETINFO = "AssetInfoService";
+	
+	public static final String SERVICE_ID_BRANCH = "BranchService";
+	
+	public static final String SERVICE_ID_BANKINFO = "BankInfoService";
+	
+	public static final String SERVICE_ID_PROTOCOL = "ProtocolService";
+	
+	public static final String SERVICE_ID_MESSAGE = "MessageService";
+	
+	public static final String SERVICE_ID_LOGIN = "LoginService";
+	
+	public static final String SERVICE_ID_IMAGE = "ImageService";
+	
+	public static final String SERVICE_ID_RISK = "RiskService";
+	
+	public static final String SERVICE_ID_PWD = "PasswordService";
+	
+	public static final String SERVICE_ID_CERTTBAS = "CertTBASService";
+	
+	public static final String SERVICE_ID_THIRDINTERFACE = "ThirdInterfaceService";
+	
+	public static final String SERVICE_ID_PWDENCRYPT = "PwdEncryptService";
+	
+	public static final String SERVICE_ID_LOG = "LogService";
+	
+	public static final String SERVICE_ID_USERINFO = "UserInfoService";
+	
+	public static final String SERVICE_ID_USERMANAGE = "UserManageService";
+	
+	public static final String SERVICE_ID_OCR = "OcrService";
+	
+	public static final String SERVICE_ID_POST = "PostService";
+	
+	public static final String SERVICE_ID_ADDRESS = "AddressService";
+	
+	public static final String SERVICE_ID_SIGNANDVERIFY = "SignAndVerifyService";
+	
+	public static final String SERVICE_ID_TRADEDATE = "TradedateService";
+	
+	public static final String SERVICE_ID_CERTMANAGE = "CertManageService";
+	
+	public static final String SERVICE_ID_CDSFDATATODATABASE = "DsfDataToDataBaseService";
+	
+	public static final String SERVICE_ID_BUSINESS = "BusinessService";
+	
+	public static final String SERVICE_ID_CERTCOFFERTBASS = "CertCofferTBASSService";
+	
+	public static final String SERVICE_ID_QUESTION = "QuestionService";
+	
+	public static final String SERVICE_ID_ENTRUST = "EntrustService";
+	
+	public static final String SERVICE_ID_TASK = "TaskService";
+	
+	public static final String SERVICE_ID_VIDEOAPPOINT = "VideoAppointService";
+	
+	public static final String SERVICE_ID_PP = "PPService";
+	
+	public static final String SERVICE_ID_SYSVARIABLE = "SysVariableService";
+	
+	public static final String SERVICE_ID_AREA = "AreaService";
+	
+	public static final String SERVICE_ID_BUSINESSLABLE = "BusinessLableService";
+	
+	public static final String SERVICE_ID_BUSINESSRECORD = "BusinessRecordService";
+	
+	public static final String SERVICE_ID_AUTHORITY = "AuthorityService";
+	
+	public static final String SERVICE_ID_BILL = "BillService";
+	
+	public static final String SERVICE_ID_CACHE = "CacheService";
+	
+	public static final String SERVICE_ID_THIRDBANK = "ThirdBankService";
+	
+	public static final String SERVICE_ID_BUSINESSLOG = "BusinessLogService";
+	
+	public static final String SERVICE_ID_SMSSENDLOG = "SmsSendLogService";
+	
+	public static final String SERVICE_ID_ENTRUSTINFO = "EntrustInfoService";
+	
+	public static final String SERVICE_ID_CERTAPPLYINFO = "CertApplyInfoService";
+	
+	public static final String SERVICE_ID_OTCOPEN = "OtcOpenService";
+	
+	public static final String SERVICE_ID_PROINVESTOR = "ProInvestorService";
+	
+	
+	/**
+	 * 具体业务办理类型
+	 */
+	public static final String BUSINESS_FXCKH = "fxckh"; //非现场开户
+	
+	public static final String BUSINESS_UPDATE_INFO = "updateuserinfo"; //修改资料
+	
+	public static final String BUSINESS_IDCARDUP = "idcardup"; //身份证升位
+	
+	public static final String BUSINESS_BINDACCOUNT = "bindAccount"; //绑定资金帐号
+	
+	public static final String BUSINESS_IDOVERDUE = "idoverdue"; //身份证过期更新
+	
+	public static final String BUSINESS_ZK = "zk"; //增开
+	
+	public static final String BUSINESS_WT = "wt"; //修改委托方式
+	
+	public static final String BUSINESS_OPENFUNDACCOUNT = "openfundaccount";//开通基金帐号
+	
+	public static final String BUSINESS_GGT = "ggt"; //港股通
+	
+	public static final String BUSINESS_RESETPWD = "resetpwd"; //重置资金或交易密码
+	
+	public static final String BUSINESS_JG = "jg"; //加挂
+	
+	public static final String BUSINESS_ZDJY = "zdjy"; //指定交易
+	
+	public static final String BUSINESS_CYBOPEN = "cybopen"; //创业板开通
+	
+	public static final String BUSINESS_CYBSIGN = "cybsign"; //创业板转签
+	
+	public static final String BUSINESS_ACTIVATETRD = "activatetrd"; //激活交易帐号
+	
+	public static final String BUSINESS_ACTIVATEACC = "activateacc"; //激活资金帐号
+	
+	public static final String BUSINESS_AUTHENTICATION = "authentication"; //实名认证
+	
+	public static final String BUSINESS_RESETCERTPWD = "resetcertpwd"; //重置证书密码
+	
+	public static final String BUSINESS_RESETJYPWD = "resetjypwd"; //重置交易密码
+	
+	public static final String BUSINESS_RESETZJPWD = "resetzjpwd"; //重置资金密码
+	
+	public static final String BUSINESS_APPLYCERT = "applycert"; //重置证书密码
+	
+	public static final String BUSINESS_UPDATEJYPWD = "updatejypwd"; //修改交易密码
+	
+	public static final String BUSINESS_UPDATEZJPWD = "updatezjpwd"; //修改资金密码
+	
+	public static final String BUSINESS_FXCP = "fxcp"; //风险测评
+	
+	public static final String BUSINESS_APPLYCREDIT = "applycredit"; //申请信用证券帐号
+	
+	public static final String BUSINESS_DZHYQS = "dzhyqs"; //电子合约签署
+	
+	public static final String BUSINESS_GZNHG = "gznhg"; //国债逆回购
+	
+	public static final String BUSINESS_TSGPZL = "tsgpzl"; //退市股票整理
+	
+	public static final String BUSINESS_FXJS = "fxjs"; //风险警示(针对沪A帐号的业务)
+	
+	public static final String BUSINESS_OTCOPEN = "otcopen"; //OTC开户
+	
+	public static final String BUSINESS_LOF = "lof"; //LOF权限
+	
+	public static final String BUSINESS_HJETF = "hjetf"; //黄金ETF
+	
+	public static final String BUSINESS_KJETF = "kjetf"; //跨境ETF
+	
+	public static final String BUSINESS_JSB = "jsb"; //旧三版
+	
+	public static final String BUSINESS_XSB = "xsb"; //新三版
+	
+	public static final String BUSINESS_DZJY = "dzjy"; //大宗交易
+	
+	public static final String BUSINESS_ELECTRONSIGN = "electronsign"; //电子签名约定书
+	
+	public static final String BUSINESS_CUSTMIGRATION = "custmigration"; //客户迁移
+	
+	public static final String BUSINESS_THIRDBANK = "thirdbank"; //三方存管银行管理
+	
+	public static final String BUSINESS_LARGEWITHDRAWAL = "largewithdrawal"; //大额取款变更预约
+	
+	public static final String BUSINESS_EMAILBILL = "emailbill"; //email对账单
+	
+	public static final String BUSINESS_CHANGECOSTPRICE = "changecostprice"; //修改成本价
+	
+	public static final String BUSINESS_MODIFIEDMOBILE = "modifiedmobile"; //修改手机号
+	
+	public static final String BUSINESS_PROINVESTOR = "proinvestor"; //债券专业投资者
+	
+	/**
+	 * 日志的业务标识
+	 */
+	public static final String LOG_TYPE_LOGIN = "login"; //登录日志
+	
+	public static final String LOG_TYPE_REGIST = "regist"; //注册
+	
+	public static final String LOG_TYPE_ADDLOGINTYPE = "addlogintype"; //添加登录方式日志
+	
+	public static final String LOG_TYPE_BINDTRAACCOUNT = "bindtraaccount"; //绑定交易帐号
+	
+	public static final String LOG_TYPE_OPENFUNDACCOUNT = BUSINESS_OPENFUNDACCOUNT; //开通基金帐号
+	
+	public static final String LOG_TYPE_THREEDEPOSITORY = "threedepository";//三方存管
+	
+	public static final String LOG_TYPE_QUESTIONNAIRE = "questionnaire"; //问卷
+	
+	public static final String LOG_TYPE_UPDATE_INFO = BUSINESS_UPDATE_INFO; //修改资料
+	
+	public static final String LOG_TYPE_BINDACCOUNT = BUSINESS_BINDACCOUNT; //绑定资金帐号
+	
+	public static final String LOG_TYPE_AUTHENTICATION = BUSINESS_AUTHENTICATION; //实名验证
+	
+	public static final String LOG_TYPE_IDCARDUP = BUSINESS_IDCARDUP; //身份证升位
+	
+	public static final String LOG_TYPE_IDOVERDUE = BUSINESS_IDOVERDUE; //身份证过期修改
+	
+	public static final String LOG_TYPE_ZK = BUSINESS_ZK; //增开
+	
+	public static final String LOG_TYPE_GGT = BUSINESS_GGT; //增开
+	
+	public static final String LOG_TYPE_WT = BUSINESS_WT; //委托方式
+	
+	public static final String LOG_TYPE_JG = BUSINESS_JG; //加挂
+	
+	public static final String LOG_TYPE_ZDJY = BUSINESS_ZDJY; //指定交易
+	
+	public static final String LOG_TYPE_ACTIVATETRD = BUSINESS_ACTIVATETRD; //激活交易帐号
+	
+	public static final String LOG_TYPE_ACTIVATEACC = BUSINESS_ACTIVATEACC; //激活资金帐号
+	
+	public static final String LOG_TYPE_CYBOPEN = BUSINESS_CYBOPEN; //创业板开通
+	
+	public static final String LOG_TYPE_CYBSIGN = BUSINESS_CYBSIGN; //创业板转签
+	
+	public static final String LOG_TYPE_RESETPWD = BUSINESS_RESETPWD; //重置资金帐号密码（包含密码和资金密码）
+	
+	public static final String LOG_TYPE_RESETCERTPWD = BUSINESS_RESETCERTPWD; //重置证书密码
+	
+	public static final String LOG_TYPE_RESETJYPWD = BUSINESS_RESETJYPWD; //重置交易密码
+	
+	public static final String LOG_TYPE_RESETZJPWD = BUSINESS_RESETZJPWD; //重置资金密码
+	
+	public static final String LOG_TYPE_APPLYCERT = BUSINESS_APPLYCERT; //申请证书
+	
+	public static final String LOG_TYPE_APPLYCREDIT = BUSINESS_APPLYCREDIT; //融资融券---申请开通信用证券帐号
+	
+	public static final String LOG_TYPE_GZNHG = BUSINESS_GZNHG; //国债逆回购
+	
+	public static final String LOG_TYPE_TSGPZL = BUSINESS_TSGPZL; //退市股票整理
+	
+	public static final String LOG_TYPE_FXJS = BUSINESS_FXJS; //风险警示
+	
+	public static final String LOG_TYPE_OTCOPEN = BUSINESS_OTCOPEN; //开通OTC
+	
+	public static final String LOG_TYPE_LOF = BUSINESS_LOF; //LOF权限
+	
+	public static final String LOG_TYPE_HJETF = BUSINESS_HJETF; //黄金ETF
+	
+	public static final String LOG_TYPE_KJETF = BUSINESS_KJETF; //跨境ETF
+	
+	public static final String LOG_TYPE_JSB = BUSINESS_JSB; //旧三版
+	
+	public static final String LOG_TYPE_XSB = BUSINESS_XSB; //新三版
+	
+	public static final String LOG_TYPE_DZJY = BUSINESS_DZJY; //大宗交易
+	
+	public static final String LOG_TYPE_ELECTRONSIGN = BUSINESS_ELECTRONSIGN;//电子签名约定书
+	
+	public static final String LOG_TYPE_CUSTMIGRATION = BUSINESS_CUSTMIGRATION;//客户迁移
+	
+	public static final String LOG_TYPE_UPDATEJYPWD = BUSINESS_UPDATEJYPWD; //修改交易密码
+	
+	public static final String LOG_TYPE_UPDATEZJPWD = BUSINESS_UPDATEZJPWD; //修改资金密码
+	
+	public static final String LOG_TYPE_FXCP = BUSINESS_FXCP;//风险测评
+	
+	/**
+	 * 系统类型，business_code
+	 */
+	public static final String BUSINESS_CODE_FXCKH = "fxckh"; //非现场开户（股东户）
+	
+	public static final String BUSINESS_CODE_YGT = "ygt"; //云桂台
+	
+	public static final String BUSINESS_CODE_GGT = "ggt"; //港股通
+	
+	public static final String BUSINESS_CODE_ZK = "zk"; //增开
+	
+	public static final String BUSINESS_CODE_OPENFUNDACCOUNT = "openfundaccount";//开通基金账户
+	
+	public static final String BUSINESS_CODE_CYB = "cyb"; //创业板
+	
+	public static final String BUSINESS_CODE_MARGINTRADING = "margintrading"; //融资融券
+	
+	/**
+	 * 身份证正反面
+	 */
+	public static final String MIDIA_IDENTITY_FRONT = "身份证正面照"; //身份证正面
+	
+	public static final String MIDIA_IDENTITY_BACK = "身份证反面照"; //身份证反面
+	
+	public static final String MIDIA_IDENTITY_NOHATPIC = "免冠照"; //身份证反面
+	
+	/**
+	 * 不同系统类型对应的协议签署数据库表MAP
+	 */
+	public static final Map<String, String> MAP_PROTOL_TABLE = new HashMap<String, String>();
+	
+	/**
+	 * 不同业务对应的选择的账号办理业务详情表
+	 */
+	public static Map<String, String> MAP_B_ACC_DETAIL_TABLE = new HashMap<String, String>();
+	
+	/**
+	 * 不同业务类型对应的问卷答案数据库表MAP
+	 */
+	public static final Map<String, String> MAP_ANSWER_TABLE = new HashMap<String, String>();
+	
+	/**
+	 * 不同业务类型的操作流水日志数据库表MAP
+	 */
+	public static final Map<String, String> MAP_BUSINESS_LOG_TABLE = new HashMap<String, String>();
+	
+	/**
+	 * 图片资料类型和数据库数据字典字段对应值
+	 */
+	public static final String MEDIA_PAGE_IDENTITY = "ygt_media_identity"; //实名认证_身份证件上传页面
+	
+	public static final String MEDIA_PAGE_IDCARDUP = "ygt_media_idcardup"; //身份证升位_身份证件上传页面
+	
+	public static final String ZK_PAGE_IDENTITY = "zk_media_identity"; //增开_身份证件上传页面
+	
+	public static final String GGT_PAGE_IDENTITY = "ggt_media_identity"; //港股通_身份证件上传页面
+	
+	public static final String MEDIA_PAGE_IDOVERDUE = "ygt_media_idoverdue";//身份证升位_身份证件上传页面
+	
+	public static final String MEDIA_PAGE_ACTIVATETRDACC = "ygt_media_activatetrdacc"; //激活交易帐号
+	
+	public static final String MEDIA_PAGE_ACTIVATETRD = "ygt_media_activatetrd"; //小额交易账户激活
+	
+	public static final String MEDIA_PAGE_ACTIVATEACC = "ygt_media_activateacc"; //小额资金账户激活
+	
+	public static final String MEDIA_PAGE_RESETCERTPWD = "ygt_media_resetcertpwd"; //重置证书密码
+	
+	public static final String MEDIA_PAGE_APPLYCERT = "ygt_media_applycert"; //申请证书
+	
+	public static final String MEDIA_PAGE_RESETPWD = "ygt_media_resetpwd"; //重置密码
+	
+	public static final String MEDIA_PAGE_RESETJYPWD = "ygt_media_resetjypwd"; //重置交易密码
+	
+	public static final String MEDIA_PAGE_RESETZJPWD = "ygt_media_resetzjpwd"; //重置资金密码
+	
+	public static final String MEDIA_PAGE_APPLYCREDITACCOUNT = "rzrq_media_applycreditaccount"; //融资融券申请信用帐号
+	
+	public static final String MEDIA_PAGE_CUSTMIGRATION = "ygt_media_custmigration"; //客户迁移
+	
+	/**
+	 * 数据字典中影像资料字段
+	 */
+	public static final String MEDIA_TYPE = "media_type"; //实名认证_身份证件上传页面
+	
+	/**
+	 * 预约视频状态
+	 */
+	public static final String VIDEO_APPOINTSTATE_NOTDEAL = "0"; //未处理
+	
+	public static final String VIDEO_APPOINTSTATE_DEALING = "1"; //处理中
+	
+	public static final String VIDEO_APPOINTSTATE_HASDEAL = "2"; //已处理
+	
+	public static final String VIDEO_APPOINTSTATE_CANCEL = "3"; //作废
+	
+	/**
+	 * 问卷类型
+	 */
+	public static final Map<String, String> SUBJECTTYPEMAP = new HashMap<String, String>();
+	
+	public static final String SUBJECT_TYPE_FXCP = "1"; //风险测评
+	
+	public static final String SUBJECT_TYPE_GGT_YWZSCP = "2"; //港股通 业务知识测评
+	
+	public static final String SUBJECT_TYPE_GGT_CXCP = "3"; //港股通 诚信测评
+	
+	public static final String SUBJECT_TYPE_FXCKH_WJHF = "4"; //非现场开户 问卷回访
+	
+	public static final String SUBJECT_TYPE_ZK_WJHF = "5"; //增开 问卷回访
+	
+	public static final String SUBJECT_TYPE_APPLYCREDIT_YWZSCP = "6"; //融资融券信用证券帐号申请  业务知识测评
+	
+	public static final String SUBJECT_TYPE_APPLYCREDIT_ZXCP = "7"; //融资融券信用证券帐号申请  征信测评
+	
+	public static final String SUBJECT_TYPE_APPLYCREDIT_WJHF = "8"; //融资融券信用证券帐号申请  问卷回访
+	
+	public static final String SUBJECT_TYPE_GGT_WJHF = "9"; //港股通 问卷回访
+	
+	public static final String SUBJECT_TYPE_KHQY_WJHF = "10"; //客户迁移 问卷回访
+	
+	public static final String SUBJECT_TYPE_ZQZYTZZ_ZSCP = "11"; //债券专业投资者 知识测评
+	
+	/**
+	 * 业务办理流程状态
+	 */
+	public static final String BUSINESS_STATE_QDUNFINISHED = "0"; //前端流程未走完
+	
+	public static final String BUSINESS_STATE_QDCOMPLETE = "1"; //前端流程已走完
+	
+	public static final String BUSINESS_STATE_APPROVALFAIL = "2"; //后台审核失败
+	
+	public static final String BUSINESS_STATE_APPROVALPASS = "3"; //后台审核通过
+	
+	public static final String BUSINESS_STATE_DEALFAIL = "4"; //业务办理失败
+	
+	public static final String BUSINESS_STATE_DEALSUCCESS = "5"; //业务办理成功
+	
+	public static final String BUSINESS_FLOW_STATE_BACK = "b"; //业务流程驳回
+	
+	public static final String BUSINESS_FLOW_STATE_RESUBMIT = "r"; //业务办理流程重新提交
+	
+	public static final String BUSINESS_STATE_RESUBMIT = "6"; //驳回后重新提交
+	
+	/**
+	 * 数字证书模式
+	 */
+	public static final String CERT_MODE_NORMAL = "0"; //普通模式 使用证书TBAS
+	
+	public static final String CERT_MODE_TG = "1"; //托管模式 需要使用证书托管TBAS
+	
+	/**
+	 * 三方存管业务办理操作类型
+	 */
+	public static final String THIRDBANK_OP_TYPE_CANCEL = "0";//注销
+	
+	public static final String THIRDBANK_OP_TYPE_BIND = "1";//绑定
+	
+	public static final String THIRDBANK_OP_TYPE_MODIFY = "2";//修改
+	
+	public static final String THIRDBANK_OP_TYPE_CANCELANDBIND = "01";//注销后绑定
+	
+	/**
+	 * 数据字典中，系统服务时间的enum_no
+	 */
+	public static final String ENUM_ENUMMO_SERVICETIME = "service_time";
+	
+	/**
+	 * 申请方式
+	 */
+	public static final String APPLY_TYPE_QQ = "0"; //QQ
+	
+	public static final String APPLY_TYPE_WEIXIN = "1"; //微信
+	
+	public static HashMap<String, String> MAP_APPLY_TYPE = new HashMap<String, String>();
+	
+	/**
+	 * 视频预约方式
+	 */
+	public static final String APPOINT_TYPE_NOW = "1"; //实时视频预约
+	
+	public static final String APPOINT_TYPE_OFFLINE = "0"; //离线视频预约
+	
+	/**
+	 * 数据库类型
+	 */
+	public static final String DB_TYPE_ORACLE = "o";
+	
+	public static final String DB_TYPE_MYSQL = "m";
+	
+	/**
+	 * 三方存管签约状态
+	 */
+	public static final String CONTRACT_STATUS_NORMAL = "0"; //正常
+	
+	public static final String CONTRACT_STATUS_NEEDSIGN = "1"; //待签约
+	
+	public static final String CONTRACT_STATUS_FROZEN = "2"; //冻结
+	
+	public static final String CONTRACT_STATUS_LOSS = "3"; //挂失
+	
+	public static final String CONTRACT_STATUS_CANCEL = "9"; //销户
+	
+	/**
+	 * 业务办理入口
+	 */
+	public final static String ENTRANCE_TYPE_ACCOUNT = "0"; //账户通
+	
+	public final static String ENTRANCE_TYPE_BUSINESS = "1"; //业务办理
+	
+	/**
+	 * 资产明细类型
+	 */
+	public static final String FUNDDETAILS_WITHDRAW = "0"; //提现
+	
+	public static final String FUNDDETAILS_RECHARGE = "1"; //充值
+	
+	public static final String FUNDDETAILS_FINANCEBUY = "2"; //理财买入
+	
+	public static final String FUNDDETAILS_FINANCEREDEEM = "3"; //理财赎回
+	
+	public static final String FUNDDETAILS_STOCKBUY = "4"; //证券买入
+	
+	public static final String FUNDDETAILS_STOCKSELL = "5"; //证券卖出
+	
+	public static final String FundDetails_FUNDBUY = "6"; //基金买入
+	
+	public static final String FundDetails_FUNDREDEEM = "7"; //基金赎回
+	
+	static
+	{
+		MAP_SMS_TYPE.put(SMS_TYPE_LOGIN_KEY, SMS_TYPE_LOGIN_KEY); //sms_type 0  登录短信
+		MAP_SMS_TYPE.put(SMS_TYPE_FXCKH_LOGIN_KEY, SMS_TYPE_FXCKH_LOGIN_KEY);
+		
+		MAP_BOL.put(BOL_FALSE, BOL_FALSE);
+		MAP_BOL.put(BOL_TRUE, BOL_TRUE);
+		
+		MAP_SMS_ERROR.put(SYS_ERROR, SYS_ERROR);
+		MAP_SMS_ERROR.put(SMS_ERROR_HASSENT, SMS_ERROR_HASSENT);
+		MAP_SMS_ERROR.put(SMS_ERROR_OUTTIMES, SMS_ERROR_OUTTIMES);
+		MAP_SMS_ERROR.put(SMS_ERROR_CODEPRDERROR, SMS_ERROR_CODEPRDERROR);
+		MAP_SMS_ERROR.put(SMS_ERROR_TIMEEXPIRED, SMS_ERROR_TIMEEXPIRED);
+		MAP_SMS_ERROR.put(SMS_ERROR_ERRORCODE, SMS_ERROR_ERRORCODE);
+		MAP_SMS_ERROR.put(SMS_ERROR_CANNOTINSERTCODE, SMS_ERROR_CANNOTINSERTCODE);
+		MAP_SMS_ERROR.put(SMS_ERROR_FXCHKLIMIT, SMS_ERROR_FXCHKLIMIT);
+		
+		MAP_PROTOL_TABLE.put(BUSINESS_CODE_FXCKH, "T_ACCEPTED_DCSIGN");
+		MAP_PROTOL_TABLE.put(BUSINESS_CODE_GGT, "T_HKST_DCSIGN_LOG");
+		MAP_PROTOL_TABLE.put(BUSINESS_CODE_ZK, "T_ZK_DCSIGN_LOG");
+		MAP_PROTOL_TABLE.put(BUSINESS_CODE_CYB, "T_CYB_DCSIGN_LOG");
+		MAP_PROTOL_TABLE.put(BUSINESS_CODE_YGT, "T_YGT_DCSIGN_LOG");
+		MAP_PROTOL_TABLE.put(BUSINESS_CODE_MARGINTRADING, "T_MARGINTRADING_DCSIGN_LOG");
+		
+		MAP_ANSWER_TABLE.put(BUSINESS_GGT, "T_GGT_USER_ANSWER");
+		MAP_ANSWER_TABLE.put(BUSINESS_FXCKH, "T_FXCKH_USER_ANSWER");
+		MAP_ANSWER_TABLE.put(BUSINESS_ZK, "T_ZK_USER_ANSWER");
+		MAP_ANSWER_TABLE.put(BUSINESS_FXCP, "T_FXCP_USER_ANSWER");
+		MAP_ANSWER_TABLE.put(BUSINESS_APPLYCREDIT, "T_APPLYCREDIT_USER_ANSERT");
+		MAP_ANSWER_TABLE.put(BUSINESS_CUSTMIGRATION, "T_CUSTMIGRATION_USER_ANSWER");
+		MAP_ANSWER_TABLE.put(BUSINESS_CUSTMIGRATION, "T_CUSTMIGRATION_USER_ANSWER");
+		MAP_ANSWER_TABLE.put(BUSINESS_PROINVESTOR, "T_PROINVESTOR_USER_ANSWER");
+		
+		MAP_BUSINESS_LOG_TABLE.put(BUSINESS_GGT, "T_ISMP_LOG_GGT");
+		MAP_BUSINESS_LOG_TABLE.put(BUSINESS_CYBSIGN, "T_ISMP_LOG_CYBSIGN");
+		MAP_BUSINESS_LOG_TABLE.put(BUSINESS_ZK, "T_ISMP_LOG_ZK");
+		
+		MAP_APPLY_TYPE.put(APPLY_TYPE_QQ, APPLY_TYPE_QQ);
+		MAP_APPLY_TYPE.put(APPLY_TYPE_WEIXIN, APPLY_TYPE_WEIXIN);
+		
+		SUBJECTTYPEMAP.put(SUBJECT_TYPE_FXCP, Configuration.getString("survey_code.fxcp")); //风险测评
+		SUBJECTTYPEMAP.put(SUBJECT_TYPE_GGT_YWZSCP, Configuration.getString("survey_code.ggt_ywzscp")); //港股通 业务知识测评
+		SUBJECTTYPEMAP.put(SUBJECT_TYPE_GGT_CXCP, Configuration.getString("survey_code.ggt_cxcp")); //港股通 诚信测评
+		SUBJECTTYPEMAP.put(SUBJECT_TYPE_FXCKH_WJHF, Configuration.getString("survey_code.fxckh_wjhf")); //非现场开户 问卷回访
+		SUBJECTTYPEMAP.put(SUBJECT_TYPE_ZK_WJHF, Configuration.getString("survey_code.zk_wjhf")); //非现场开户 问卷回访
+		SUBJECTTYPEMAP.put(SUBJECT_TYPE_APPLYCREDIT_YWZSCP, Configuration.getString("survey_code.applycredit_ywzscp")); //融资融券信用证券帐号申请  业务知识测评
+		SUBJECTTYPEMAP.put(SUBJECT_TYPE_APPLYCREDIT_ZXCP, Configuration.getString("survey_code.applycredit_zxcp")); //融资融券信用证券帐号申请  征信测评
+		SUBJECTTYPEMAP.put(SUBJECT_TYPE_APPLYCREDIT_WJHF, Configuration.getString("survey_code.applycredit_wjhf")); //融资融券信用证券帐号申请  问卷回访
+		SUBJECTTYPEMAP.put(SUBJECT_TYPE_GGT_WJHF, Configuration.getString("survey_code.ggt_wjhf")); //港股通  问卷回访
+		SUBJECTTYPEMAP.put(SUBJECT_TYPE_KHQY_WJHF, Configuration.getString("survey_code.khqy_wjhf")); //客户迁移  问卷回访
+		SUBJECTTYPEMAP.put(SUBJECT_TYPE_ZQZYTZZ_ZSCP, Configuration.getString("survey_code.proinvestor_zscp")); //港股通  问卷回访
+		
+		MAP_SMS_ERROR_MSG.put(SMS_TYPE_LOGIN_KEY, "您当前正在进行云柜台手机号码登录操作，如果不是您本人操作，请联系客服！");
+		MAP_SMS_ERROR_MSG.put(SMS_TYPE_REGIST_MOBILE, "您当前正在进行云柜台手机号码注册操作，如果不是您本人操作，请联系客服！");
+		MAP_SMS_ERROR_MSG.put(SMS_TYPE_FXCKH_LOGIN_KEY, "您当前正在进行非现场开户手机号码登录操作，如果不是您本人操作，请联系客服！");
+		MAP_SMS_ERROR_MSG.put(SMS_TYPE_CHANGE_MOBILE, "您当前正在进行云柜台手机号码修改操作，如果不是您本人操作，请联系客服！");
+		MAP_SMS_ERROR_MSG.put(SMS_TYPE_APPLYCREDITACC_CONTACTMOBILE, "您当前正在进行融资融券信用帐号开通业务中的追保手机号确认操作，如果不是您本人操作，请联系客服！");
+		MAP_SMS_ERROR_MSG.put(SMS_TYPE_CHANGE_THIRDBANK, "三方存管银行修改");
+		MAP_SMS_ERROR_MSG.put(SMS_TYPE_RESETPWD, "重置密码");
+		
+		MAP_B_ACC_DETAIL_TABLE.put(Constants.BUSINESS_GGT, "t_ismp_b_ggt_account");//港股通
+		MAP_B_ACC_DETAIL_TABLE.put(Constants.BUSINESS_ZK, "t_ismp_b_zk_account");//增开
+		MAP_B_ACC_DETAIL_TABLE.put(Constants.BUSINESS_CYBSIGN, "t_ismp_b_cybzq_account");//创业板转签
+		MAP_B_ACC_DETAIL_TABLE.put(Constants.BUSINESS_ZDJY, "t_ismp_b_zdjy_account");//指定交易
+		MAP_B_ACC_DETAIL_TABLE.put(Constants.BUSINESS_JG, "t_ismp_b_jg_account");//加挂
+		MAP_B_ACC_DETAIL_TABLE.put(Constants.BUSINESS_HJETF, "t_ismp_b_hjetf_account");//黄金ETF
+		MAP_B_ACC_DETAIL_TABLE.put(Constants.BUSINESS_LOF, "t_ismp_b_lof_account");//LOF基金交易权限
+		MAP_B_ACC_DETAIL_TABLE.put(Constants.BUSINESS_GZNHG, "t_ismp_b_gzhg_account");//国债逆回购
+		MAP_B_ACC_DETAIL_TABLE.put(Constants.BUSINESS_FXJS, "t_ismp_b_fxjs_account");//风险警示股票
+		MAP_B_ACC_DETAIL_TABLE.put(Constants.BUSINESS_TSGPZL, "t_ismp_b_tsgp_account");//退市整理股票
+		MAP_B_ACC_DETAIL_TABLE.put(Constants.BUSINESS_OPENFUNDACCOUNT, "t_ismp_b_jj_tacode");//基金开户
+		MAP_B_ACC_DETAIL_TABLE.put(Constants.BUSINESS_RESETPWD, "t_ismp_b_resetpwd_type");//重置密码
+		MAP_B_ACC_DETAIL_TABLE.put(Constants.BUSINESS_OTCOPEN, "t_ismp_business_record"); //otc
+	}
+}

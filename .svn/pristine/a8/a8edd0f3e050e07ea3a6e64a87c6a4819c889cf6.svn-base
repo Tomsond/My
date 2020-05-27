@@ -1,0 +1,143 @@
+package com.thinkive.fxc.ismp.bus.business.assets.yzzz.model;
+
+import com.thinkive.base.jdbc.DataRow;
+
+/**
+ * @描述: 银证转账扩展信息
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2017年3月28日 下午5:54:18
+ */
+public class YzzzExtendModel extends DataRow
+{
+	
+	private static final long serialVersionUID = -5303045676780967876L;
+	
+	private static final String BUSINESS_ID = "business_id";//业务实例编号
+	
+	private static final String FUND_ACCOUNT = "fund_account";//主资金帐号
+	
+	private static final String BANK_CONFIGID = "bank_configid";//银行配置编号（T_FXC_THIRD_BANK.ID）
+	
+	private static final String TRANSFERBALANCE = "transferbalance";//金额
+	
+	private static final String OP_ACCOUNT = "op_account";//银证转账操作的资金帐号
+	
+	private static final String BANK_NO = "bank_no";//银行卡号
+	
+	private static final String MONEY_TYPE = "money_type";//货币类型
+	
+	/**
+	 *获取业务实例ID
+	 */
+	public Long getBusinessId()
+	{
+		return getLong(BUSINESS_ID);
+	}
+	
+	/**
+	 *设置业务实例ID
+	 */
+	public void setBusinessId(Long businessId)
+	{
+		set(BUSINESS_ID, businessId);
+	}
+	
+	/**
+	 *获取资金帐号
+	 */
+	public String getFundAccount()
+	{
+		return getString(FUND_ACCOUNT);
+	}
+	
+	/**
+	 *设置资金帐号
+	 */
+	public void setFundAccount(String fundAccount)
+	{
+		set(FUND_ACCOUNT, fundAccount);
+	}
+	
+	/**
+	 *获取银行配置编号
+	 */
+	public Long getBankConfigId()
+	{
+		return getLong(BANK_CONFIGID);
+	}
+	
+	/**
+	 *设置银行配置编号
+	 */
+	public void setBankConfigId(Long bankConfigId)
+	{
+		set(BANK_CONFIGID, bankConfigId);
+	}
+	
+	/**
+	 *获取金额
+	 */
+	public String getTransferbalance()
+	{
+		return getString(TRANSFERBALANCE);
+	}
+	
+	/**
+	 *设置金额
+	 */
+	public void setTransferbalance(String transferbalance)
+	{
+		set(TRANSFERBALANCE, transferbalance);
+	}
+	
+	/**
+	 *获取银证转账操作的资金帐号
+	 */
+	public String getOpAccount()
+	{
+		return getString(OP_ACCOUNT);
+	}
+	
+	/**
+	 *设置银证转账操作的资金帐号
+	 */
+	public void setOpAccount(String opAccount)
+	{
+		set(OP_ACCOUNT, opAccount);
+	}
+	
+	/**
+	 *获取银行卡号
+	 */
+	public String getBankNo()
+	{
+		return getString(BANK_NO);
+	}
+	
+	/**
+	 *设置银行卡号
+	 */
+	public void setBankNo(String bankNo)
+	{
+		set(BANK_NO, bankNo);
+	}
+	
+	/**
+	 *获取货币类型
+	 */
+	public String getMoneyType()
+	{
+		return getString(MONEY_TYPE);
+	}
+	
+	/**
+	 *设置货币类型
+	 */
+	public void setMoneyType(String moneyType)
+	{
+		set(MONEY_TYPE, moneyType);
+	}
+}

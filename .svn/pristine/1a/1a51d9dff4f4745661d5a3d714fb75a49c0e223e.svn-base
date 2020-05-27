@@ -1,0 +1,149 @@
+package com.thinkive.fxc.ismp.bus.base.basicdata.dao.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.StringHelper;
+import com.thinkive.fxc.ismp.bus.base.basicdata.dao.EnumInfoDao;
+import com.thinkive.fxc.ismp.bus.base.basicdata.model.EnumValueModel;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseDao;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.util.ModelUtil;
+
+/**
+ * @描述: 数据字典数据层实现类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月26日 下午3:37:50
+ */
+public class EnumInfoDaoImpl extends ISMPBaseDao implements EnumInfoDao
+{
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<EnumValueModel> queryEnumValueByParams(EnumValueModel enumValueModel)
+	{
+		List<String> params = new ArrayList<String>();
+		StringBuffer sql = new StringBuffer();
+		sql.append("SELECT ID,ENUM_NO,ITEM_NAME,ITEM_VALUE,ORDERLINE,STATE FROM T_PLAT_ENUM_VALUE VALUE WHERE 1=1");
+		String enum_no = enumValueModel.getEnumNo();
+		if (StringUtils.isNotBlank(enum_no))
+		{
+			sql.append(" AND ENUM_NO = ?");
+			params.add(enum_no);
+		}
+		String item_name = enumValueModel.getItemName();
+		if (StringUtils.isNotBlank(item_name))
+		{
+			sql.append(" AND ITEM_NAME = ?");
+			params.add(item_name);
+		}
+		String item_value = enumValueModel.getItemValue();
+		if (StringUtils.isNotBlank(item_value))
+		{
+			sql.append(" AND ITEM_VALUE = ?");
+			params.add(item_value);
+		}
+		sql.append(" AND STATE = ?");
+		params.add(DictionaryConstants.BOL_TRUE);
+		sql.append(" ORDER BY ORDERLINE");
+		List<DataRow> queryData = getJdbcTemplate().query(sql.toString(), params.toArray());
+		return ModelUtil.packList(queryData, EnumValueModel.class);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<EnumValueModel> queryByEmunNo(String enumNos)
+	{
+		StringBuffer sql = new StringBuffer("SELECT TY.ENUM_NO,T.ENUM_ID,T.ITEM_NAME,T.ITEM_VALUE,T.ORDERLINE FROM T_BASE_ENUM_VALUE T INNER JOIN T_BASE_ENUM_TYPE TY  ON T.ENUM_ID=TY.ENUM_ID WHERE 1=1 ");
+		List<String> params = new ArrayList<String>();
+		if (StringUtils.isNotEmpty(enumNos))
+		{
+			sql.append("AND TY.ENUM_NO IN ( ");
+			String[] arr = enumNos.split(",");
+			for (int i = 0; i < arr.length; i++)
+			{
+				if (i == (arr.length - 1))
+				{
+					sql.append("?");
+					params.add(arr[i]);
+					break;
+				}
+				sql.append("?,");
+				params.add(arr[i]);
+				
+			}
+			sql.append(" ) ");
+		}
+		sql.append(" AND T.STATUS = 1 ORDER BY  TY.ENUM_NO, T.ORDERLINE ");
+		List<DataRow> queryData = getJdbcTemplateWork().query(sql.toString(), params.toArray());
+		return ModelUtil.packList(queryData, EnumValueModel.class);
+	}
+	
+	@Override
+	public DataRow queryAppropriateness(String business_code,Long user_id) throws Exception {
+		StringBuffer buffer = new StringBuffer(" select info.business_name,enum.service_risk,enum.bear_ability from T_ISMP_PROPRIETY_ENUM enum left join T_ISMP_BUSINESS_INFO info on enum.business_code=info.business_code where 1=1 ");
+		List<String> args = new ArrayList<String>();
+		DataRow data = new DataRow();
+		if(StringHelper.isNotEmpty(business_code)){
+			buffer.append(" and enum.business_code=? ");
+			args.add(business_code);
+		}
+		 data = getJdbcTemplate().queryMap(buffer.toString(),args.toArray());
+		
+		StringBuffer buffers = new StringBuffer(" select bu.business_code,bu.risk_level,bu.service_time,bu.score,bu.extend1 from T_ISMP_BUSINESS_PROPRIETY bu  where ");
+		buffers.append(" bu.create_date=(select max(create_date) from T_ISMP_BUSINESS_PROPRIETY  ");
+		List<Object> argss = new ArrayList<Object>();
+		if(StringHelper.isNotEmpty(String.valueOf(user_id))){
+			buffers.append(" where user_id=?   and business_code='fxcp' )  and  bu.user_id=? ");
+			argss.add(user_id);
+			argss.add(user_id);
+		}else{
+			buffers.append(" ) ");
+		}
+		DataRow datas = getJdbcTemplate().queryMap(buffers.toString(),argss.toArray());
+		if(data!=null&&datas!=null){
+			data.set("risk_level_new", datas.getString("risk_level"));//等级
+			data.set("service_time_new", datas.getString("service_time"));//拟投资期限
+			data.set("score_new", datas.getString("score"));//分数
+			data.set("extend1", datas.getString("extend1"));//投资品种
+		}else if(data!=null&&datas==null){
+			data.set("risk_level_new", " ");
+			data.set("service_time_new", " ");
+			data.set("score_new", " ");
+			data.set("extend1"," ");
+		}else if(data==null&&datas!=null){
+			datas.set("bear_ability"," ");
+			datas.set("service_risk"," ");
+			return datas;
+		}else if(data==null&&datas==null){
+			DataRow datarow = new DataRow();
+			datarow.set("risk_level_new", " ");
+			datarow.set("service_time_new", " ");
+			datarow.set("score_new", " ");
+			datarow.set("extend1"," ");
+			datarow.set("bear_ability"," ");
+			datarow.set("service_risk"," ");
+			return datarow;
+		}
+		return data;
+	}
+	
+	@Override
+	public DataRow queryRecommend(String item_value) throws Exception {
+		StringBuffer buffer = new StringBuffer("SELECT T2.ITEM_NAME,T2.ITEM_VALUE FROM T_BASE_ENUM_TYPE T1,T_BASE_ENUM_VALUE T2 WHERE T1.ENUM_ID=T2.ENUM_ID AND T1.ENUM_NO='ismp.advise_enum' and t2.item_value=? ");
+		return  getJdbcTemplate("work_ismp").queryMap(buffer.toString(),new Object[]{item_value});
+	}
+
+	@Override
+	public DataRow queryAnnouncement() throws Exception {
+		// TODO Auto-generated method stub
+		StringBuffer buffer = new StringBuffer("select * from T_FXC_CONFIG_ITEM where item_name='system_flag'");
+		return  getJdbcTemplate().queryMap(buffer.toString());
+	}
+}

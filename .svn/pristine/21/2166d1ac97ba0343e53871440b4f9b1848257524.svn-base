@@ -1,0 +1,244 @@
+package com.thinkive.fxc.ismp.bus.base.business.dao.impl;
+
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.jdbc.session.Session;
+import com.thinkive.base.util.StringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessTableConstants;
+import com.thinkive.fxc.ismp.bus.base.business.dao.UserInfoDao;
+import com.thinkive.fxc.ismp.bus.base.business.model.UserInfoModel;
+import com.thinkive.fxc.ismp.bus.base.business.vo.CertUserInfoVo;
+import com.thinkive.fxc.ismp.bus.base.business.vo.UserInfoVo;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseDao;
+import com.thinkive.fxc.ismp.bus.base.constants.SystemConstants;
+import com.thinkive.fxc.ismp.bus.base.util.ModelUtil;
+
+/**
+ * @描述: 用户信息表(T_ISMP_USER_INFO)数据层接口实现类
+ * @版权: Copyright (c) 2016 
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0 
+ * @创建时间: 2016年8月12日 上午10:16:15
+ */
+public class UserInfoDaoImpl extends ISMPBaseDao implements UserInfoDao
+{
+	
+	@Override
+	public UserInfoModel add(UserInfoModel userInfoModel)
+	{
+		String userId = getSeqValue(SystemConstants.DB_ISMP,BusinessTableConstants.T_ISMP_USER_INFO);
+		userInfoModel.setUserId(Long.valueOf(userId));
+		userInfoModel.setCreateDate(new Date());
+		this.getJdbcTemplate().insert(BusinessTableConstants.T_ISMP_USER_INFO, userInfoModel);
+		return userInfoModel;
+	}
+	
+	@Override
+	public UserInfoModel add(UserInfoModel userInfoModel, Session session) throws Exception
+	{
+		String userId = getSeqValue(SystemConstants.DB_ISMP,BusinessTableConstants.T_ISMP_USER_INFO);
+		userInfoModel.setUserId(Long.valueOf(userId));
+		userInfoModel.setCreateDate(new Date());
+		session.insert(BusinessTableConstants.T_ISMP_USER_INFO, userInfoModel);
+		return userInfoModel;
+	}
+	
+	public DataRow addLinkman(DataRow data, Session session) throws Exception
+	{
+		String id = getSeqValue(BusinessTableConstants.T_ISMP_EMERGENCY_LINKMAN);
+		data.set("id",Long.valueOf(id));
+		Timestamp timestamp = new Timestamp(new Date().getTime());
+		data.set("create_date",timestamp);
+		session.insert(BusinessTableConstants.T_ISMP_EMERGENCY_LINKMAN, data);
+		return data;
+	}
+	
+	
+	@Override
+	public int updateLinkman(DataRow data, Session session) throws Exception
+	{
+		Timestamp timestamp = new Timestamp(new Date().getTime());
+		data.set("update_date",timestamp);
+		int total = session.update(BusinessTableConstants.T_ISMP_EMERGENCY_LINKMAN, data, "user_id", data.getString("user_id"));
+		return total;
+	}
+	
+	@Override
+	public int update(UserInfoModel userInfoModel)
+	{
+		Long userId = userInfoModel.getUserId();
+		userInfoModel.setUpdateDate(new Date());
+		int total = this.getJdbcTemplate().update(BusinessTableConstants.T_ISMP_USER_INFO, userInfoModel, "USER_ID", userId);
+		userInfoModel.setUserId(userId);
+		return total;
+	}
+	
+	@Override
+	public int update(UserInfoModel userInfoModel, Session session) throws Exception
+	{
+		Long userId = userInfoModel.getUserId();
+		userInfoModel.setUpdateDate(new Date());
+		int total = session.update(BusinessTableConstants.T_ISMP_USER_INFO, userInfoModel, "USER_ID", userId);
+		userInfoModel.setUserId(userId);
+		return total;
+	}
+	
+	@Override
+	public UserInfoModel queryByUserId(Long userId)
+	{
+		UserInfoModel queryUserInfoModel = new UserInfoModel();
+		queryUserInfoModel.setUserId(userId);
+		return queryByParams(queryUserInfoModel);
+	}
+	
+	@Override
+	public UserInfoVo queryUserInfoVo(DataRow params)
+	{
+		List<String> paramsList = new ArrayList<String>();
+		StringBuilder sql = new StringBuilder("SELECT UI.USER_ID,UI.CLIENT_ID,UI.BRANCH_NO,UI.IDENTITY_TYPE,UI.IDENTITY_NUM,UI.NAME,UI.NICK_NAME,UI.SEX,UI.BIRTHDAY,UI.MOBILE,UI.NATIONALITY,UE.EMAIL,UE.POSTCODE,");
+		sql.append(" UI.SIGN_OFFICE,UI.PAPERS_ADDR,UI.VALIDITY_BEGIN,UI.VALIDITY_END,");
+		sql.append(" UF.FUND_ACCOUNT,UF.IS_MAIN,UF.TYPE,UF.PWD,UF.PWDLOGIN_ERRORTIME,UF.STATE,UE.CONTROL_PERSON,UE.BENEFIT_PERSON,UE.ADDRESS,UE.OCCUPATION,UE.EDUCATION,UE.CREDIT_RECORD   FROM ");
+		sql.append(BusinessTableConstants.T_ISMP_USER_INFO);
+		sql.append(" UI LEFT JOIN ");
+		sql.append(BusinessTableConstants.T_ISMP_USER_EXTEND);
+		sql.append(" UE ON  UI.USER_ID = UE.USER_ID");
+		sql.append(" LEFT JOIN ");
+		sql.append(BusinessTableConstants.T_ISMP_USER_FUNDACCOUNT);
+		sql.append(" UF ON  UI.USER_ID = UF.USER_ID  WHERE UF.STATE = '0' ");
+		Long userId = params.getLong("userId");
+		if (0 != userId)
+		{
+			sql.append(" AND UI.USER_ID = ?");
+			paramsList.add(userId.toString());
+		}
+		String fundAccount = params.getString("fundAccount");
+		if (StringUtils.isNotBlank(fundAccount))
+		{
+			sql.append(" AND UF.FUND_ACCOUNT = ?");
+			paramsList.add(fundAccount);
+		}
+		String type = params.getString("type");
+		if (StringUtils.isNotBlank(type))
+		{
+			sql.append(" AND UF.TYPE = ?");
+			paramsList.add(type);
+		}
+		String isMain = params.getString("isMain");
+		if (StringUtils.isNotBlank(isMain))
+		{
+			sql.append(" AND UF.IS_MAIN = ?");
+			paramsList.add(isMain);
+		}
+		DataRow queryResult = this.getJdbcTemplate().queryMap(sql.toString(), paramsList.toArray());
+		return ModelUtil.packInfo(queryResult, UserInfoVo.class);
+	}
+	
+	@Override
+	public CertUserInfoVo queryCertUser(Long userId)
+	{
+		StringBuilder sql = new StringBuilder("SELECT UI.USER_ID,UI.IDENTITY_TYPE,UI.IDENTITY_NUM,UI.NAME,UI.NATIONALITY,UE.CERTUID FROM ");
+		sql.append(BusinessTableConstants.T_ISMP_USER_INFO);
+		sql.append(" UI LEFT JOIN ");
+		sql.append(BusinessTableConstants.T_ISMP_USER_EXTEND);
+		sql.append(" UE ON  UI.USER_ID = UE.USER_ID  WHERE UI.USER_ID = ? ");
+		DataRow queryResult = this.getJdbcTemplate().queryMap(sql.toString(), new Object[] { userId });
+		return ModelUtil.packInfo(queryResult, CertUserInfoVo.class);
+	}
+	
+	@Override
+	public UserInfoModel queryByParams(UserInfoModel userInfoModel)
+	{
+		StringBuilder sql = new StringBuilder("SELECT USER_ID,CLIENT_ID,BRANCH_NO,IDENTITY_TYPE,IDENTITY_NUM,NAME,NICK_NAME,SEX,BIRTHDAY,MOBILE,NATIONALITY,");
+		sql.append("SIGN_OFFICE,PAPERS_ADDR,VALIDITY_BEGIN,VALIDITY_END ,CREATE_DATE,UPDATE_DATE FROM ");
+		sql.append(BusinessTableConstants.T_ISMP_USER_INFO).append(" WHERE 1 = 1");
+		List<String> paramsList = new ArrayList<String>();
+		long userId = userInfoModel.getUserId();
+		if (0 != userId)
+		{
+			sql.append(" AND USER_ID = ?");
+			paramsList.add(String.valueOf(userId));
+		}
+		String identityType = userInfoModel.getIdentityType();
+		if (StringUtils.isNotBlank(identityType))
+		{
+			sql.append(" AND IDENTITY_TYPE = ?");
+			paramsList.add(identityType);
+		}
+		String identityNum = userInfoModel.getIdentityNum();
+		if (StringUtils.isNotBlank(identityType))
+		{
+			sql.append(" AND IDENTITY_NUM = ?");
+			paramsList.add(identityNum);
+		}
+		String name = userInfoModel.getName();
+		if (StringUtils.isNotBlank(name))
+		{
+			sql.append(" AND NAME = ?");
+			paramsList.add(name);
+		}
+		String clientId = userInfoModel.getClientId();
+		if (StringUtils.isNotBlank(clientId))
+		{
+			sql.append(" AND CLIENT_ID = ?");
+			paramsList.add(clientId);
+		}
+		DataRow queryResult = getJdbcTemplate().queryMap(sql.toString(), paramsList.toArray());
+		return ModelUtil.packInfo(queryResult, UserInfoModel.class);
+	}
+	
+	@Override
+	public int countByMobile(String mobile)
+	{
+		StringBuilder sql = new StringBuilder();
+		sql.append(" SELECT COUNT(*) FROM ");
+		sql.append(BusinessTableConstants.T_ISMP_USER_INFO);
+		sql.append(" WHERE MOBILE = ?");
+		return this.getJdbcTemplate().queryInt(sql.toString(), new Object[] { mobile });
+	}
+	
+	@Override
+	public DataRow queryUserAllInfo(Long userId)
+	{
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT UI.USER_ID,UI.IDENTITY_TYPE,UI.IDENTITY_NUM,UI.NAME,UI.NICK_NAME,UI.SEX,");
+		sql.append("UE.ETHNICNAME,UI.BIRTHDAY,UI.MOBILE,UE.EMAIL,UI.NATIONALITY,UI.SIGN_OFFICE,UI.PAPERS_ADDR,");
+		sql.append("UI.VALIDITY_BEGIN,UI.VALIDITY_END,UE.TELEPHONE,UE.ADDRESS,UE.POSTCODE,UE.OCCUPATION,");
+		sql.append("UE.EDUCATION,UE.CERTUID,UI.CLIENT_ID,UI.BRANCH_NO,BR.BRANCH_NAME,BR.INTRO BRANCH_INTRO, BR.ADDRESS BRANCH_ADDRESS,UE.CONTROL_PERSON,UE.BENEFIT_PERSON,UE.CREDIT_RECORD ");
+		sql.append(" FROM T_ISMP_USER_INFO UI ");
+		sql.append(" LEFT JOIN T_ISMP_USER_EXTEND UE ON UI.USER_ID = UE.USER_ID ");
+		sql.append(" LEFT JOIN T_FXC_BRANCH_INFO BR ON UI.BRANCH_NO = BR.BRANCH_NO ");
+		sql.append(" WHERE UI.USER_ID = ? ");
+		return this.getJdbcTemplate().queryMap(sql.toString(), new Object[] { userId });
+	}
+	
+	public DataRow getBillingContact(Long userId)
+	{
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT CON.ID ,CON.USER_ID,CON.NAME,CON.TELEPHONE,CON.RELATION FROM T_ISMP_BILLING_CONTACT_NAME CON WHERE CON.USER_ID=? ");
+		return this.getJdbcTemplate().queryMap(sql.toString(), new Object[] { userId });
+	}
+	
+	public DataRow certificatesFlag(Long user_id, String endtime){
+		StringBuffer buffer = new StringBuffer();
+		List<String> args = new ArrayList<String>();
+		buffer.append("select info.user_id,info.name,info.client_id from t_ismp_user_info info where 1=1 ");
+		String id = String.valueOf(user_id);
+		if(StringHelper.isNotEmpty(id)){
+			buffer.append(" and  info.user_id=? ");
+			args.add(id);
+		}
+		if(StringHelper.isNotEmpty(endtime)){
+			buffer.append(" and info.validity_end>=to_char(to_date(?,'yyyyMMdd'),'yyyyMMdd')");
+			args.add(endtime);
+		}
+		return this.getJdbcTemplate().queryMap(buffer.toString(),args.toArray());
+	}
+	
+}

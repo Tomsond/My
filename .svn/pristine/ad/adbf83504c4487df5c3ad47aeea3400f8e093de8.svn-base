@@ -1,0 +1,24 @@
+package com.thinkive.fxc.ismp.bus.base.business.dao.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.StringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.dao.ProtocolDao;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseDao;
+
+public class ProtocolDaoImpl  extends ISMPBaseDao implements ProtocolDao{
+
+	
+	public DataRow queryProtocol(String protocol_type) throws Exception {
+		StringBuffer buffer = new StringBuffer(" SELECT TY.* FROM T_ISMP_AGREE_PROPRIETY TY WHERE 1=1 ");
+		List<String> args = new ArrayList<String>();
+		if(StringHelper.isNotEmpty(protocol_type)){
+			buffer.append("  and ty.agree_type=?");
+			args.add(protocol_type);
+		}
+		return this.getJdbcTemplate().queryMap(buffer.toString(),args.toArray());
+	}
+
+}

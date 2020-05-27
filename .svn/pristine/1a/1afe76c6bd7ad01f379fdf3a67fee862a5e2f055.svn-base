@@ -1,0 +1,69 @@
+/**
+ * 
+ */
+package com.thinkive.fxc.ismp.bus.base.business.dao;
+
+import java.util.List;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.jdbc.session.Session;
+import com.thinkive.fxc.ismp.bus.base.business.model.SurveyAnswerRecordModel;
+
+/**
+ * @描述: 问卷答案记录表(t_ismp_survey_answer_record)数据层接口
+ * @版权: Copyright (c) 2016 
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 尹杰民
+ * @版本: 2.0 
+ * @创建时间: 2016年8月16日 上午10:51:32
+ */
+public interface SurveyAnswerRecordDao
+{
+	
+	/** 
+	 * @描述: 添加问卷答案记录
+	 * @作者: 尹杰民
+	 * @时间：2016年8月17日 下午3:59:13
+	 * @param surveyAnswerModel
+	 * @
+	 * @return SurveyAnswerModel
+	*/
+	public SurveyAnswerRecordModel add(SurveyAnswerRecordModel surveyAnswerModel);
+	
+	/** 
+	 * @描述: 更新问卷答案记录，返回更新
+	 * @作者: 尹杰民
+	 * @param surveyAnswerModel
+	 * @
+	 * @return int
+	*/
+	public int update(SurveyAnswerRecordModel surveyAnswerModel);
+	
+	/** 
+	 * @描述: 根据businessId和nodeId查询问卷答案记录
+	 * @作者: 尹杰民
+	 * @param businessId
+	 * @param nodeId
+	 * @
+	 * @return List<SurveyAnswerModel>
+	*/
+	public List<SurveyAnswerRecordModel> queryByParams(Long businessId, String nodeId);
+	
+	/**
+	 * @描述：根据业务编号和节点编号删除记录
+	 * @作者：刘恺
+	 * @时间：2016年8月29日 下午5:12:36
+	 * @param businessId
+	 */
+	public void deleteByBusinessId(Long businessId, String nodeId, Session session) throws Exception;
+	
+	 /**
+     * @描述：根据业务实例ID和节点，查询该用户在该问卷节点中所得分数和测评等级
+     * @作者：田源
+     * @时间：2016年9月20日 下午3:53:22
+     * @param businessId
+     * @param nodeId
+     * @return DataRow
+     */
+    public DataRow querySourceAndDefine(Long businessId,String nodeId);
+}

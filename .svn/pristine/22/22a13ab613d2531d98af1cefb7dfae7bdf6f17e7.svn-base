@@ -1,0 +1,75 @@
+package com.thinkive.fxc.ismp.bus.base.basicdata.service;
+
+import java.util.List;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.fxc.ismp.bus.base.basicdata.model.EnumValueModel;
+
+/**
+ * @描述: 数据字段服务类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月26日 下午3:32:48
+ */
+public interface EnumInfoService
+{
+	
+	/**
+	 * @描述：根据数据字典类型和字典值查询
+	 * @作者：刘恺
+	 * @时间：2016年8月26日 下午3:39:44
+	 * @param enum_no
+	 * @param itemValue
+	 * @return
+	 * @throws InvokeException
+	 */
+	public EnumValueModel getEnumByTypeAndValue(String enum_no, String itemValue);
+	
+	/**
+	 * @描述：条件查询数据字典枚举值
+	 * @作者：刘恺
+	 * @时间：2016年8月26日 下午4:30:43
+	 * @param enumValueModel
+	 * @return
+	 */
+	public List<EnumValueModel> queryEnumValueByParams(EnumValueModel enumValueModel);
+	
+	/**
+	 * @描述：根据字典类型编号查询字典枚举值
+	 * @作者：刘恺
+	 * @时间：2016年8月26日 下午5:03:58
+	 * @param enumNos 逗号分割多个编号
+	 * @return
+	 */
+	public List<EnumValueModel> queryByEmunNo(String enumNos);
+	
+	
+	/**
+	 * 适当性风险匹配信息查询
+	 * MIKE
+	 * @param business_code user_id
+	 * @return
+	 */
+	public DataRow queryAppropriateness(String business_code,Long user_id) throws Exception;
+	
+	
+	/**
+	 * 适当性风险匹配信息查询
+	 * MIKE
+	 * @param item_value
+	 * @return
+	 * @throws Exception
+	 */
+	public DataRow queryRecommend(String item_value) throws Exception;
+	/**
+	 * 公告查询
+	 * MIKE
+	 * @param item_value
+	 * @return
+	 * @throws Exception
+	 */
+	public DataRow queryAnnouncement() throws Exception;
+	
+}

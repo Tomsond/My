@@ -1,0 +1,58 @@
+/**
+ * 
+ */
+package com.thinkive.fxc.ismp.bus.base.business.dao;
+
+import com.thinkive.base.jdbc.session.Session;
+import com.thinkive.fxc.ismp.bus.base.business.model.PpTaskModel;
+
+/**
+ * @描述: 跑批任务表 (T_ISMP_PP_TASK)数据层接口
+ * @版权: Copyright (c) 2016 
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 尹杰民
+ * @版本: 2.0 
+ * @创建时间: 2016年8月16日 上午10:29:04
+ */
+public interface PpTaskDao
+{
+	
+	/** 
+	 * @描述: 添加跑批任务
+	 * @作者: 尹杰民
+	 * @时间：2016年8月17日 下午3:59:13
+	 * @param ppTaskModel
+	 * @
+	 * @return PpTaskModel
+	*/
+	public PpTaskModel add(PpTaskModel ppTaskModel);
+	
+	/** 
+	 * @描述: 更新跑批任务
+	 * @作者: 尹杰民
+	 * @时间：2016年8月17日 下午3:59:13
+	 * @param ppTaskModel
+	 * @return int
+	*/
+	public int update(PpTaskModel ppTaskModel);
+	
+	/** 
+	 * @描述: 根据businessId 查询跑批
+	 * @作者: 尹杰民
+	 * @时间：2016年8月17日 下午3:59:13
+	 * @param businessId
+	 * @
+	 * @return PpTaskModel
+	*/
+	public PpTaskModel queryByBusiId(Long businessId);
+
+	/**
+	 * @描述：添加跑批任务，需要管理事务
+	 * @作者：刘恺
+	 * @时间：2016年9月14日 上午11:28:49
+	 * @param ppTaskModel
+	 * @param session
+	 * @return
+	 */
+	public PpTaskModel add(PpTaskModel ppTaskModel, Session session)throws Exception;
+}

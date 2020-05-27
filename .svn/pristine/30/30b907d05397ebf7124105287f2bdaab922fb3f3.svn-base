@@ -1,0 +1,26 @@
+package com.thinkive.fxc.ismp.bus.business.function.test;
+
+import com.thinkive.fxc.ismp.bus.BaseTest;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessConstants;
+import com.thinkive.fxc.ismp.bus.base.business.function.Function1004912;
+import com.thinkive.server.Function;
+
+public class Function1004912Test extends BaseTest
+{
+	
+	public void testInvoke()
+	{
+		
+		getRequest().setFuncNo(1004912);
+		getRequest().addFieldValue("user_id", "545");
+		getRequest().addFieldValue("businessCode", "ggt");
+		getRequest().addFieldValue("nodeId", "ggt_risk");
+		getRequest().addFieldValue("op_source", "1");
+		getRequest().addFieldValue("op_station", "12414qwqfasfasf1231");
+		getRequest().addFieldValue("ip", "192.168.1.1");
+		getRequest().addFieldValue("answerStr", "4_2_10|5_2_20|6_4_0|7_2_0|8_2_0|9_2_0|10_2_0|11_1_0|12_2_0|13_2_0|14_2_0|15_2_0|");
+		Function function = new Function1004912();
+		function.invoke(getContext());
+		System.out.println("结果数据为：" + getResponse().getData());
+	}
+}

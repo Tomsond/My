@@ -1,0 +1,65 @@
+package com.thinkive.fxc.ismp.bus.business.otc.dao.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseDao;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.util.ModelUtil;
+import com.thinkive.fxc.ismp.bus.business.otc.constants.OtcConstants;
+import com.thinkive.fxc.ismp.bus.business.otc.dao.OtcInfoDao;
+import com.thinkive.fxc.ismp.bus.business.otc.model.OtcInfo;
+
+/**
+ * 描述: 券商配置的OTC信息
+ * 版权: Copyright (c) 2010
+ * 公司: 思迪科技 
+ * 作者: 刘恺
+ * 版本: 1.0 
+ * 创建日期: 2016年1月14日 
+ * 创建时间: 上午10:36:16
+ */
+public class OtcInfoDaoImpl extends ISMPBaseDao implements OtcInfoDao
+{
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<OtcInfo> queryAll()
+	{
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT ID,OTC_CODE,OTC_NAME,STATE,AGREE_NO FROM ");
+		sql.append(OtcConstants.T_ISMP_OTCINFO);
+		sql.append(" WHERE STATE = ? ");
+		List<DataRow> queryResult = this.getJdbcTemplate().query(sql.toString(), new Object[] { DictionaryConstants.BOL_TRUE });
+		return ModelUtil.packList(queryResult, OtcInfo.class);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<OtcInfo> queryByCodes(String[] codes)
+	{
+		StringBuilder sql = new StringBuilder("SELECT ID,OTC_CODE,OTC_NAME,STATE,AGREE_NO FROM ");
+		sql.append(OtcConstants.T_ISMP_OTCINFO);
+		sql.append(" WHERE 1=1 ");
+		List<String> params = new ArrayList<String>();
+		if (codes != null && codes.length > 0)
+		{
+			sql.append("AND OTC_CODE IN ( ");
+			for (int i = 0; i < codes.length; i++)
+			{
+				if (i == (codes.length - 1))
+				{
+					sql.append("?");
+					params.add(codes[i]);
+					break;
+				}
+				sql.append("?,");
+				params.add(codes[i]);
+				
+			}
+			sql.append(" ) ");
+		}
+		List<DataRow> queryData = getJdbcTemplate().query(sql.toString(), params.toArray());
+		return ModelUtil.packList(queryData, OtcInfo.class);
+	}
+}

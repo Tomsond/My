@@ -1,0 +1,107 @@
+package com.thinkive.fxc.ismp.bus.business.increaseAccount.model;
+
+import com.thinkive.base.jdbc.DataRow;
+
+/**
+ * @描述: 增开---扩展信息模型（T_ISMP_B_ZK）
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2017年3月24日 下午1:59:21
+ */
+public class ZkExtendModel extends DataRow
+{
+	
+	private static final long serialVersionUID = 7757888150058822153L;
+	
+	private static final String BUSINESS_ID = "business_id";
+	
+	private static final String OCCUPATION = "occupation";//职业
+	
+	private static final String EDUCATION = "education";//学历
+	
+	private static final String ADDRESS = "address";//地址
+	
+	private static final String POSTCODE = "postcode";//邮编
+	
+	/**
+	 * 获取业务办理实体ID
+	 */
+	public Long getBusinessId()
+	{
+		return getLong(BUSINESS_ID);
+	}
+	
+	/**
+	 * 设置业务办理实体ID
+	 */
+	public void setBusinessId(Long businessId)
+	{
+		set(BUSINESS_ID, businessId);
+	}
+	
+	/**
+	 * 获取职业
+	 */
+	public String getOccupation()
+	{
+		return getString(OCCUPATION);
+	}
+	
+	/**
+	 * 设置职业
+	 */
+	public void setOccupation(String occupation)
+	{
+		set(OCCUPATION, occupation);
+	}
+	
+	/**
+	 * 获取学历
+	 */
+	public String getEducation()
+	{
+		return getString(EDUCATION);
+	}
+	
+	/**
+	 * 设置学历
+	 */
+	public void setEducation(String education)
+	{
+		set(EDUCATION, education);
+	}
+	
+	/**
+	 * 获取地址
+	 */
+	public String getAddress()
+	{
+		return getString(ADDRESS);
+	}
+	
+	/**
+	 * 设置地址
+	 */
+	public void setAddress(String address)
+	{
+		set(ADDRESS, address);
+	}
+	
+	/**
+	 * 获取邮编
+	 */
+	public String getPostcode()
+	{
+		return getString(POSTCODE);
+	}
+	
+	/**
+	 * 设置邮编
+	 */
+	public void setPostcode(String postcode)
+	{
+		set(POSTCODE, postcode);
+	}
+}

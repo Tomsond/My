@@ -1,0 +1,26 @@
+package com.thinkive.fxc.ismp.bus.business.gddj;
+
+import com.thinkive.fxc.ismp.bus.BaseTest;
+import com.thinkive.fxc.ismp.bus.business.zdjy.Function1004471;
+import com.thinkive.server.Function;
+
+/**
+ * @描述: 指定交易业务数据获取测试
+ * @版权: Copyright (c) 2016 
+ * @公司: 思迪科技 
+ * @作者: 刘为
+ * @版本: 2.0 
+ * @创建日期: 2016年11月7日 
+ * @创建时间: 上午10:44:41
+ */
+public class Function1004471Test extends BaseTest
+{
+   
+    public void testInvoke()
+    {
+        getRequest().addFieldValue("user_id", "783");//A116761534
+        Function function = new Function1004471();
+        function.invoke(getContext());
+        System.out.println("结果数据为：" + getResponse().getData());
+    }
+}

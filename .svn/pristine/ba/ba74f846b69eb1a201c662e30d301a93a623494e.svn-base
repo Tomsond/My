@@ -1,0 +1,33 @@
+package com.thinkive.fxc.ismp.bus.base.basicdata.service;
+
+/**
+ * @描述: 缓存服务类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月26日 下午10:17:09
+ */
+public interface CacheService
+{
+	
+	/**
+	 * 描述：设置缓存
+	 * @author 刘恺
+	 * @created 2015年10月13日 下午2:07:46
+	 * @param key 缓存key值
+	 * @param value 缓存的值
+	 * @param save_time 缓存有效时间/S
+	 * @return
+	 */
+	public boolean setCache(String key, String value, int save_time);
+	
+	/**
+	 * 描述：获取缓存数据
+	 * @author 刘恺
+	 * @created 2015年10月13日 下午2:07:46
+	 * @param key 缓存key值
+	 * @return
+	 */
+	public String getCache(String key);
+}

@@ -1,0 +1,82 @@
+package com.thinkive.fxc.ismp.bus.business.pledgeRepo.function;
+
+import java.util.List;
+
+import com.thinkive.base.exception.BusinessException;
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.model.SurveyAnswerResultModel;
+import com.thinkive.fxc.ismp.bus.base.business.service.SurveyAnswerResultService;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeSystem;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdInterfaceConstant;
+import com.thinkive.server.InvokeException;
+import com.thinkive.server.ResultVo;
+
+/**
+ * @描述: 获取授信额度
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2017年3月13日 下午1:45:19	
+ */
+public class Function1004814 extends ISMPBaseFunction
+{
+	
+	private Long userId;// 用户编号
+	
+	private Long businessId;//业务实例编号
+	
+	@Override
+	public ResultVo execute() throws InvokeException, Exception
+	{
+		//step1:获取参数用户ID并校验
+		checkInput();
+		
+		//step2:查询用户资金账号
+		UserInfoService userInfoService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO, UserInfoService.class);
+		userInfoService.queryAndCheckUserByUserIdAndType(userId, ThirdInterfaceConstant.USER_ACCOUNT_TYPE_ZQ);
+		//获取三方存管等级
+		SurveyAnswerResultService surveyAnswerResultService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_SURVEYANSWERRESULT, SurveyAnswerResultService.class);
+		List<SurveyAnswerResultModel> list = surveyAnswerResultService.queryByBusinessId(businessId);
+		if (list == null || list.size() != 2)
+		{
+			throw new BusinessException(ErrorCodeSystem.BUSINESS_ERRPRFLOWSTEP);
+		}
+		String riskValueName = null;//风险测评分数对应的等级名称
+		String creditValue = null;//征信测评分数
+		for (SurveyAnswerResultModel item : list)
+		{
+			if ("pledgerepo_risk".equals(item.getNodeId()))
+			{
+				riskValueName = item.getValueName();
+			}
+			if ("pledgerepo_credit".equals(item.getNodeId()))
+			{
+				creditValue = item.getSubValue();
+			}
+		}
+		//TODO 获取征信额度，更具券商具体情况实现，可能是直接调用第三方接口，也可能是券商提供算法，我们计算
+		//step4: 打包出参
+		DataRow result = new DataRow();
+		result.set("riskValueName", riskValueName);
+		result.set("creditValue", creditValue);
+		result.set("creditLimit", "430000");
+		ResultVo resultVo = new ResultVo();
+		resultVo.setResult(result);
+		resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+		resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+		return resultVo;
+	}
+	
+	private void checkInput()
+	{
+		userId = Long.valueOf(this.getAndCheckBlankStrParam("user_id", ErrorCodeCheckInput.BLANK_USERID));
+		businessId = Long.valueOf(this.getAndCheckBlankStrParam("businessId", ErrorCodeCheckInput.BLANK_BUSINESSID));
+	}
+}

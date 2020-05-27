@@ -1,0 +1,350 @@
+package com.thinkive.fxc.ismp.bus.base.business.vo;
+
+import java.util.Date;
+
+import org.apache.commons.lang.StringUtils;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.DateHelper;
+
+/**
+ * @描述: 业务办理实例表  T_ISMP_BUSINESS_ENTITY
+ * @版权: Copyright (c) 2016 
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0 
+ * @创建时间: 2016年8月12日 下午2:52:43
+ */
+public class BusinessEntityAndConfigVO extends DataRow
+{
+	
+	private static final long serialVersionUID = 2408131113406910753L;
+	
+	/**
+	 * 业务办理实例表(T_ISMP_BUSINESS_ENTITY)
+	 */
+	private static final String ID = "id";
+	
+	private static final String USER_ID = "user_id";
+	
+	private static final String BUSINESS_CODE = "business_code";
+	
+	private static final String NODE_ID = "node_id";
+	
+	private static final String ISCOMPLETE = "iscomplete";
+	
+	private static final String DEAL_RESULT = "deal_result";
+	
+	private static final String OP_SOURCE = "op_source";
+	
+	private static final String OP_STATION = "op_station";
+	
+	private static final String IP = "ip";
+	
+	private static final String CREATE_DATE = "create_date";
+	
+	private static final String UPDATE_DATE = "update_date";
+	
+	private static final String DESCRIPTION = "description";//业务办理结果描述
+	
+	/**
+	 * 业务流程属性配置表(T_ISMP_BUSINESS_CONFIG)
+	 */
+	private static final String BTYPE_ID = "btype_id";//流程标识
+	
+	private static final String NEED_AUDIT = "need_audit";//是否统一后台审核
+	
+	private static final String DATA_SUBMITTYPE = "data_submittype";//数据提交方式
+	
+	private static final String BREAKPOINT_OPERATION = "breakpoint_operation";//是否支持断点操作
+	
+	private static final String RESET_FLOW = "reset_flow";//是否可以重置流程
+	
+	/**
+	 * 获取自增主键
+	 */
+	public Long getId()
+	{
+		return getLong(ID);
+	}
+	
+	/**
+	 * 设置自增主键
+	 */
+	public void setId(Long id)
+	{
+		set(ID, id);
+	}
+	
+	/**
+	 *获取业务办理用户编号 
+	 */
+	public Long getUserId()
+	{
+		return getLong(USER_ID);
+	}
+	
+	/**
+	 *设置业务办理用户编号 
+	 */
+	public void setUserId(Long userId)
+	{
+		set(USER_ID, userId);
+	}
+	
+	/**
+	 *获取业务办理业务类型编号 
+	 */
+	public String getBusinessCode()
+	{
+		return getString(BUSINESS_CODE);
+	}
+	
+	/**
+	 *设置业务办理业务类型编号 
+	 */
+	public void setBusinessCode(String businessCode)
+	{
+		set(BUSINESS_CODE, businessCode);
+	}
+	
+	/**
+	 *获取业务办理当前步骤节点 
+	 */
+	public String getNodeId()
+	{
+		return getString(NODE_ID);
+	}
+	
+	/**
+	 *设置业务办理当前步骤节点
+	 */
+	public void setNodeId(String nodeId)
+	{
+		set(NODE_ID, nodeId);
+	}
+	
+	/**
+	 *获取业务办理当前步骤节点 
+	 */
+	public String getIsComplete()
+	{
+		return getString(ISCOMPLETE);
+	}
+	
+	/**
+	 *设置业务办理当前步骤节点
+	 */
+	public void setIsComplete(String isComplete)
+	{
+		set(ISCOMPLETE, isComplete);
+	}
+	
+	/**
+	 *获取业务办理业务办理结果
+	 */
+	public String getDealResult()
+	{
+		return getString(DEAL_RESULT);
+	}
+	
+	/**
+	 *设置业务办理业务办理结果
+	 */
+	public void setDealResult(String dealResult)
+	{
+		set(DEAL_RESULT, dealResult);
+	}
+	
+	/**
+	 *获取业务办理操作渠道
+	 */
+	public String getOpSource()
+	{
+		return getString(OP_SOURCE);
+	}
+	
+	/**
+	 *设置业务办理操作渠道
+	 */
+	public void setOpSource(String opSource)
+	{
+		set(OP_SOURCE, opSource);
+	}
+	
+	/**
+	 *获取业务办理操作站点
+	 */
+	public String getOpStation()
+	{
+		return getString(OP_STATION);
+	}
+	
+	/**
+	 *设置业务办理操作站点
+	 */
+	public void setOpStation(String opStation)
+	{
+		set(OP_STATION, opStation);
+	}
+	
+	/**
+	 *获取业务办理IP地址
+	 */
+	public String getIp()
+	{
+		return getString(IP);
+	}
+	
+	/**
+	 *设置业务办理IP地址
+	 */
+	public void setIp(String ip)
+	{
+		set(IP, ip);
+	}
+	
+	/**
+	 * 获取创建时间
+	 */
+	public Date getCreateDate()
+	{
+		String createDate = getString(CREATE_DATE);
+		if (StringUtils.isNotEmpty(createDate))
+		{
+			return DateHelper.parseString(createDate, DateHelper.pattern_time);
+		}
+		else
+		{
+			return null;
+		}
+	}
+	
+	/**
+	 * 设置创建时间
+	 */
+	public void setCreateDate(Date createDate)
+	{
+		set(CREATE_DATE, createDate);
+	}
+	
+	/**
+	 * 获取更新时间
+	 */
+	public Date getUpdateDate()
+	{
+		String updateDate = getString(UPDATE_DATE);
+		if (StringUtils.isNotEmpty(updateDate))
+		{
+			return DateHelper.parseString(updateDate, DateHelper.pattern_time);
+		}
+		else
+		{
+			return null;
+		}
+	}
+	
+	/**
+	 * 设置更新时间
+	 */
+	public void setUpdateDate(Date updateDate)
+	{
+		set(UPDATE_DATE, updateDate);
+	}
+	
+	/**
+	 *获取流程标识
+	 */
+	public Long getBtypeId()
+	{
+		return getLong(BTYPE_ID);
+	}
+	
+	/**
+	 *设置流程标识
+	 */
+	public void setBtypeId(Long btypeId)
+	{
+		set(BTYPE_ID, btypeId);
+	}
+	
+	/**
+	 *获取是否统一后台审核
+	 */
+	public String getNeedAudit()
+	{
+		return getString(NEED_AUDIT);
+	}
+	
+	/**
+	 *设置是否统一后台审核
+	 */
+	public void setNeedAudit(String needAudit)
+	{
+		set(NEED_AUDIT, needAudit);
+	}
+	
+	/**
+	 * 获取数据提交方式
+	 */
+	public String getDataSubmitType()
+	{
+		return getString(DATA_SUBMITTYPE);
+	}
+	
+	/**
+	 * 设置数据提交方式
+	 */
+	public void setDataSubmitType(String dataSubmitType)
+	{
+		set(DATA_SUBMITTYPE, dataSubmitType);
+	}
+	
+	/**
+	 *获取是否支持断点操作
+	 */
+	public String getBreakpointOperation()
+	{
+		return getString(BREAKPOINT_OPERATION);
+	}
+	
+	/**
+	 *设置是否支持断点操作
+	 */
+	public void setBreakpointOperation(String breakpointOperation)
+	{
+		set(BREAKPOINT_OPERATION, breakpointOperation);
+	}
+	
+	/**
+	 *获取是否可以重置流程
+	 */
+	public String getResetFlow()
+	{
+		return getString(RESET_FLOW);
+	}
+	
+	/**
+	 *设置是否可以重置流程
+	 */
+	public void setResetFlow(String resetFlow)
+	{
+		set(RESET_FLOW, resetFlow);
+	}
+	
+	/**
+	 *获取业务办理结果描述
+	 */
+	public String getDescription()
+	{
+		return getString(DESCRIPTION);
+	}
+	
+	/**
+	 *设置业务办理结果描述
+	 */
+	public void setDescription(String description)
+	{
+		set(DESCRIPTION, description);
+	}
+}

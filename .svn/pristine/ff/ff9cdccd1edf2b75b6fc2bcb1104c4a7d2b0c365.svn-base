@@ -1,0 +1,52 @@
+package com.thinkive.fxc.ismp.bus.base.basicdata.dao.impl;
+
+import java.util.Date;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.fxc.ismp.bus.base.basicdata.contants.BaseTableConstants;
+import com.thinkive.fxc.ismp.bus.base.basicdata.dao.SurveySubjectDao;
+import com.thinkive.fxc.ismp.bus.base.basicdata.model.SurveySubjectModel;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseDao;
+import com.thinkive.fxc.ismp.bus.base.constants.SystemConstants;
+import com.thinkive.fxc.ismp.bus.base.util.ModelUtil;
+
+/**
+ * @描述: 公共-问卷主题表(T_FXC_SURVEY_SUBJECT)数据层接口
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月18日 下午2:20:54
+ */
+public class SurveySubjectDaoImpl extends ISMPBaseDao implements SurveySubjectDao
+{
+
+    @Override
+    public SurveySubjectModel add(SurveySubjectModel surveySubjectModel) throws Exception
+    {
+        String id=getSeqValue(SystemConstants.DB_ISMP,BaseTableConstants.T_FXC_SURVEY_SUBJECT);
+        surveySubjectModel.setId(Long.valueOf(id));
+        surveySubjectModel.setCreateDate(new Date());
+        this.getJdbcTemplate().insert(BaseTableConstants.T_FXC_SURVEY_SUBJECT, surveySubjectModel);
+        return surveySubjectModel;
+    }
+
+    @Override
+    public int update(SurveySubjectModel surveySubjectModel) throws Exception
+    {
+        surveySubjectModel.setUpdateDate(new Date());
+        return this.getJdbcTemplate().update(BaseTableConstants.T_FXC_SURVEY_SUBJECT, surveySubjectModel, "ID", surveySubjectModel.getId());
+    }
+
+    @Override
+    public SurveySubjectModel queryBySubjectCode(String subjectCode)
+    {
+        StringBuilder sql=new StringBuilder();
+        sql.append("SELECT ID,SUBJECT_CODE,SITENO,NAME,DESCRIPTION,STATE,EXT_CODE FROM ");
+        sql.append(BaseTableConstants.T_FXC_SURVEY_SUBJECT);
+        sql.append(" WHERE SUBJECT_CODE = ?");
+        DataRow queryResult=this.getJdbcTemplate().queryMap(sql.toString(), new Object[]{subjectCode});
+        return ModelUtil.packInfo(queryResult, SurveySubjectModel.class);
+    }
+    
+}

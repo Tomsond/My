@@ -1,0 +1,8 @@
+package com.thinkive.fxc.ismp.bus.base.basicdata.service;
+
+
+public interface AnswerScoreService {
+    
+	public void addOrUpdateAnswerScore(String business_id, String score, String node_id, String subitemname);
+	
+}

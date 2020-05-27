@@ -1,0 +1,75 @@
+package com.thinkive.fxc.ismp.bus.base.business.model;
+
+import com.thinkive.base.jdbc.DataRow;
+
+/**
+ * 作者：MIKE
+ * 公司：深圳市思迪信息技术股份公司
+ * 日期时间：2017年2月24日 下午7:37:05
+ * 说明：对账单邮箱信息操作流水实例类
+ */
+public class EmailBillConfigModel extends DataRow
+{
+	
+	private static final long serialVersionUID = 3397656806102387231L;
+	
+	private static final String BUSINESS_ID = "business_id"; //业务编号
+	
+	private static final String USER_ID = "user_id"; //用户ID
+	
+	private static final String OP_TYPE = "op_type"; //操作类型
+	
+	private static final String OLD_EMAIL = "old_email"; //旧邮箱
+	
+	private static final String NEW_EMAIL = "new_email"; //新邮箱
+	
+	public String getBusiness_id()
+	{
+		return getString(BUSINESS_ID);
+	}
+	
+	public void setBusiness_id(String business_id)
+	{
+		set(BUSINESS_ID, business_id);
+	}
+	
+	public String getUser_id()
+	{
+		return getString(USER_ID);
+	}
+	
+	public void setUser_id(String user_id)
+	{
+		set(USER_ID, user_id);
+	}
+	
+	public String getOptype()
+	{
+		return getString(OP_TYPE);
+	}
+	
+	public void setOptype(String op_type)
+	{
+		set(OP_TYPE, op_type);
+	}
+	
+	public String getOldemail()
+	{
+		return getString(OLD_EMAIL);
+	}
+	
+	public void setOldemail(String old_email)
+	{
+		set(OLD_EMAIL, old_email);
+	}
+	
+	public String getNewemail()
+	{
+		return getString(NEW_EMAIL);
+	}
+	
+	public void setNewemail(String new_email)
+	{
+		set(NEW_EMAIL, new_email);
+	}
+}

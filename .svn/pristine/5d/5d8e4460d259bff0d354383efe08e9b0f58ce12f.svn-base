@@ -1,0 +1,100 @@
+package com.thinkive.fxc.ismp.bus.business.user.function;
+
+import com.thinkive.base.exception.BusinessException;
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.business.vo.UserInfoVo;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeSystem;
+import com.thinkive.fxc.ismp.bus.business.util.DataFormatUtils;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdDictionaryConstants;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdInterfaceConstant;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdTBASConstants;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdInterface;
+import com.thinkive.server.InvokeException;
+import com.thinkive.server.ResultVo;
+import com.thinkive.server.util.SpringUtil;
+
+/**
+ * @描述: 根据用户用户编号查询用户信息    
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0.0 
+ * @创建时间: 2016年9月18日 下午6:57:28
+ */
+public class Function1004101 extends ISMPBaseFunction
+{
+	private Long userId;
+	private UserInfoService userInfoService;
+	private ThirdInterface thirdInterface;
+	public ResultVo execute() throws Exception
+	{
+		
+	    //step1:获取人参并校验
+		checkInput();
+		
+		//step2:查询用户信息
+		userInfoService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO, UserInfoService.class);
+		thirdInterface = SpringUtil.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDINTERFACE, ThirdInterface.class);
+		UserInfoVo userInfoVo = userInfoService.queryAndCheckUserByUserIdAndType(userId, ThirdInterfaceConstant.USER_ACCOUNT_TYPE_ZQ);
+		DataRow user = userInfoService.queryUserAllInfo(userId);
+		if(user == null || user.isEmpty()){
+			throw new BusinessException(ErrorCodeSystem.NOTEXIST_USER, "用户不存在");
+		}
+		String credit_record=user.getString("credit_record");
+		String[] str =credit_record.split("\\|");
+		String nub ="";
+		for (int i = 0; i < str.length; i++) {
+			String record = str[i];
+			if(record.equals("投资者在证券经营机构从事投资活动时产生的违约等失信行为记录")){
+				nub +="6|";
+			}else if(record.equals("监管机构、自律组织")){
+				nub +="5|";
+			}else if(record.equals("税务管理机构")){
+				nub +="4|";
+			}else if(record.equals("工商行政管理机构")){
+				nub +="3|";
+			}else if(record.equals("最高人民法院失信被执行人名单")){
+				nub +="2|";
+			}else if(record.equals("中国人民银行诚信中心")){
+				nub +="1|";
+			}else if(record.equals("无")){
+				nub +="0|";
+			}
+		}
+		user.set("credit_record_new", nub);
+		//查询风险测评结果
+	    DataRow fxcpInput = DataFormatUtils.packThirdInput(userInfoVo);
+		fxcpInput.set("user_id", userId);
+		fxcpInput.set("survey_sn", ThirdTBASConstants.SNO_FXCP);
+		DataRow FxcpDr = thirdInterface.getQuestionnaire(fxcpInput);
+		if(FxcpDr.size()>0&FxcpDr!=null){
+			String subitemname = FxcpDr.getString("subitemname");
+			user.set("fxcp_subitemname", subitemname);
+		}else{
+			user.set("fxcp_subitemname", "");
+		}
+		//调用第三方接口，查询用户信息   20190321增加涉税信息字段
+		DataRow thirdUserInfo = thirdInterface.queryUserInfoByAccount(fxcpInput);
+		user.set("tax_resident_person", thirdUserInfo.getString("tax_resident_person"));
+		//step3:打包出参
+		ResultVo resultVo = new ResultVo();
+		resultVo.setResult(user);
+		resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+		resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+		return resultVo;
+	}
+	
+	/**
+	 * 验证入参
+	 * @throws InvokeException 
+	 */
+	private void checkInput() throws InvokeException{
+	    userId = Long.valueOf(this.getAndCheckBlankStrParam("user_id", ErrorCodeCheckInput.BLANK_USERID));
+	}
+}

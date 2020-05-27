@@ -1,0 +1,67 @@
+package com.thinkive.fxc.ismp.bus.business.entrust.dao.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseDao;
+import com.thinkive.fxc.ismp.bus.base.util.ModelUtil;
+import com.thinkive.fxc.ismp.bus.business.entrust.contants.EntrustDictionaryInfoContants;
+import com.thinkive.fxc.ismp.bus.business.entrust.dao.EntrustDao;
+import com.thinkive.fxc.ismp.bus.business.entrust.model.EntrustModel;
+
+/**
+ * @描述: 委托方式配置(T_ISMP_ENTRUST)数据层接口实现类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0.0 
+ * @创建时间: 2016年9月5日 下午5:40:37
+ */
+public class EntrustDaoImpl extends ISMPBaseDao implements EntrustDao
+{
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<EntrustModel> queryByParams(EntrustModel entrustModel)
+    {
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT ID,ENTRUST_NAME,ENTRUST_CODE,REMARK,ORDER_LINE,CREATE_DATE,IMAGE_URL,AGREE_TYPE,STATE,NEED_AGREE,ALLOW_CLOSE,ALLOW_OPEN FROM ");
+        sql.append(EntrustDictionaryInfoContants.T_ISMP_ENTRUST);
+        sql.append(" WHERE 1 = 1 ");
+        List<String> paramList = new ArrayList<String>();
+        if (StringUtils.isNotBlank(entrustModel.getEntrustCode()))
+        {
+            sql.append(" AND ENTRUST_CODE = ? ");
+            paramList.add(entrustModel.getEntrustCode());
+        }
+        String allow_close = entrustModel.getAllowClose();
+        if (StringUtils.isNotBlank(allow_close))
+        {
+            sql.append(" AND ALLOW_CLOSE = ? ");
+            paramList.add(allow_close);
+        }
+        if (StringUtils.isNotBlank(entrustModel.getAllowOpen()))
+        {
+            sql.append(" AND ALLOW_OPEN = ? ");
+            paramList.add(entrustModel.getAllowOpen());
+        }
+        sql.append(" ORDER BY ORDER_LINE");
+        List<DataRow> queryResult = this.getJdbcTemplate().query(sql.toString(), paramList.toArray());
+        return ModelUtil.packList(queryResult, EntrustModel.class);
+    }
+
+    @Override
+    public EntrustModel queryByEntrustCode(String entrustCode)
+    {
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT ID,ENTRUST_NAME,ENTRUST_CODE,REMARK,ORDER_LINE,CREATE_DATE,IMAGE_URL,AGREE_TYPE,STATE,NEED_AGREE,ALLOW_CLOSE,ALLOW_OPEN FROM ");
+        sql.append(EntrustDictionaryInfoContants.T_ISMP_ENTRUST);
+        sql.append(" WHERE ENTRUST_CODE = ? ");
+        DataRow queryResult=this.getJdbcTemplate().queryMap(sql.toString(),new Object[]{entrustCode});
+        return ModelUtil.packInfo(queryResult, EntrustModel.class);
+    }
+    
+}

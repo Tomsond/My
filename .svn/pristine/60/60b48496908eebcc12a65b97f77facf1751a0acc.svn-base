@@ -1,0 +1,309 @@
+package com.thinkive.fxc.ismp.bus.business.util;
+
+import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import com.thinkive.base.config.Configuration;
+import com.thinkive.base.exception.BusinessException;
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.service.BaseService;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.base.util.StringHelper;
+import com.thinkive.fxc.ismp.bus.base.basicdata.contants.BasicServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.basicdata.model.BranchExtinfoModel;
+import com.thinkive.fxc.ismp.bus.base.basicdata.service.BranchInfoService;
+import com.thinkive.fxc.ismp.bus.base.basicdata.vo.QuestionInfoVo;
+import com.thinkive.fxc.ismp.bus.base.business.model.ChoiceAccountRecordModel;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.SystemConstants;
+import com.thinkive.fxc.ismp.bus.third.constants.StockEnum;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdInterfaceConstant;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdTBASConstants;
+
+/**
+ * @描述: 数据转换工具
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月23日 下午5:57:54
+ */
+public class DataFormatUtils extends BaseService
+{
+	
+	/**
+	 * @描述：将云柜台查到的用户和用户账号信息转换成第三方接口查询需要的数据 格式
+	 * @作者：田源
+	 * @时间：2016年8月23日 下午5:59:10
+	 * @param userInfoVo
+	 * @return DataRow
+	 * @throws Exception 
+	 */
+	public static DataRow packThirdInput(DataRow userInfoVo) throws Exception
+	{
+		DataRow thirdInput = new DataRow();
+		if (userInfoVo == null || userInfoVo.isEmpty())
+		{
+			return thirdInput;
+		}
+		//新版本公共入参
+		thirdInput.set("branchno", userInfoVo.getString("branch_no"));//营业部
+		thirdInput.set("client_id", userInfoVo.getString("client_id"));//客户号
+		thirdInput.set("fund_account", userInfoVo.getString("fund_account"));//资金账号
+		thirdInput.set("account_type", userInfoVo.getString("type"));//资金账号类型
+		thirdInput.set("org_id", userInfoVo.getString("branch_no"));//机构代码 营业部
+		//老版本公共入参
+		thirdInput.set("custid", userInfoVo.getString("client_id"));//客户号
+		thirdInput.set("account", userInfoVo.getString("fund_account")); //资金帐号
+		thirdInput.set("password", userInfoVo.getString("pwd"));//密码
+		//如果第三方接口需要密码，解密密码
+		if (DictionaryConstants.BOL_TRUE.equals(Configuration.getString(SystemConstants.CONFIG_KEY_SYSTEM_THIRD_NEED_PWD, DictionaryConstants.BOL_TRUE)))
+		{
+		    if(StringHelper.isNotEmpty(userInfoVo.getString("pwd"))){
+                thirdInput.set("password", PwdEncryptUtil.decryptionPsw(userInfoVo.getString("pwd")));//密码
+            }
+		}
+		
+		thirdInput.set("name", userInfoVo.getString("name"));//用户姓名
+		thirdInput.set("identity_type", userInfoVo.getString("identity_type"));//证件类型
+		thirdInput.set("identity_num", userInfoVo.getString("identity_num"));//证件号码
+		thirdInput.set("user_id", userInfoVo.getString("user_id"));//证件号码
+		if (DictionaryConstants.BOL_TRUE.equals(Configuration.getString("system.third_need_operator")))
+		{
+			BranchInfoService branchInfoService = SpringHelper.getBean(BasicServiceBeanIdConstants.SERVICE_ID_BRANCHINFO, BranchInfoService.class);
+			//第三方接口需要操作员帐号密码
+			BranchExtinfoModel branchExtinfoModel = branchInfoService.queryByBranchNo(userInfoVo.getString("branch_no"));
+			if (branchExtinfoModel == null)
+			{
+				throw new BusinessException(ThirdTBASConstants.DBCONFIG_ERROR_NOBRANCH, "机构号[" + thirdInput.getString("org_id") + "]的营业部未配置");
+			}
+			thirdInput.set("operator_code", branchExtinfoModel.getCustCode());
+			thirdInput.set("operator_pwd", branchExtinfoModel.getCustPwd());
+		}
+		return thirdInput;
+	}
+	
+	/**
+	 * @描述：身份证编号转义
+	 * @作者：刘恺
+	 * @时间：2016年8月25日 下午5:43:28
+	 * @param idType
+	 * @return
+	 */
+	public static String convertIdType(String idType)
+	{
+		if ("0".equals(idType))
+		{//长江证券增加0值判断
+			return "01";
+		}
+		else if ("00".equals(idType))
+		{
+			return "01";
+		}
+		else if ("A".equals(idType))
+		{
+			return "04";
+		}
+		else if ("9".equals(idType))
+		{
+			return "03";
+		}
+		else
+		{
+			return "";
+		}
+	}
+	
+	/**
+	 * @描述：数字证书PK10格式化
+	 * @作者：刘恺
+	 * @时间：2016年8月25日 下午5:43:46
+	 * @param pkcs10
+	 * @return
+	 * @throws Exception
+	 */
+	public static String formatPk10(String pkcs10) throws Exception
+	{
+		pkcs10 = URLDecoder.decode(pkcs10, "UTF-8");
+		pkcs10 = pkcs10.replace("\r\n", "");
+		pkcs10 = pkcs10.replace("\r", "");
+		pkcs10 = pkcs10.replace("\n", "");
+		return pkcs10;
+	}
+	
+	/**
+	 * @描述：将本地答案编号转为第三方编号
+	 * @作者：刘恺
+	 * @时间：2016年8月25日 下午5:44:34
+	 * @param answerStr
+	 * @param sub_code
+	 * @return
+	 */
+	public static String formatDDAnswer(String answerStr, Map<String, QuestionInfoVo> surveyAnswersMap)
+	{
+		String outString = "";
+		if (StringHelper.isBlank(answerStr))
+		{
+			return outString;
+		}
+		String[] answerArr = answerStr.split("\\|");
+		for (String answer : answerArr)
+		{
+			String[] answerInfoArr = answer.split("_");
+			Long questionId = Long.parseLong(answerInfoArr[0]);
+			Long answerId = Long.parseLong(answerInfoArr[1]);
+			//如果用户提交的题目的答案在数据库中不存在
+			String questionAndAnswer = questionId + "_" + answerId;
+			QuestionInfoVo systemAnswer = surveyAnswersMap.get(questionAndAnswer);
+			if (systemAnswer != null)
+			{
+				outString += systemAnswer.getQueExtCode() + "_" + systemAnswer.getExtCode() + "_" + answerInfoArr[2] + "|";
+			}
+		}
+		outString = outString.substring(0, outString.length() - 1);
+		return outString;
+	}
+	
+	/**
+	 * @描述：18位身份证转15位
+	 * @作者：刘恺
+	 * @时间：2016年8月25日 下午5:48:24
+	 * @param oldIdNum
+	 * @return
+	 */
+	public static String idNum18To15(String oldIdNum)
+	{
+		String newIdNum = oldIdNum.substring(0, 6) + oldIdNum.substring(8, 17);
+		return newIdNum;
+	}
+	
+	/**
+	 * @描述：第三方接口帐号类型和云柜台本地帐号类型转义
+	 * @作者：刘恺
+	 * @时间：2016年8月25日 下午5:47:59
+	 * @param trdacct_type
+	 * @param stkbd
+	 * @param trdacct_excls
+	 * @return
+	 */
+	public static String getTrdacctTypeByStkbdAndCls(String stkbd, String trdacct_excls)
+	{
+		//获取第三方接口的市场+帐号类型  开始
+		if (StringHelper.isBlank(stkbd) && StringHelper.isBlank(trdacct_excls))
+		{//查所有
+			return "";
+		}
+		else if (!StringHelper.isBlank(stkbd) && !StringHelper.isBlank(trdacct_excls))
+		{//指定市场+账户类型
+			StockEnum stockEnum = StockEnum.getEnumByClsAndStkbd(trdacct_excls, stkbd);
+			if (stockEnum == null)
+			{ //如果第三方不支持这种类型，则返回null 表示查不到
+				return null;
+			}
+			return stockEnum.getTrdacc_type();
+		}
+		else if (StringHelper.isBlank(stkbd))
+		{//指定市场
+			if (ThirdInterfaceConstant.TRDACCT_EXCLS_GRGD.equals(trdacct_excls))
+			{//如果查询所有市场下的股东帐号
+				return ThirdTBASConstants.STKBD_TYPE_ALLGD;
+			}
+			else if (ThirdInterfaceConstant.TRDACCT_EXCLS_GRXY.equals(trdacct_excls))
+			{//如果查询所有市场下的信用帐号
+				return ThirdTBASConstants.STKBD_TYPE_ALLXY;
+			}
+			else if (ThirdInterfaceConstant.TRDACCT_EXCLS_GRJJ.equals(trdacct_excls))
+			{//如果查询所有市场下的场内基金帐号
+				return ThirdTBASConstants.STKBD_TYPE_ALLCNJJ;
+			}
+			else
+			{
+				//TODO  目前没有涉及到其他帐号类型的业务办理，所以暂未设置，处理方式为返回为null
+				return null;
+			}
+		}
+		else if (StringHelper.isBlank(trdacct_excls))
+		{
+			if (ThirdInterfaceConstant.STKBD_SZA.equals(stkbd))
+			{//如果查询深A
+				return ThirdTBASConstants.STKBD_TYPE_ALLSA;
+			}
+			else if (ThirdInterfaceConstant.STKBD_SZB.equals(stkbd))
+			{//如果深B
+				return ThirdTBASConstants.STKBD_TYPE_ALLSB;
+			}
+			else if (ThirdInterfaceConstant.STKBD_SHA.equals(stkbd))
+			{//如果查询沪A
+				return ThirdTBASConstants.STKBD_TYPE_ALLHA;
+			}
+			else if (ThirdInterfaceConstant.STKBD_SHB.equals(stkbd))
+			{//如果查询沪B
+				return ThirdTBASConstants.STKBD_TYPE_ALLHB;
+			}
+			else if (ThirdInterfaceConstant.TACODE_SZKJ.equals(stkbd))
+			{//如果查询深基金
+				return ThirdTBASConstants.STKBD_TYPE_SFJ;
+			}
+			else if (ThirdInterfaceConstant.TACODE_SZKJ.equals(stkbd))
+			{//如果查询沪基金
+				return ThirdTBASConstants.STKBD_TYPE_HFJ;
+			}
+			else
+			{
+				//TODO  目前没有涉及到其他帐号类型的业务办理，所以暂未设置，处理方式为返回为null
+				return null;
+			}
+		}
+		//获取第三方接口的市场+帐号类型  结束
+		return "";
+	}
+	
+	/**
+	 * @描述：选择帐号节点，选择的帐号和市场转为选择帐号记录
+	 * @作者：刘恺
+	 * @时间：2016年9月28日 上午9:59:22
+	 * @param trdaccount
+	 * @return
+	 */
+	public static List<ChoiceAccountRecordModel> packInputAccountAndStkbdInfo(String trdaccount, String state)
+	{
+		List<ChoiceAccountRecordModel> choiceAccountRecordModels = new ArrayList<ChoiceAccountRecordModel>();
+		String[] trdaccountArr = trdaccount.split(",");
+		for (String item : trdaccountArr)
+		{
+			String[] itemInfo = item.split("\\|");
+			ChoiceAccountRecordModel choiceAccountRecordModel = new ChoiceAccountRecordModel();
+			choiceAccountRecordModel.setState(state);
+			choiceAccountRecordModel.setTrdAccount(itemInfo[0]);
+			if (itemInfo.length > 1)
+			{
+				choiceAccountRecordModel.setStkbd(itemInfo[1]);
+			}
+			choiceAccountRecordModels.add(choiceAccountRecordModel);
+		}
+		return choiceAccountRecordModels;
+	}
+	
+	/**
+	 * @描述：选择帐号节点，选择的市场转为选择帐号记录
+	 * @作者：刘恺
+	 * @时间：2016年9月28日 上午9:59:22
+	 * @param trdaccount
+	 * @return
+	 */
+	public static List<ChoiceAccountRecordModel> packInputStkbdInfo(String stkbds, String state)
+	{
+		List<ChoiceAccountRecordModel> choiceAccountRecordModels = new ArrayList<ChoiceAccountRecordModel>();
+		String[] stkbdArr = stkbds.split(",");
+		for (String item : stkbdArr)
+		{
+			ChoiceAccountRecordModel choiceAccountRecordModel = new ChoiceAccountRecordModel();
+			choiceAccountRecordModel.setState(state);
+			choiceAccountRecordModel.setStkbd(item);
+			choiceAccountRecordModels.add(choiceAccountRecordModel);
+		}
+		return choiceAccountRecordModels;
+	}
+}

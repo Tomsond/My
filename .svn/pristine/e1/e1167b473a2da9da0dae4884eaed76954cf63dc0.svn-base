@@ -1,0 +1,45 @@
+package com.thinkive.fxc.ismp.bus.base.basicdata.dao;
+
+import com.thinkive.fxc.ismp.bus.base.basicdata.model.SimilarityConfigModel;
+
+/**
+ * @描述: 公共-相似度阀值配置表(T_FXC_SIMILARITY_CONFIG) 数据层接口
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 尹杰民
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月18日 下午5:51:32
+ */
+public interface SimilarityConfigDao
+{
+    /**
+     * @描述：添加  相似度阀值配置
+     * @作者：尹杰民
+     * @时间：2016年8月18日 下午6:00:25
+     * @param similarityConfigModel
+     * @return SimilarityConfigModel
+     * @throws Exception
+     */
+    public SimilarityConfigModel add(SimilarityConfigModel similarityConfigModel) throws Exception;
+    
+    /**
+     * @描述：根据主键修改相似度阀值配置
+     * @作者：尹杰民
+     * @时间：2016年8月18日 下午5:59:29
+     * @param similarityConfigModel
+     * @return int 更新的记录条数
+     * @throws Exception
+     */
+    public int update(SimilarityConfigModel similarityConfigModel) throws Exception;
+    
+    /**
+     * @描述：根据指标类型 type  状态status 查询 相似度阀值配置
+     * @作者：尹杰民
+     * @时间：2016年8月18日 下午5:58:49
+     * @param type
+     * @param status
+     * @return SimilarityConfigModel
+     * @throws Exception
+     */
+    public SimilarityConfigModel queryByParams(String type, String status) throws Exception;
+}

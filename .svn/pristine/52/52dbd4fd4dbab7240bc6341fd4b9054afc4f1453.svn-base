@@ -1,0 +1,77 @@
+package com.thinkive.fxc.ismp.bus.base.basicdata.service.impl;
+
+import java.util.List;
+
+import com.thinkive.base.exception.BusinessException;
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.fxc.ismp.bus.base.basicdata.dao.EnumInfoDao;
+import com.thinkive.fxc.ismp.bus.base.basicdata.dao.impl.EnumInfoDaoImpl;
+import com.thinkive.fxc.ismp.bus.base.basicdata.model.EnumValueModel;
+import com.thinkive.fxc.ismp.bus.base.basicdata.service.EnumInfoService;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseDao;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeSystem;
+
+/**
+ * @描述: 数据字段服务实现类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月26日 下午3:37:50
+ */
+public class EnumInfoServiceImpl extends ISMPBaseDao implements EnumInfoService
+{
+	
+	private EnumInfoDao enumInfoDao = new EnumInfoDaoImpl(); 
+	
+	public void setEnumInfoDao(EnumInfoDao enumInfoDao)
+	{
+		this.enumInfoDao = enumInfoDao;
+	}
+	
+	@Override
+	public List<EnumValueModel> queryEnumValueByParams(EnumValueModel enumValueModel)
+	{
+		return enumInfoDao.queryEnumValueByParams(enumValueModel);
+	}
+	
+	@Override
+	public EnumValueModel getEnumByTypeAndValue(String enumNo, String itemValue)
+	{
+		EnumValueModel enumValueModel = new EnumValueModel();
+		enumValueModel.setEnumNo(enumNo);
+		enumValueModel.setItemValue(itemValue);
+		List<EnumValueModel> enumList = queryEnumValueByParams(enumValueModel);
+		if (enumList == null || enumList.size() == 0)
+		{
+			throw new BusinessException(ErrorCodeSystem.ENUMVALUE_NONE);
+		}
+		if (enumList.size() > 1)
+		{
+			throw new BusinessException(ErrorCodeSystem.ENUMVALUE_REPEAT);
+		}
+		return enumList.get(0);
+	}
+	
+	@Override
+	public List<EnumValueModel> queryByEmunNo(String enumNos)
+	{
+		return enumInfoDao.queryByEmunNo(enumNos);
+	}
+	
+	@Override
+	public DataRow queryAppropriateness(String business_code,Long user_id)  throws Exception{
+		return enumInfoDao.queryAppropriateness(business_code,user_id);
+	}
+	
+	@Override
+	public DataRow queryRecommend(String item_value)  throws Exception{
+		return enumInfoDao.queryRecommend(item_value);
+	}
+
+	@Override
+	public DataRow queryAnnouncement() throws Exception {
+		// TODO Auto-generated method stub
+		return enumInfoDao.queryAnnouncement();
+	}
+}

@@ -1,0 +1,63 @@
+package com.thinkive.fxc.ismp.bus.base.business.function;
+
+import java.util.List;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.model.VideoRecordModel;
+import com.thinkive.fxc.ismp.bus.base.business.service.VideoNodeService;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.server.ResultVo;
+
+/**
+ * @描述: 查询视频见证是否通过
+ * @版权: Copyright (c) 2016
+ * @公司: 思迪科技
+ * @作者: 谢能琥
+ * @版本: 1.0
+ * @创建日期: 2016年11月22日
+ * @创建时间: 下午4:31:00
+ * @功能模块: TODO
+ */
+public class Function1004922 extends ISMPBaseFunction
+{
+	
+	private Long businessId; //业务编号
+	
+	
+	private VideoNodeService videoNodeService ; 
+	
+	@Override
+	public ResultVo execute() throws Exception
+	{
+		initVar();
+		ResultVo resultVo = new ResultVo();
+		
+		videoNodeService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_VIDEONODE, VideoNodeService.class);
+		
+		List<VideoRecordModel> videoRecordModels = videoNodeService.queryWitnessVideoState(businessId);
+		String video_pass = DictionaryConstants.BOL_FALSE; //默认不通过视频见证
+		if(videoRecordModels != null){
+			for(VideoRecordModel videoRecordModel : videoRecordModels){
+				if(videoRecordModel.getApproveStat().equals(DictionaryConstants.BOL_TRUE)){ //审核状态 0：未审核，1：通过，2：不通过
+					video_pass = DictionaryConstants.BOL_TRUE;
+					break ; 
+				}
+			}
+		}
+		DataRow result = new DataRow();
+		result.set("video_pass", video_pass);
+		resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+		resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+		resultVo.setResult(result);
+		return resultVo;
+	}
+	
+	private void initVar()
+	{
+		businessId = this.formatLongParam(this.getAndCheckBlankStrParam("business_id", ErrorCodeCheckInput.BLANK_BUSINESSID), ErrorCodeCheckInput.LONG_FORMAT_ERROR);
+	}
+}

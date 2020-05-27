@@ -1,0 +1,37 @@
+package com.thinkive.fxc.ismp.bus.business.otc.dao;
+
+import java.util.List;
+
+import com.thinkive.fxc.ismp.bus.business.otc.model.OtcInfo;
+
+/**
+ * 描述: 券商配置的OTC信息DAO类
+ * 版权: Copyright (c) 2010
+ * 公司: 思迪科技 
+ * 作者: 刘恺
+ * 版本: 1.0 
+ * 创建日期: 2016年1月13日 
+ * 创建时间: 下午5:50:17
+ */
+public interface OtcInfoDao
+{
+	
+	/**
+	 * 描述：查询已配置的全部OTC信息
+	 * 作者：刘恺
+	 * 时间：2016年1月13日 下午5:55:24
+	 * @param user_id
+	 * @param fund_account
+	 * @return
+	 */
+	public List<OtcInfo> queryAll();
+	
+	/**
+	 * @描述：根据编号批量查询OTC信息
+	 * @作者：刘恺
+	 * @创建时间: 2017年3月1日 下午5:31:48
+	 * @param codes
+	 * @return
+	 */
+	public List<OtcInfo> queryByCodes(String[] codes);
+}

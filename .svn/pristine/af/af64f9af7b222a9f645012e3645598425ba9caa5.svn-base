@@ -1,0 +1,28 @@
+package com.thinkive.fxc.ismp.bus.business.common.test;
+
+import com.thinkive.fxc.ismp.bus.BaseTest;
+import com.thinkive.fxc.ismp.bus.base.business.function.Function1004138;
+import com.thinkive.server.Function;
+
+/**
+ * @描述: 三方存管-根据资金账户获取绑定的银行卡-测试
+ * @版权: Copyright (c) 2014 
+ * @公司: 思迪科技 
+ * @作者: 吴江波
+ * @版本: 1.0 
+ * @创建日期: 2014-8-29 
+ * @创建时间: 上午10:05:46
+ */
+public class Function1004138Test extends BaseTest
+{
+    
+    public void testInvoke()
+    {
+        getRequest().addFieldValue("subject_code", "fxcp");
+        getRequest().addFieldValue("business_id", "14");
+        getRequest().addFieldValue("node_Id", "preapplycredit_risk");
+        Function function = new Function1004138();
+        function.invoke(getContext());
+        System.out.println("结果数据为：" + getResponse().getData());
+    }
+}

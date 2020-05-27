@@ -1,0 +1,66 @@
+package com.thinkive.fxc.ismp.bus.base.common;
+
+import org.apache.log4j.Logger;
+
+import com.thinkive.base.config.Configuration;
+import com.thinkive.base.jdbc.connection.Configure;
+import com.thinkive.gateway.v2.client.GateWayListener;
+
+/**
+ * 描述: BUS启动类
+ * 版权: Copyright (c) 2010
+ * 公司: 深圳市思迪信息技术股份有限公司
+ * 作者: 刘恺
+ * 版本: 2.0.0 
+ * 创建日期: 2016年8月14日 
+ * 创建时间: 下午9:15:36
+ */
+public class EventSink
+{
+	
+	private static Logger logger = Logger.getLogger(EventSink.class);
+	
+	/**
+	 * 在服务器程序启动时调用，用于初始化服务器
+	 */
+	public static void onStart()
+	{
+		logger.info("系统开始启动[Java]");
+		try
+		{
+			//TODO 1、加载基础数据到缓存服务器中
+			//TODO 2、初始化流程节点数据
+			//3、加载配置文件
+			logger.info("读取配置文件开始");
+			Configure.getInstance();
+			//4.开启网关监听服务
+			GateWayListener gateway = new GateWayListener();
+			gateway.start();
+			 String keys1 = Configuration.getString("system.nolog_inout_keys");
+			 logger.info("系统开始启动[Java]keys1:"+keys1);
+//		        String keys2 = Configuration.getString("system.nolog_inout_keys_" + this.request.getFuncNo());
+		        String key3 = Configuration.getString("system.filterPwdField");// 兼容旧代码
+		        logger.info("系统开始启动[Java]key3:"+key3);
+//			 //启动任务管理器
+//	        TaskManager.start();
+		}
+		catch (Exception e)
+		{
+			//防止出现未捕获的RuntimeException问题难定位
+			logger.error("BUS初始化异常:" + e.getMessage(), e);
+		}
+		logger.info("系统启动完成[Java]");
+	}
+	
+	/**
+	 * 在服务器停止时调用，用于释放服务器资源
+	 */
+	public static void onStop()
+	{
+		logger.info("系统开始停止[Java]");
+		// 关闭数据源的连接
+		Configure.destroyDataSource();
+		//TaskManager.stop();
+	}
+	
+}

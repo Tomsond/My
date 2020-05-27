@@ -1,0 +1,27 @@
+package com.thinkive.fxc.ismp.bus.business.pledgeRepo.function;
+
+import com.thinkive.fxc.ismp.bus.base.business.function.IsmpFlowBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.server.ResultVo;
+
+/**
+ * 描述: 股票质押式回购---授信额度确认
+ * 版权: Copyright (c) 2010
+ * 公司: 思迪科技 
+ * 作者: 刘恺
+ * 版本: 1.0 
+ * 创建日期: 2014年12月12日 
+ * 创建时间: 下午5:28:05
+ */
+public class Function1004816 extends IsmpFlowBaseFunction
+{
+	
+	public ResultVo execute() throws Exception
+	{
+		
+		resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+		resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+		return resultVo;
+	}
+	
+}

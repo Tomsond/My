@@ -1,0 +1,78 @@
+package com.thinkive.fxc.ismp.bus.business.electronsign.function;
+
+import java.util.List;
+import java.util.Map;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessConstants;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.function.IsmpFlowBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.business.model.BusinessEntityModel;
+import com.thinkive.fxc.ismp.bus.base.business.service.AgreeRecordService;
+import com.thinkive.fxc.ismp.bus.base.business.service.SignAndVerifyService;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.business.utils.ModularNodeUtil;
+import com.thinkive.fxc.ismp.bus.base.business.vo.UserInfoVo;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.business.util.DataFormatUtils;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdDictionaryConstants;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdInterfaceConstant;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdInterface;
+import com.thinkive.server.ResultVo;
+
+/**
+ * @描述: 电子签名约定书  --- 签署协议（只有一步）
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月31日 下午3:51:51
+ */
+public class Function1004475 extends IsmpFlowBaseFunction
+{
+	
+	private String jsondata;//签名json字符串
+	
+	public ResultVo execute() throws Exception
+	{
+		initVar();
+		
+		//获取节点属性组
+		Map<String, DataRow> signParamsMap = ModularNodeUtil.checkAndReturnSignNodeProperty(nodePropertyConfigModelList);
+		
+		//提交的所有协议
+		SignAndVerifyService signAndVerifyService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_SIGNANDVERIFY, SignAndVerifyService.class);
+		List<Map<String, String>> allSignList = signAndVerifyService.verifySignTextAndSubmitThird(jsondata, signParamsMap);
+		
+		//开通第三方协议权限
+		UserInfoService userInfoService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO, UserInfoService.class);
+		UserInfoVo userInfoVo = userInfoService.queryAndCheckUserByUserIdAndType(userId, ThirdInterfaceConstant.USER_ACCOUNT_TYPE_ZQ);
+		ThirdInterface thirdInterface = SpringHelper.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDINTERFACE, ThirdInterface.class);
+		DataRow thirdInput = DataFormatUtils.packThirdInput(userInfoVo);
+		thirdInterface.signAgreement(thirdInput);
+		
+		//添加业务办理实例和用户答案
+		BusinessEntityModel businessEntityModel = new BusinessEntityModel();
+		businessEntityModel.setUserId(userId);
+		businessEntityModel.setBusinessCode(BusinessConstants.BUSINESS_ELECTRONSIGN);
+		businessEntityModel.setNodeId(submitBprocNodeConfigAndDefineVO.getNextBpNodeId());
+		businessEntityModel.setIsComplete(DictionaryConstants.BOL_TRUE);
+		businessEntityModel.setDealResult(DictionaryConstants.DEAL_RESULT_SUCCESS);
+		businessEntityModel.setOpSource(opSource);
+		businessEntityModel.setIp(ip);
+		businessEntityModel.setOpStation(opStation);
+		AgreeRecordService agreeRecordService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_AGREERECORD, AgreeRecordService.class);
+		agreeRecordService.addBusinessAndBatchAddAgree(allSignList, businessEntityModel, nodeId);
+		
+		resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);//返回成功标示
+		resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+		return resultVo;
+	}
+	
+	private void initVar()
+	{
+		jsondata = this.getAndCheckBlankStrParam("jsondata", ErrorCodeCheckInput.BLANK_FORMAT_SIGNJSON);
+	}
+}

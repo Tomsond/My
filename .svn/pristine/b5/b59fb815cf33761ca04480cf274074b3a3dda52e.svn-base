@@ -1,0 +1,91 @@
+package com.thinkive.fxc.ismp.bus.base.business.dao;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.jdbc.session.Session;
+import com.thinkive.fxc.ismp.bus.base.business.model.BillingContactNameModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.UserExtendModel;
+
+/**
+ * @描述: 用户扩展信息表(T_ISMP_USER_EXTEND)数据层接口
+ * @版权: Copyright (c) 2016 
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0 
+ * @创建时间: 2016年8月15日 下午2:53:39
+ */
+public interface UserExtendDao
+{
+	
+	/**
+	* @描述: 添加用户扩展信息
+	* @作者: 田源
+	* @时间：2016年8月17日 下午3:59:13
+	* @param  userExtendModel
+	* @return UserExtendModel    
+	* @
+	 */
+	public UserExtendModel add(UserExtendModel userExtendModel);
+	
+	/**
+	* @描述: 修改用户扩展信息，返回修改成功记录数
+	* @作者: 田源
+	* @时间：2016年8月17日 下午3:59:13
+	* @param userExtendModel
+	* @return int    
+	 */
+	public int update(UserExtendModel userExtendModel);
+	
+	/**
+	* @描述: 根据userId查询用户扩展信息
+	* @作者: 田源
+	* @param  userId
+	* @return UserExtendModel    
+	* @
+	 */
+	public UserExtendModel queryByUserId(Long userId);
+	
+	/**
+	 * @描述：新增用户扩展信息，需要处理事务
+	 * @作者：刘恺
+	 * @时间：2016年9月9日 上午10:56:21
+	 * @param userExtendModel
+	 * @param session
+	 * @return
+	 */
+	public UserExtendModel add(UserExtendModel userExtendModel, Session session) throws Exception;
+
+	
+	/**
+	 * @描述：更新用户扩展信息，需要处理事务
+	 * @作者：刘恺
+	 * @时间：2016年9月9日 下午12:31:51
+	 * @param userExtendModel
+	 * @param session
+	 * @return
+	 * @throws Exception
+	 */
+	public int update(UserExtendModel userExtendModel, Session session) throws Exception;
+	
+	
+	
+	/**
+	 * @描述：新增用户第二联系人，需要处理事务
+	 * @作者：刘恺
+	 * @时间：2016年9月9日 上午10:56:21
+	 * @param userExtendModel
+	 * @param session
+	 * @return
+	 */
+	public BillingContactNameModel addBillingContact(BillingContactNameModel userExtendModel, Session session) throws Exception;
+	
+	/**
+	 * @描述：更新第二联系人，需要处理事务
+	 * @作者：刘恺
+	 * @时间：2016年9月9日 下午12:31:51
+	 * @param userExtendModel
+	 * @param session
+	 * @return
+	 * @throws Exception
+	 */
+	public int updateBillingContact(BillingContactNameModel userExtendModel, Session session) throws Exception;
+}

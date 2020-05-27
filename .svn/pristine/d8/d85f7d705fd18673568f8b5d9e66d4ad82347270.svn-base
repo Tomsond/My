@@ -1,0 +1,258 @@
+package com.thinkive.fxc.ismp.bus.business.service.impl;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+import org.apache.axis.encoding.Base64;
+import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.DateFormatUtils;
+import org.apache.log4j.Logger;
+import org.dom4j.Document;
+import org.dom4j.Element;
+
+import com.thinkive.base.config.Configuration;
+import com.thinkive.base.exception.BusinessException;
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.StringHelper;
+import com.thinkive.base.util.XMLHelper;
+import com.thinkive.fxc.ismp.bus.base.business.model.SmsModelModel;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeSystem;
+import com.thinkive.fxc.ismp.bus.base.constants.SystemConstants;
+import com.thinkive.fxc.ismp.bus.business.service.SmsSendService;
+import com.thinkive.gateway.v2.client.Client;
+import com.thinkive.gateway.v2.result.Result;
+
+/**
+ * @描述: 短信服务实现类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月26日 下午10:53:53
+ */
+public class SmsSendServiceImpl implements SmsSendService
+{
+	private static final String baseUrl = Configuration.getString("sms.url");//发送地址
+	private static final String spid = Configuration.getString("sms.spid");//客户代码
+	private static final String pwd = Configuration.getString("sms.pwd");//密码
+	private static final String charset = "GBK";
+	private static final Logger logger = Logger.getLogger(SmsSendServiceImpl.class);
+	
+	
+	/**
+	 * @描述：发送短信验证码实现类
+	 * @作者：刘恺
+	 * @时间：2014-11-2 下午03:31:46
+	 * @param mobileNo
+	 * @param content
+	 * @param branchNo
+	 * @return
+	 * @throws Exception
+	 */
+	public boolean sendSMS(String mobileNo, String content, String branchNo) throws Exception
+	{
+		if (StringHelper.isEmpty(mobileNo))
+		{
+			return false;
+		}
+		if (StringHelper.isEmpty(content))
+		{
+			return false;
+		}
+		try
+		{
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			return false;
+		}
+		return false;
+	}
+	
+	/**
+	 * 描述：发送短信验证码实现类
+	 * 作者：王渊
+	 * 时间：2014-3-20 上午10:20:11
+	 * @param mobileNo 手机号码
+	 * @param content 短信内容
+	 * @return 是否发送成功
+	 * @throws Exception
+	 */
+	@Override
+	public boolean sendSMS(String mobileNo, DataRow smsModel) throws Exception
+	{
+		try
+		{
+		    SmsModelModel smm = (SmsModelModel) smsModel;
+		    
+		    /*使用开户发送短信*/
+		    if(Configuration.getString("sms.isUseKHSms").equals("1"))
+		    {
+		        DataRow data = new DataRow();
+		        data.set("mobile_no", mobileNo);
+		        data.set("content", smm.getSmsMessage());
+		        data.set("sms_code", smm.getString("sms_code"));
+		        Client client = new Client(SystemConstants.KHPP_BUS);
+		        logger.info("开始发送短信======>入参："+data);
+		        Result result = client.getResult(501610, data);
+		        logger.info("发送短信======>响应：错误码【"+result.getErr_no()+"】,错误信息【"+result.getErr_info()+"】,返回值【"+result.getData()+"】");
+		        if(result.getErr_no()==0)
+		        {
+		            return true;
+		        }
+		        else
+		        {
+		            throw new BusinessException(ErrorCodeSystem.SMS_ERROR_REQUESTION, result.getErr_info());
+		        }
+		    }
+			
+			if(StringUtils.isBlank(baseUrl))
+			{
+				throw new BusinessException(ErrorCodeSystem.SMS_ERROR_REQUESTION,"短信访问地址不能为空，请检查系统配置");
+			}
+			if(StringUtils.isBlank(spid))
+			{
+				throw new BusinessException(ErrorCodeSystem.SMS_ERROR_REQUESTION,"短信访问客户代码不能为空，请检查系统配置");
+			}
+			if(StringUtils.isBlank(pwd))
+			{
+				throw new BusinessException(ErrorCodeSystem.SMS_ERROR_REQUESTION,"短信访问密码不能为空，请检查系统配置");
+			}
+			Map<String,String> params = new HashMap<String,String>();
+			params.put("spid",spid);
+			params.put("pwd",pwd);
+			params.put("id",DateFormatUtils.format(System.currentTimeMillis(), "yyyyMMddHHmmss"+RandomStringUtils.randomNumeric(4)));
+			params.put("mobiles", mobileNo);
+			params.put("sms", URLEncoder.encode(Base64.encode(smm.getSmsMessage().getBytes(charset)),charset));
+			params.put("pri", "0");
+			logger.info("发送短信请求："+baseUrl+",参数："+params);
+			String xmlStr = getURLContent(baseUrl,params, charset);
+			logger.info("发送短信响应:"+xmlStr);
+//			String xmlStr = "<?xml version=\"1.0\" encoding=\"gbk\"?> <Messages><Result>0</Result><Desc>成功</Desc></Messages>";
+			Document document = XMLHelper.getDocumentFromString(xmlStr);
+			if(document != null)
+			{
+				Element root = document.getRootElement();
+				int resultCode = Integer.parseInt(root.elementTextTrim("Result"));
+				if(resultCode<0)
+				{
+					logger.error("短信发送失败："+root.elementText("Desc"));
+					throw new BusinessException(ErrorCodeSystem.SMS_ERROR_REQUESTION,root.elementText("Desc"));
+				}
+			}
+			else
+			{
+				logger.error("短信发送返回数据格式不正确："+xmlStr);
+			}
+		}
+		catch (Exception e)
+		{
+			throw new BusinessException(ErrorCodeSystem.SMS_ERROR_REQUESTION, e);
+		}
+		return true;
+	}
+	
+	
+	/**
+	 * 
+	 * 描述：获取参数<br>
+	 * 作者：庞成国<br>
+	 * 时间：2016-9-13 下午07:16:50
+	 * @param params
+	 * @return
+	 */
+	private static String getUrlParam(Map<String, String> params)
+	{
+		if(params == null)
+		{
+			return "" ;
+		}
+		// 添加url参数  
+		Iterator<String> it = params.keySet().iterator();
+		StringBuffer sb = null;
+		while (it.hasNext())
+		{
+			String key = it.next();
+			String value = params.get(key);
+			if (sb == null)
+			{
+				sb = new StringBuffer();
+				sb.append("?");
+			}
+			else
+			{
+				sb.append("&");
+			}
+			sb.append(key);
+			sb.append("=");
+			sb.append(value);
+		}
+		return sb.toString();
+	}
+	
+	private  static String getURLContent(String urlPath,Map<String,String> params, String charset) throws Exception
+	{
+		BufferedReader reader = null;
+		HttpURLConnection conn = null;
+		OutputStreamWriter out = null;
+		StringBuffer buffer = new StringBuffer();
+		try
+		{
+			URL url = new URL(urlPath);
+			HttpURLConnection.setFollowRedirects(false);
+			conn = (HttpURLConnection) url.openConnection();
+			conn.setRequestMethod("POST");
+			conn.setDoOutput(true);
+			conn.setUseCaches(false);
+			conn.setDefaultUseCaches(false);
+			conn.setConnectTimeout(10000); // 10秒
+			conn.setReadTimeout(60000); // 60秒
+			conn.connect();
+			out = new OutputStreamWriter(conn.getOutputStream(), charset);
+			out.write(getUrlParam(params));
+			out.flush();
+			int repCode = conn.getResponseCode();
+			if (repCode == 200)
+			{
+				int count = 0;
+				char[] chBuffer = new char[1024];
+				BufferedReader input = new BufferedReader(new InputStreamReader(conn.getInputStream(), charset));
+				while ((count = input.read(chBuffer)) != -1)
+				{
+					buffer.append(chBuffer, 0, count);
+				}
+			}
+		}
+		catch (Exception ex)
+		{
+			throw ex;
+		}
+		finally
+		{
+			try
+			{
+				if (out != null)
+					out.close();
+				if (reader != null)
+					reader.close();
+				if (conn != null)
+					conn.disconnect();
+			}
+			catch (Exception ex)
+			{
+				logger.error("关闭连接失败", ex);
+			}
+		}
+		return buffer.toString();
+	}
+
+}

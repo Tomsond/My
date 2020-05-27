@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="GBK"?>
+<system>
+	<category name="system" description="系统相关配置">
+		<item name="isOracleSequence" value="1" description="使用oracle生成序列" />
+		<item name="service_conf_path" value="fxc_standard.xml"
+			description="服务类映射配置文件" />
+		<item name="isUseError" value="0" description="1:表示使用自定义错误，0:表示不使用自定义错误" />
+		<item name="pwdSaveType" value="1" description="用户密码保存方式，1入库，2缓存，3不做任何处理" />
+		<item name="isAutoIncrement" value="0" description="" />
+		<item name="countpwderror" value="1" description="是否记录密码错误次数  0：不记录 1：记录" />
+		<item name="dbtype" value="o" description="数据库类型 o:oracle,m:mysql" />
+		<item name="onewithmanyaccount" value="1" description="是否为一人多户 0：否，1：是" />
+		<item name="nolog_inout_keys" value="img_data,password,privatekey_pwd"
+			description="所有功能码输入输出不打印日志的字段，逗号分隔" />
+		<item name="isTest" value="0" description="是否是测试环境，0：否，1：是；说明：如果是测试环境会减少一些测试数据校验" />
+		<!-- 第三方接口 开始 -->
+		<item name="third_need_pwd" value="0" description="第三方接口入参是否需要密码" />
+		<item name="third_need_operator" value="0" description="第三方接口入参是否需要操作员帐号密码" />
+		<!-- 第三方接口 结束 -->
+	</category>
+
+	<category name="img" description="图片上传显示参数配置">
+		<item name="saveType" value="0" description="0:是存储在数据库，1：是存储在硬盘"></item>
+		<item name="savePath" value="D:/img" description="图片存储在硬盘的路径"></item>
+		<item name="ocrServer"
+			value="http://imgs3.intsig.net/icr/recog_idcard_demo?head_portrait=1&amp;crop_image=1"
+			description="图像识别服务器"></item>
+	</category>
+
+	<category name="secret" description="加密相关配置">
+		<item name="pwdEncryptType" value="1" description="1:表示使用加密Bus加密，目前不支持其他加密方式" />
+	</category>
+
+	<category name="sms" description="短信发送配置">
+		<item name="mobileMsgSetServer" value="GA" description="短信发送平台选择" />
+		<item name="sendUrl"
+			value="http://sdk2.zucp.net:8060/webservice.asmx/mt?sn=SDK-SKY-010-00408&amp;pwd=8AA57FEE0AD1949E44F26B103FE8C4C0&amp;ext=&amp;stime=&amp;rrid="
+			description="短信发送平台路径" />
+		<item name="setPWD" value="www.kh.zszq.com.cn" description="短信发送平台路径" />
+		<item name="smsValidate" value="0" description="短信验证码是否校验，0测试不校验，1生产校验" />
+		<item name="smscodesend_time" value="60" description="短信验证码发送时间间隔(秒)" />
+		<item name="smscodesave_time" value="60" description="短信验证码存储时间(秒)" />
+		<item name="mobile" value="mobile" description="短信mobile对应的参数" />
+		<item name="content" value="content" description="短信content对应的参数" />
+		<item name="name" value="[中山证券]" description="是否需要在短信后面公司名称" />
+	</category>
+
+	<category name="sendEmail" description="发送电子邮件配置">
+		<item name="server_host" value="smtp.qq.com" description="发送邮件服务器地址" />
+		<item name="server_port" value="25" description="发送邮箱服务器端口号" />
+		<item name="isValidate" value="1" description="是否验证。1：验证；2：不验证" />
+		<item name="username" value="1134135987@qq.com" description="发送邮箱用户名" />
+		<item name="password" value="123456" description="发送邮箱密码" />
+	</category>
+
+	<category name="sysConfig" description="综合业务受理平台-相关参数设置">
+		<item name="updateBankErrorMax" value="3"
+			description="三方存管修改业务中，绑定三方存管最多错误次数（超过次数自动预指定）" />
+		<item name="bankNumMax" value="5" description="三方存管中允许绑定最多的银行卡张数" />
+		<item name="bankNumMin" value="0" description="三方存管中允许绑定最少的银行卡张数" />
+		<item name="maxErrorInput" value="8" description="每天登录密码最大错误次数" />
+	</category>
+
+	<category name="cert" description="证书配置">
+		<item name="verify_type" value="1" description="验签类型 0：单个验签，1：批量验签"></item>
+		<item name="certSourceZD" value="1" description="中登证书 1"></item>
+		<item name="certSourceZJ" value="2" description="自建证书 2:天威; 3:信安"></item>
+	</category>
+	<category name="baiduAPI" description="获取城市信息">
+		<item name="ak" value="qEXl7eFY9LrsmWAMV4Irt1bR" description="关键字" />
+		<item name="url" value="http://api.map.baidu.com/location/ip"
+			description="API地址" />
+	</category>
+
+	<category name="survey_code" description="问卷编号配置项">
+		<item name="fxcp" value="fxcp" description="风险测评"></item>
+		<item name="ggt_ywzscp" value="ggt_ywzscp" description="港股通_业务知识测评"></item>
+		<item name="ggt_cxcp" value="ggt_cxcp" description="港股通_诚信测评"></item>
+		<item name="fxckh_wjhf" value="wjhf" description="非现场开户_问卷回访"></item>
+		<item name="zk_wjhf" value="wjhf" description="增开_问卷回访"></item>
+		<item name="applycredit_ywzscp" value="applycredit_ywzscp"
+			description="融资融券信用证券帐号申请_业务知识测评"></item>
+		<item name="applycredit_zxcp" value="applycredit_zxcp"
+			description="融资融券信用证券帐号申请_征信测评"></item>
+		<item name="ggt_wjhf" value="ggt_wjhf" description="港股通_问卷回访"></item>
+		<item name="khqy_wjhf" value="ggt_wjhf" description="客户迁移_问卷回访"></item>
+	</category>
+
+	<category name="authority" description="第三方接口协议权限配置">
+		<item name="agmt_type_str" value="0A_0i_0y_0M_12_0l_1100_1110_0b00_0b10_0e_15"
+			description="Function1004429批量查询用户开通的权限接口，配置需要查询的权限类型，多个用_下划线分开"></item>
+	</category>
+
+	<category name="margintrading" description="融资融券配置">
+		<item name="fxcpgrade" value="积极型,保守型,稳健型,成长型" description="风险测评允许通过的等级"></item>
+		<item name="ywzscpscore" value="80" description="业务知识测评允许通过的分数"></item>
+	</category>
+
+</system>

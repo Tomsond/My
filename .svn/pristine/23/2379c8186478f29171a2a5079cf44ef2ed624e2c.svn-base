@@ -1,0 +1,221 @@
+package com.thinkive.fxc.ismp.bus.base.business.model;
+
+import java.sql.Timestamp;
+import java.util.Date;
+
+import com.thinkive.base.jdbc.DataRow;
+
+/**
+ * @描述: 跑批任务表  T_ISMP_PP_TASK
+ * @版权: Copyright (c) 2016 
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 尹杰民
+ * @版本: 2.0 
+ * @创建时间: 2016年8月15日 上午10:11:32
+ */
+public class PpTaskModel extends DataRow
+{
+	
+	private static final long serialVersionUID = 6406450372189627278L;
+	
+	private static final String TASK_ID = "task_id";
+	
+	private static final String BUSINESS_ID = "business_id";
+	
+	private static final String EXEC_STATUS = "exec_status";
+	
+	private static final String TASK_STATUS = "task_status";
+	
+	private static final String TASK_NAME = "task_name";
+	
+	private static final String TASK_DESC = "task_desc";
+	
+	private static final String PLAN_LOAD_DATE = "plan_load_date";
+	
+	private static final String IS_LOOP = "is_loop";
+	
+	private static final String MACHINE_FLAG = "machine_flag";
+	
+	private static final String CREATE_DATE = "create_date ";
+	
+	private static final String UPDATE_DATE = "update_date ";
+	
+	/**
+	 * 获取任务编号
+	 */
+	public Long getTaskId()
+	{
+		return getLong(TASK_ID);
+	}
+	
+	/**
+	 * 设置任务编号
+	 */
+	public void setTaskId(Long taskId)
+	{
+		set(TASK_ID, taskId);
+	}
+	
+	/**
+	 * 获取业务办理实例编号
+	 */
+	public Long getBusinessId()
+	{
+		return getLong(BUSINESS_ID);
+	}
+	
+	/**
+	 * 设置业务办理实例编号
+	 */
+	public void setBusinessId(Long businessId)
+	{
+		set(BUSINESS_ID, businessId);
+	}
+	
+	/**
+	 * 获取执行状态
+	 */
+	public String getExecStatus()
+	{
+		return getString(EXEC_STATUS);
+	}
+	
+	/**
+	 * 设置执行状态
+	 */
+	public void setExecStatus(String execStatus)
+	{
+		set(EXEC_STATUS, execStatus);
+	}
+	
+	/**
+	 * 获取任务状态
+	 */
+	public String getTaskStatus()
+	{
+		return getString(TASK_STATUS);
+	}
+	
+	/**
+	 * 设置任务状态
+	 */
+	public void setTaskStatus(String taskStatus)
+	{
+		set(TASK_STATUS, taskStatus);
+	}
+	
+	/**
+	 * 获取任务标识
+	 */
+	public String getTaskName()
+	{
+		return getString(TASK_NAME);
+	}
+	
+	/**
+	 * 设置任务标识
+	 */
+	public void setTaskName(String taskName)
+	{
+		set(TASK_NAME, taskName);
+	}
+	
+	/**
+	 * 获取任务标识说明
+	 */
+	public String getTaskDesc()
+	{
+		return getString(TASK_DESC);
+	}
+	
+	/**
+	 * 设置任务标识说明
+	 */
+	public void setTaskDesc(String taskDesc)
+	{
+		set(TASK_DESC, taskDesc);
+	}
+	
+	/**
+	 * 获取是否需要轮询
+	 */
+	public String getIsLoop()
+	{
+		return getString(IS_LOOP);
+	}
+	
+	/**
+	 * 设置是否需要轮询
+	 */
+	public void setIsLoop(String isLoop)
+	{
+		set(IS_LOOP, isLoop);
+	}
+	
+	/**
+	 * 获取分配机器标识
+	 */
+	public String getMachineFlag()
+	{
+		return getString(MACHINE_FLAG);
+	}
+	
+	/**
+	 * 设置分配机器标识
+	 */
+	public void setMachineFlag(String machineFlag)
+	{
+		set(MACHINE_FLAG, machineFlag);
+	}
+	
+	/**
+	 * 获取进入队列时间
+	 */
+	public Date getCreateDate()
+	{
+		return (Date) get(CREATE_DATE);
+	}
+	
+	/**
+	 * 设置进入队列时间
+	 */
+	public void setCreateDate(Date createDate)
+	{
+		Timestamp timestamp = new Timestamp(createDate.getTime());
+		set(CREATE_DATE, timestamp);
+	}
+	
+	/**
+	 * 获取最后更新时间
+	 */
+	public Date getUpdateDate()
+	{
+		return (Date) get(UPDATE_DATE);
+	}
+	
+	/**
+	 * 设置最后更新时间
+	 */
+	public void setUpdateDate(Date updateDate)
+	{
+		Timestamp timestamp = new Timestamp(updateDate.getTime());
+		set(UPDATE_DATE, timestamp);
+	}
+	
+	/**
+	 * 获取计划执行时间
+	 */
+	public Date getPlanLoadDate()
+	{
+		return (Date) get(PLAN_LOAD_DATE);
+	}
+	
+	/**
+	 * 设置计划执行时间
+	 */
+	public void setPlanLoadDate(Date planLoadDate)
+	{
+		Timestamp timestamp = new Timestamp(planLoadDate.getTime());
+		set(PLAN_LOAD_DATE, timestamp);
+	}
+}

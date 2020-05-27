@@ -1,0 +1,57 @@
+package com.thinkive.fxc.ismp.bus.base.business.service;
+
+import java.util.List;
+import java.util.Map;
+
+import com.thinkive.fxc.ismp.bus.base.business.model.ImageInformationModel;
+
+/**
+ * @描述: 影像资料上传服务类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年9月10日 下午1:57:51
+ */
+public interface ImageUploadService
+{
+	
+	/**
+	 * @描述：校验影像节点照片是否全部上传
+	 * @作者：刘恺
+	 * @时间：2016年9月10日 下午2:25:44
+	 * @param mediaCodes 
+	 * @param businessId 
+	 * @param nodeId	 
+	 * @param needUploadTotalMedias 
+	 * @return
+	 */
+	public abstract boolean checkImgUploadComplete(List<String> mediaCodeList, Long businessId, String nodeId, int needUploadTotalMedias);
+	
+	/**
+	 * @描述：校验影像上传节点用户上传数据
+	 * @作者：刘恺
+	 * @时间：2016年9月11日 下午5:17:02
+	 * @param imgNodePropertyMap
+	 * @param businessId
+	 * @param nodeId
+	 * @param imageInformationModel
+	 * @throws Exception 
+	 */
+	public abstract void checkImgNodeUploadData(Map<String, Object> imgNodePropertyMap, Long businessId, String nodeId, Long userId, ImageInformationModel imageInformationModel, String businessCode)
+			throws Exception;
+	
+	/**
+	 * @描述：校验影像上传节点用户上传数据并保存
+	 * @作者：刘恺
+	 * @时间：2016年9月11日 下午5:17:02
+	 * @param imgNodePropertyMap
+	 * @param businessId
+	 * @param nodeId
+	 * @param imageInformationModel
+	 * @throws Exception 
+	 */
+	public abstract void checkImgNodeUploadDataAndSave(Map<String, Object> imgNodePropertyMap, Long businessId, String nodeId, Long userId, ImageInformationModel imageInformationModel,
+			String businessCode) throws Exception;
+	
+}

@@ -1,0 +1,73 @@
+package com.thinkive.fxc.ismp.bus.business.resetpwd.dao.impl;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.jdbc.session.Session;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessTableConstants;
+import com.thinkive.fxc.ismp.bus.base.business.vo.BusinessEntityAndConfigVO;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseDao;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.SystemConstants;
+import com.thinkive.fxc.ismp.bus.base.util.ModelUtil;
+import com.thinkive.fxc.ismp.bus.business.resetpwd.constants.ResetPwdConstants;
+import com.thinkive.fxc.ismp.bus.business.resetpwd.dao.ResetPwdEntityDao;
+import com.thinkive.fxc.ismp.bus.business.resetpwd.model.ResetPwdExtendModel;
+
+public class ResetPwdEntityDaoImpl extends ISMPBaseDao implements ResetPwdEntityDao
+{
+	
+	@Override
+	public BusinessEntityAndConfigVO queryEacVoNotCompleteByFundAccount(String fundAccount)
+	{
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT BF.ID, BF.USER_ID, BF.BUSINESS_CODE, BF.NODE_ID, BF.ISCOMPLETE, BF.DEAL_RESULT,BF.DESCRIPTION, BF.OP_SOURCE,BC.BTYPE_ID,BC.NEED_AUDIT,BC.DATA_SUBMITTYPE,BC.BREAKPOINT_OPERATION,BC.RESET_FLOW,BF.FLAG,BF.CREATE_DATE, BF.UPDATE_DATE  FROM ");
+		sql.append(ResetPwdConstants.T_ISMP_RESETPWD_EXTEND);
+		sql.append(" RE INNER JOIN ");
+		sql.append(BusinessTableConstants.T_ISMP_BUSINESS_ENTITY);
+		sql.append(" BF ON BF.ID = RE.BUSINESS_ID  AND RE.FUNDACCOUNT = ?  AND BF.ISCOMPLETE = ? LEFT JOIN ");
+		sql.append(BusinessTableConstants.T_ISMP_BUSINESS_CONFIG);
+		sql.append(" BC ON BF.BUSINESS_CODE = BC.BUSINESS_CODE AND BF.OP_SOURCE = BC.OP_SOURCE ");
+		DataRow businessEntityModel = this.getJdbcTemplate().queryMap(sql.toString(), new Object[] { fundAccount, DictionaryConstants.BOL_FALSE });
+		return ModelUtil.packInfo(businessEntityModel, BusinessEntityAndConfigVO.class);
+	}
+	
+	@Override
+	public BusinessEntityAndConfigVO queryEacVoNotCompleteByFundAccountNew(String fundAccount,String flag)
+	{
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT BF.ID, BF.USER_ID, BF.BUSINESS_CODE, BF.NODE_ID, BF.ISCOMPLETE, BF.DEAL_RESULT,BF.DESCRIPTION, BF.OP_SOURCE,BC.BTYPE_ID,BC.NEED_AUDIT,BC.DATA_SUBMITTYPE,BC.BREAKPOINT_OPERATION,BC.RESET_FLOW,BF.FLAG,BF.CREATE_DATE, BF.UPDATE_DATE  FROM ");
+		sql.append(ResetPwdConstants.T_ISMP_RESETPWD_EXTEND);
+		sql.append(" RE INNER JOIN ");
+		sql.append(BusinessTableConstants.T_ISMP_BUSINESS_ENTITY);
+		sql.append(" BF ON BF.ID = RE.BUSINESS_ID  AND RE.FUNDACCOUNT = ?  AND BF.ISCOMPLETE = ? AND BF.FLAG=? LEFT JOIN ");
+		sql.append(BusinessTableConstants.T_ISMP_BUSINESS_CONFIG);
+		sql.append(" BC ON BF.BUSINESS_CODE = BC.BUSINESS_CODE AND BF.OP_SOURCE = BC.OP_SOURCE ");
+		DataRow businessEntityModel = this.getJdbcTemplate().queryMap(sql.toString(), new Object[] { fundAccount, DictionaryConstants.BOL_FALSE,flag });
+		return ModelUtil.packInfo(businessEntityModel, BusinessEntityAndConfigVO.class);
+	}
+	
+	public BusinessEntityAndConfigVO queryEacVoNotCompleteByFundAccount(String fundAccount, String businessCode) {
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT BF.ID, BF.USER_ID, BF.BUSINESS_CODE, BF.NODE_ID, BF.ISCOMPLETE, BF.DEAL_RESULT, BF.OP_SOURCE,BC.BTYPE_ID,BC.NEED_AUDIT,BC.DATA_SUBMITTYPE,BC.BREAKPOINT_OPERATION,BC.RESET_FLOW, BF.CREATE_DATE, BF.UPDATE_DATE  FROM ");
+		sql.append(ResetPwdConstants.T_ISMP_RESETPWD_EXTEND);
+		sql.append(" RE INNER JOIN ");
+		sql.append(BusinessTableConstants.T_ISMP_BUSINESS_ENTITY);
+		sql.append(" BF ON BF.ID = RE.BUSINESS_ID  AND RE.FUNDACCOUNT = ? AND BF.BUSINESS_CODE = ? AND BF.ISCOMPLETE = ? LEFT JOIN ");
+		sql.append(BusinessTableConstants.T_ISMP_BUSINESS_CONFIG);
+		sql.append(" BC ON BF.BUSINESS_CODE = BC.BUSINESS_CODE AND BF.OP_SOURCE = BC.OP_SOURCE ");
+		DataRow businessEntityModel = this.getJdbcTemplate().queryMap(sql.toString(), new Object[] { fundAccount, businessCode, DictionaryConstants.BOL_FALSE });
+		return ModelUtil.packInfo(businessEntityModel, BusinessEntityAndConfigVO.class);
+	}
+	@Override
+	public int addResetPwdExtend(ResetPwdExtendModel resetPwdExtendModel)
+	{
+		return this.getJdbcTemplate().insert(ResetPwdConstants.T_ISMP_RESETPWD_EXTEND, resetPwdExtendModel);
+	}
+	
+	@Override
+	public int addResetPwdExtend(ResetPwdExtendModel resetPwdExtendModel, Session session)
+	{
+		String id = getSeqValue(SystemConstants.DB_ISMP,BusinessTableConstants.T_ISMP_BUSINESS_ENTITY);
+		resetPwdExtendModel.setId(Long.parseLong(id));
+		return session.insert(ResetPwdConstants.T_ISMP_RESETPWD_EXTEND, resetPwdExtendModel);
+	}
+}

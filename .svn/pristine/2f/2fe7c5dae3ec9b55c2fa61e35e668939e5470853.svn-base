@@ -1,0 +1,80 @@
+package com.thinkive.fxc.ismp.bus.business.function;
+
+import java.util.List;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.business.vo.UserInfoVo;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.business.util.DataFormatUtils;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdDictionaryConstants;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdInterfaceConstant;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdInterface;
+import com.thinkive.server.ResultVo;
+
+/**
+ * @描述: 查询证券资金帐号权限是否开通
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2017年3月19日 下午7:29:35
+ */
+public class Function1004464 extends ISMPBaseFunction
+{
+	
+	private Long userId;
+	
+	private String agmtTypeStr;
+	
+	@Override
+	public ResultVo execute() throws Exception
+	{
+		initVar();
+		
+		UserInfoService userInfoService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO, UserInfoService.class);
+		UserInfoVo userInfoVo = userInfoService.queryAndCheckUserByUserIdAndType(userId, ThirdInterfaceConstant.USER_ACCOUNT_TYPE_ZQ);
+		//查询第三方协议权限
+		String flag = checkAuthority(userInfoVo, agmtTypeStr);
+		DataRow result = new DataRow();
+		result.set("flag", flag);
+		ResultVo resultVo = new ResultVo();
+		resultVo.setResult(result);
+		resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+		resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+		return resultVo;
+	}
+	
+	private String checkAuthority(UserInfoVo userInfoVo, String agmtTypeStr) throws Exception
+	{
+		ThirdInterface thirdInterface = SpringHelper.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDINTERFACE, ThirdInterface.class);
+		DataRow thirdInput = DataFormatUtils.packThirdInput(userInfoVo);
+		thirdInput.set("agmt_type_str", agmtTypeStr);
+		List<DataRow> authorityList = thirdInterface.queryZJAccAuthority(thirdInput);
+		String hasOpen = DictionaryConstants.BOL_FALSE;
+		for (DataRow authoritItem : authorityList)
+		{
+			if (agmtTypeStr.equals(authoritItem.getString("cust_agmt_type")))
+			{
+				hasOpen = DictionaryConstants.BOL_TRUE;
+				break;
+			}
+		}
+		return hasOpen;
+	}
+	
+	/**
+	 * @描述：获取业务入参
+	 * @作者：刘恺
+	 * @时间：2016年8月23日 下午8:55:24
+	 */
+	private void initVar()
+	{
+		userId = this.formatLongParam(this.getAndCheckBlankStrParam("user_id", ErrorCodeCheckInput.BLANK_USERID), ErrorCodeCheckInput.LONG_FORMAT_ERROR);
+		agmtTypeStr = this.getAndCheckBlankStrParam("agmtTypeStr", ErrorCodeCheckInput.BLANK_ORG_AGMTTYPESTR);
+	}
+}

@@ -1,0 +1,129 @@
+package com.thinkive.fxc.ismp.bus.business.assets.thirdbank.function;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.basicdata.contants.BasicServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.basicdata.service.BankService;
+import com.thinkive.fxc.ismp.bus.base.basicdata.vo.ThirdBankInfoVo;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.business.vo.UserInfoVo;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.business.assets.thirdbank.contants.ThirdBankContants;
+import com.thinkive.fxc.ismp.bus.business.assets.thirdbank.service.ThirdBankService;
+import com.thinkive.fxc.ismp.bus.business.util.DataFormatUtils;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdDictionaryConstants;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdInterfaceConstant;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdInterface;
+import com.thinkive.server.ResultVo;
+
+/**
+ * @描述: 三方存管-根据资金账户获取绑定的银行卡
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2017年2月21日 下午12:52:15
+ */
+public class Function1004134 extends ISMPBaseFunction
+{
+	
+	private Long userId; //用户编号
+	
+	private String fundAccount; //资金账号
+	
+	@Override
+	public ResultVo execute() throws Exception
+	{
+		//step1:接收参数并校验
+		initVar();
+		
+		//step2:根据资金账号获取用户信息
+		UserInfoService userInfoService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO, UserInfoService.class);
+		UserInfoVo userInfoVo = userInfoService.queryAndCheckUserByUserIdAndAccount(userId, fundAccount);
+		
+		//step3:根据资金账号获取与其绑定的所有银行卡信息
+		ThirdInterface thirdInterface = SpringHelper.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDINTERFACE, ThirdInterface.class);
+		DataRow thirdInput = DataFormatUtils.packThirdInput(userInfoVo);
+		//传资金账户只能查询到该资金账户下面的存管银行，客户需要不管什么情况都要根据客户号查询所有存管银行		
+		thirdInput.remove("fund_account");
+		List<DataRow> thirdbankCardList = thirdInterface.getBingingBankCards(thirdInput);
+		
+		//step4:同步资金帐号三方存管绑定的银行卡到数据库中
+		BankService bankService = SpringHelper.getBean(BasicServiceBeanIdConstants.SERVICE_ID_BANK, BankService.class);
+		ThirdBankService thirdBankService = SpringHelper.getBean(ThirdBankContants.SERVICE_ID_THIRDBANK, ThirdBankService.class);
+		thirdBankService.deleteByUserId(userId);
+		List<DataRow> result = new ArrayList<DataRow>();
+		for (int i = 0; i < thirdbankCardList.size(); i++)
+		{
+			DataRow bank = (DataRow) thirdbankCardList.get(i);
+			String linkBankOrg = bank.getString("bank_code");
+			ThirdBankInfoVo thirdBankInfoVo = bankService.queryVoByLinkBankOrg(linkBankOrg);
+			bank.set("user_id", userId);
+			if (thirdBankInfoVo != null)
+			{
+				bank.set("bank_code", thirdBankInfoVo.getBankNo());
+				thirdBankService.addUserBankBind(bank);
+				bank.set("bank_name", thirdBankInfoVo.getBankName());//银行名称
+				bank.set("link_bank_org", linkBankOrg);//第三方接口的银行编号
+				bank.set("bank_config_id", thirdBankInfoVo.getThirdBankId());//三方存管配置编号
+				bank.set("third_bank_url", thirdBankInfoVo.getThirdBankUrl());//三方存管显示图标地址
+				bank.set("bank_small_url", thirdBankInfoVo.getBankSmallUrl());//充值取现小图标
+				bank.set("smallimg", thirdBankInfoVo.getSmallImg());//银行小图标
+				bank.set("bgimg", thirdBankInfoVo.getBgImg());//图标背景
+			}
+			result.add(bank);
+		}
+		
+		//step5:查询资金，针对不同银行卡的主辅资金帐号,循环去匹配资产信息
+		thirdInput.remove("account");
+		thirdInput.set("moneytype", ThirdInterfaceConstant.MONEY_TYPE_RMB);
+		thirdInput.set("showDetail", DictionaryConstants.BOL_TRUE);//显示资产明细
+		List<DataRow> assetList = null;
+			for (DataRow bankItem : result)
+			{
+				String fundbal = "0.00";//余额
+				String fetch_balance = "0.00";//可取资金
+				String fundAccount = bankItem.getString("fund_account");
+				thirdInput.set("fund_account", fundAccount);
+				assetList = thirdInterface.getAssetInfo(thirdInput);
+				if(assetList!=null&assetList.size()>0){
+					for (DataRow assetInfo : assetList)
+					{
+						String assetInfoAccount = assetInfo.getString("fund_account");
+						if (fundAccount.equals(assetInfoAccount))
+						{
+							fundbal = assetInfo.getString("fundbal"); //余额
+							fetch_balance = assetInfo.getString("fetch_balance");//可取资金	
+							bankItem.set("fundbal", fundbal);
+							bankItem.set("fetch_balance", fetch_balance);
+						}else{
+							bankItem.set("fundbal", fundbal);
+							bankItem.set("fetch_balance", fetch_balance);
+						}
+					}	
+				}else{
+					bankItem.set("fundbal", fundbal);
+					bankItem.set("fetch_balance", fetch_balance);
+				}
+			}
+		
+		//step6:打包出参
+		ResultVo resultVo = new ResultVo();
+		resultVo.setResult(result);
+		resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+		resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+		return resultVo;
+	}
+	
+	private void initVar()
+	{
+		userId = this.formatLongParam(this.getAndCheckBlankStrParam("user_id", ErrorCodeCheckInput.BLANK_USERID), ErrorCodeCheckInput.LONG_FORMAT_ERROR);
+		fundAccount = this.getAndCheckBlankStrParam("zj_account", ErrorCodeCheckInput.BLANK_FUNDACCOUNT);
+	}
+}

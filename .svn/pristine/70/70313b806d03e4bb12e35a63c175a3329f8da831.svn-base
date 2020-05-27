@@ -1,0 +1,55 @@
+/**
+ * 
+ */
+package com.thinkive.fxc.ismp.bus.base.business.dao.impl;
+
+import java.util.Date;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessTableConstants;
+import com.thinkive.fxc.ismp.bus.base.business.dao.PpTaskFlowDao;
+import com.thinkive.fxc.ismp.bus.base.business.model.PpTaskFlowModel;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseDao;
+import com.thinkive.fxc.ismp.bus.base.constants.SystemConstants;
+import com.thinkive.fxc.ismp.bus.base.util.ModelUtil;
+
+/**
+ * @描述:  跑批任务流程表 (T_ISMP_PP_TASK_FLOW)数据层接口实现
+ * @版权: Copyright (c) 2016 
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 尹杰民
+ * @版本: 2.0 
+ * @创建时间: 2016年8月16日 上午9:50:07
+ */
+public class PpTaskFlowDaoImpl extends ISMPBaseDao implements PpTaskFlowDao
+{
+	
+	@Override
+	public PpTaskFlowModel add(PpTaskFlowModel ppTaskFlowModel)
+	{
+		String flowId = getSeqValue(SystemConstants.DB_ISMP,BusinessTableConstants.T_ISMP_PP_TASK_FLOW);
+		ppTaskFlowModel.setFlowId(Long.valueOf(flowId));
+		ppTaskFlowModel.setCreateDate(new Date());
+		this.getJdbcTemplate().insert(BusinessTableConstants.T_ISMP_PP_TASK_FLOW, ppTaskFlowModel);
+		return ppTaskFlowModel;
+	}
+	
+	@Override
+	public int update(PpTaskFlowModel ppTaskFlowModel)
+	{
+		ppTaskFlowModel.setUpdateDate(new Date());
+		return this.getJdbcTemplate().update(BusinessTableConstants.T_ISMP_PP_TASK_FLOW, ppTaskFlowModel, "FLOW_ID", ppTaskFlowModel.getFlowId());
+	}
+	
+	@Override
+	public PpTaskFlowModel queryByTaskId(Long taskId)
+	{
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT FLOW_ID, TASK_ID, FLOW_INDEX, FLOW_NAME, FLOW_DESC, EXEC_STATUS, CREATE_DATE");
+		sql.append(", UPDATE_DATE, IS_NEXT_FLOW, RUN_TIMES, REMARK, STOP_FLOW, F_FLOW_NO  FROM ");
+		sql.append(BusinessTableConstants.T_ISMP_PP_TASK_FLOW).append(" WHERE TASK_ID = ? ");
+		DataRow queryResult = this.getJdbcTemplate().queryMap(sql.toString(), new Object[] { taskId });
+		return ModelUtil.packInfo(queryResult, PpTaskFlowModel.class);
+	}
+	
+}

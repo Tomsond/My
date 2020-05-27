@@ -1,0 +1,182 @@
+package com.thinkive.fxc.ismp.bus.base.business.model;
+
+import java.sql.Timestamp;
+import java.util.Date;
+
+import com.thinkive.base.jdbc.DataRow;
+
+/**
+ * 描述: 审核任务信息(T_FXC_AUDIT_BOUND)
+ * 版权: Copyright (c) 2010
+ * 公司: 思迪科技 
+ * 作者: 刘恺
+ * 版本: 1.0 
+ * 创建日期: 2016年6月27日 
+ * 创建时间: 下午5:36:42
+ */
+public class AuditTaskInfoModel extends DataRow
+{
+	
+	private static final long serialVersionUID = -2102544496585686767L;
+	
+	private static final String ID = "id"; //自增主键
+	
+	private static final String USERID = "user_id"; //自增主键
+	
+	private static final String STATE = "state"; //办理状态
+	
+	private static final String AUDIT_STATE = "audit_state"; //办理状态
+	
+	private static final String CREATE_DATE = "create_date"; //创建时间
+	
+	private static final String UPDATE_DATE = "update_date"; //更新时间
+	
+	private static final String BUSINESS_ID = "business_id"; //业务ID
+	
+	private static final String AUDIT_ACCOUNT = "audit_account"; //绑定账号（t_plat_user.use_id） 
+	
+	private static final String IS_BOUND = "is_bound";//绑定状态 0:未绑定，1：已绑定
+	
+	private static final String CHECK_ACCOUNT = "check_account";//审核人
+	
+	private static final String BUSINESS_TYPE = "biz_type";//业务类型
+	
+	private static final String RECEIVE_DATE = "receive_date"; //领取时间
+	
+	public Long getId()
+	{
+		return getLong(ID);
+	}
+	
+	public void setId(Long id)
+	{
+		set(ID, id);
+	}
+	
+	public Long getUserId()
+	{
+		return getLong(USERID);
+	}
+	
+	public void setUserId(Long userId)
+	{
+		set(USERID, userId);
+	}
+	
+	public String getState()
+	{
+		return getString(STATE);
+	}
+	
+	public void setState(String state)
+	{
+		set(STATE, state);
+	}
+	
+	public Long getBusinessid()
+	{
+		return getLong(BUSINESS_ID);
+	}
+	
+	public String getAuditState()
+	{
+		return getString(AUDIT_STATE);
+	}
+	
+	
+	public void setAuditState(String state)
+	{
+		set(AUDIT_STATE, state);
+	}
+	
+	
+	public void setBusinessId(Long businessid)
+	{
+		set(BUSINESS_ID, businessid);
+	}
+	
+	public String getAuditAccount()
+	{
+		return getString(AUDIT_ACCOUNT);
+	}
+	
+	public void setAuditAccount(String auditAccount)
+	{
+		set(BUSINESS_ID, auditAccount);
+	}
+	
+	public String getIsBound()
+	{
+		return getString(IS_BOUND);
+	}
+	
+	public void setIsBound(String isBound)
+	{
+		set(IS_BOUND, isBound);
+	}
+	
+	public String getCheckAccount()
+	{
+		return getString(CHECK_ACCOUNT);
+	}
+	
+	public void setCheckAccount(String checkAccount)
+	{
+		set(CHECK_ACCOUNT, checkAccount);
+	}
+	
+	public String getBusinessType()
+	{
+		return getString(BUSINESS_TYPE);
+	}
+	
+	public void setBusinessType(String businessType)
+	{
+		set(BUSINESS_TYPE, businessType);
+	}
+	
+	public Date getReceiveDate()
+	{
+		return (Date) get(RECEIVE_DATE);
+	}
+	
+	public void setReceiveDate(Date receiveDate)
+	{
+		Timestamp timestamp = new Timestamp(receiveDate.getTime());
+		set(RECEIVE_DATE, timestamp);
+	}
+	
+	/**
+	 * 获取创建时间
+	 */
+	public Date getCreateDate()
+	{
+		return (Date) get(CREATE_DATE);
+	}
+	
+	/**
+	 * 设置创建时间
+	 */
+	public void setCreateDate(Date createDate)
+	{
+		Timestamp timestamp = new Timestamp(createDate.getTime());
+		set(CREATE_DATE, timestamp);
+	}
+	
+	/**
+	 * 获取更新时间
+	 */
+	public Date getUpdateDate()
+	{
+		return (Date) get(UPDATE_DATE);
+	}
+	
+	/**
+	 * 设置更新时间
+	 */
+	public void setUpdateDate(Date updateDate)
+	{
+		Timestamp timestamp = new Timestamp(updateDate.getTime());
+		set(UPDATE_DATE, timestamp);
+	}
+}

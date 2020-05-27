@@ -1,0 +1,75 @@
+package com.thinkive.fxc.ismp.bus.base.business.dao.impl;
+
+import java.util.Date;
+
+import org.apache.log4j.Logger;
+
+import com.thinkive.base.jdbc.session.Session;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessTableConstants;
+import com.thinkive.fxc.ismp.bus.base.business.dao.UserSnapShotDao;
+import com.thinkive.fxc.ismp.bus.base.business.model.UserRetentionModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.UserSnapShotModel;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseDao;
+import com.thinkive.fxc.ismp.bus.base.constants.SystemConstants;
+import com.thinkive.server.InvokeException;
+
+/**
+ * @描述: 业务办理用户信息快照表(T_ISMP_USER_SNAPSHOT)数据接口实现类
+ * @版权: Copyright (c) 2016 
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0 
+ * @创建时间: 2016年8月15日 下午2:35:12
+ */
+public class UserSnapShotDaoImpl extends ISMPBaseDao implements UserSnapShotDao
+{
+	private static Logger  logger = Logger.getLogger(UserSnapShotDaoImpl.class);
+	@Override
+	public UserSnapShotModel add(UserSnapShotModel userSnapShotModel)
+	{
+		String id = getSeqValue(SystemConstants.DB_ISMP,BusinessTableConstants.T_ISMP_USER_SNAPSHOT);
+		userSnapShotModel.setId(Long.valueOf(id));
+		userSnapShotModel.setCreateDate(new Date());
+		this.getJdbcTemplate().insert(BusinessTableConstants.T_ISMP_USER_SNAPSHOT, userSnapShotModel);
+		return userSnapShotModel;
+	}
+
+    @Override
+    public UserSnapShotModel add(UserSnapShotModel userSnapShotModel, Session session)
+    {
+        String id = getSeqValue(SystemConstants.DB_ISMP,BusinessTableConstants.T_ISMP_USER_SNAPSHOT);
+        userSnapShotModel.setId(Long.valueOf(id));
+        userSnapShotModel.setCreateDate(new Date());
+        session.insert(BusinessTableConstants.T_ISMP_USER_SNAPSHOT, userSnapShotModel);
+        return userSnapShotModel;
+    }
+	
+    
+    /**
+     * 增加客户业务办理资料流水记录
+     * @param userRetentionModel  办理资料记录信息
+     * @param session
+     * @return
+     */
+    @Override
+    public boolean addUserLog(UserRetentionModel userRetentionModel, Session session)throws Exception
+    {
+    	boolean flag= false;
+        String id = getSeqValue(SystemConstants.DB_ISMP,BusinessTableConstants.T_ISMP_LOG_RETENTION);
+        userRetentionModel.setCreateDate(new Date());
+        try {
+        	int inat = session.update(BusinessTableConstants.T_ISMP_LOG_RETENTION, userRetentionModel, "business_id", userRetentionModel.getBusinessId());
+        	if(inat==0){
+        	  userRetentionModel.setId(Long.valueOf(id));
+        	  inat = session.insert(BusinessTableConstants.T_ISMP_LOG_RETENTION, userRetentionModel);
+        	}
+            if(inat==1){
+            	flag=true;
+            }	
+		} catch (Exception e) {
+			logger.error("错误信息："+e);
+			throw new InvokeException(-1, e.getMessage());
+		}
+        return flag;
+    }
+}

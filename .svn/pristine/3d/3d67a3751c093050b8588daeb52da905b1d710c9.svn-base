@@ -1,0 +1,22 @@
+package com.thinkive.fxc.ismp.bus.base.basicdata.service.impl;
+
+import com.thinkive.fxc.ismp.bus.base.basicdata.dao.QuestionnaireFlowDao;
+import com.thinkive.fxc.ismp.bus.base.basicdata.model.QuestionnaireFlowModel;
+import com.thinkive.fxc.ismp.bus.base.basicdata.service.QuestionnaireFlowService;
+
+public class QuestionnaireFlowServiceImpl implements QuestionnaireFlowService{
+
+	private QuestionnaireFlowDao questionnaireflowDao;
+	/**
+	 *@param questionnaireflowDao the questionnaireflowDao to set
+	 */
+	public void setQuestionnaireflowDao(QuestionnaireFlowDao questionnaireflowDao) {
+		this.questionnaireflowDao = questionnaireflowDao;
+	}
+
+
+
+	public int questionnaireFlowInsert(QuestionnaireFlowModel modeel)  throws Exception{
+		return questionnaireflowDao.questionnaireFlowInsert(modeel);
+	}
+}

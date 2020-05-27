@@ -1,0 +1,273 @@
+package com.thinkive.fxc.ismp.bus.base.business.model;
+
+import java.sql.Timestamp;
+import java.util.Date;
+import com.thinkive.base.jdbc.DataRow;
+
+/**
+ * @描述: 协议签署记录表<p>t_ismp_agree_record</p>
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年9月2日 下午2:27:43
+ */
+public class AgreeRecordModel extends DataRow
+{
+	
+	private static final long serialVersionUID = -7543887804439347566L;
+	
+	private static final String ID = "id";
+	
+	private static final String BUSINESS_ID = "business_id";
+	
+	private static final String NODE_ID = "node_id";
+	
+	private static final String AGREE_NO = "agree_no";
+	
+	private static final String AGREE_NAME = "agree_name";
+	
+	private static final String AGREE_VERSION = "agree_version";
+	
+	private static final String SIGN_TYPE = "sign_type";
+	
+	private static final String SIGN_SOURCE_FLAG = "sign_source_flag";
+	
+	private static final String CERT_DN = "cert_dn";
+	
+	private static final String PROTOCOL_DCSIGN = "protocol_dcsign";
+	
+	private static final String CREATE_DATE = "create_date";
+	
+	private static final String UPDATE_DATE = "update_date";
+	
+	private static final String AGREE_PATH = "agree_path";
+    
+    private static final String SECRET = "secret";
+	
+	/**
+	 * 获取自增主键
+	 */
+	public Long getId()
+	{
+		return getLong(ID);
+	}
+	
+	/**
+	 * 设置自增主键
+	 */
+	public void setId(Long id)
+	{
+		set(ID, id);
+	}
+	
+	/**
+	 * 获取业务流水ID
+	 */
+	public Long getBusinessId()
+	{
+		return getLong(BUSINESS_ID);
+	}
+	
+	/**
+	 * 设置业务流水ID
+	 */
+	public void setBusinessId(Long businessId)
+	{
+		set(BUSINESS_ID, businessId);
+	}
+	
+	/**
+	 * 获取业务类型编号
+	 */
+	public String getNodeId()
+	{
+		return getString(NODE_ID);
+	}
+	
+	/**
+	 * 设置业务类型编号
+	 */
+	public void setNodeId(String nodeId)
+	{
+		set(NODE_ID, nodeId);
+	}
+	
+	/**
+	 * 获取协议id
+	 */
+	public String getAgreeNo()
+	{
+		return getString(AGREE_NO);
+	}
+	
+	/**
+	 * 设置协议id
+	 */
+	public void setAgreeNo(String agreeNo)
+	{
+		set(AGREE_NO, agreeNo);
+	}
+	
+	/**
+	 * 获取协议名称
+	 */
+	public String getAgreeName()
+	{
+		return getString(AGREE_NAME);
+	}
+	
+	/**
+	 * 设置协议名称
+	 */
+	public void setAgreeName(String agreeName)
+	{
+		set(AGREE_NAME, agreeName);
+	}
+	
+	/**
+	 * 获取协议版本号
+	 */
+	public String getAgreeVersion()
+	{
+		return getString(AGREE_VERSION);
+	}
+	
+	/**
+	 * 设置协议版本号
+	 */
+	public void setAgreeVersion(String agreeVersion)
+	{
+		set(AGREE_VERSION, agreeVersion);
+	}
+	
+	/**
+	 * 获取签名类型
+	 */
+	public String getSignType()
+	{
+		return getString(SIGN_TYPE);
+	}
+	
+	/**
+	 * 设置签名类型
+	 */
+	public void setSignType(String signType)
+	{
+		set(SIGN_TYPE, signType);
+	}
+	
+	/**
+	 * 获取签署文本标准
+	 */
+	public String getSignSourceFlag()
+	{
+		return getString(SIGN_SOURCE_FLAG);
+	}
+	
+	/**
+	 * 设置签署文本标准
+	 */
+	public void setSignSourceFlag(String signSourceFlag)
+	{
+		set(SIGN_SOURCE_FLAG, signSourceFlag);
+	}
+	
+	/**
+	 * 获取签署证书的DN
+	 */
+	public String getCertDn()
+	{
+		return getString(CERT_DN);
+	}
+	
+	/**
+	 * 设置签署证书的DN
+	 */
+	public void setCertDn(String certDn)
+	{
+		set(CERT_DN, certDn);
+	}
+	
+	/**
+	 * 获取签名值
+	 */
+	public String getProtocolDcsign()
+	{
+		return getString(PROTOCOL_DCSIGN);
+	}
+	
+	/**
+	 * 设置签名值
+	 */
+	public void setProtocolDcsign(String protocolDcsign)
+	{
+		set(PROTOCOL_DCSIGN, protocolDcsign);
+	}
+	
+	/**
+	 * 获取创建时间
+	 */
+	public Date getCreateDate()
+	{
+		return (Date) get(CREATE_DATE);
+	}
+	
+	/**
+	 * 设置创建时间
+	 */
+	public void setCreateDate(Date createDate)
+	{
+		Timestamp timestamp = new Timestamp(createDate.getTime());
+		set(CREATE_DATE, timestamp);
+	}
+	
+	/**
+	 * 获取更新时间
+	 */
+	public Date getUpdateDate()
+	{
+		return (Date) get(UPDATE_DATE);
+	}
+	
+	/**
+	 * 设置更新时间
+	 */
+	public void setUpdateDate(Date updateDate)
+	{
+		Timestamp timestamp = new Timestamp(updateDate.getTime());
+		set(UPDATE_DATE, timestamp);
+	}
+	
+	/**
+     * 获取协议留痕路径
+     */
+    public String getAgreePath()
+    {
+        return getString(AGREE_PATH);
+    }
+    
+    /**
+     * 设置协议留痕路径
+     */
+    public void setAgreePath(String agree_path)
+    {
+        set(AGREE_PATH, agree_path);
+    }
+    
+    /**
+     * 获取文件留痕密钥
+     */
+    public String getSecret()
+    {
+        return getString(SECRET);
+    }
+    
+    /**
+     * 设置文件留痕密钥
+     */
+    public void setSecret(String secret)
+    {
+        set(SECRET, secret);
+    }
+}

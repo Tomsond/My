@@ -1,0 +1,31 @@
+package com.thinkive.fxc.ismp.bus.business.constants;
+
+/**
+ * @描述: 业务相关错误编号定义类[通用]
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 易龙
+ * @版本: 2.0.0
+ * @创建时间: 2017年7月24日 下午5:13:11
+ */
+public class ErrorCodeBusiness {
+
+    // 资金帐号或密码错误
+    public static int LOGIN_FUNDACCOUNTOROWD_ERROR = -100490301;
+
+    // 密码错误剩余次数
+    public static int LOGIN_LOGINPWDERROTIME_LEAVE = -100490302;
+
+    // 密码错误生意次数已用完
+    public static int LOGIN_LOGINPWDERROTIME_NOTIME = -100490303;
+
+    // 查询用户基本信息失败
+    public static int LOGIN_QUERYTHIRDUSERINFO_FAIL = -100490304;
+
+    // 非仅为中国税收居民无法办理网厅业务
+    public static int LOGIN_QUERYNRATAXINFO_NON_CHINATAX = -100490305;
+
+    // 柜台身份证为18位，不需要升位
+    public static int IDCARDUP_GTCART_ISEIGHTEEN = -100490801;
+
+}

@@ -1,0 +1,18 @@
+package com.thinkive.fxc.ismp.bus.business.function.test;
+
+import com.thinkive.fxc.ismp.bus.BaseTest;
+import com.thinkive.fxc.ismp.bus.business.fundaccount.function.Function1004188;
+import com.thinkive.server.Function;
+
+public class Function1004188Test extends BaseTest
+{
+	
+	public void testInvoke()
+	{
+		getRequest().setFuncNo(1004171);
+		getRequest().addFieldValue("user_id", "42");
+		Function function = new Function1004188();
+		function.invoke(getContext());
+		System.out.println("结果数据为：" + getResponse().getData());
+	}
+}

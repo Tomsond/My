@@ -1,0 +1,312 @@
+package com.thinkive.fxc.ismp.bus.business.kc.function;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+ 
+
+
+import com.thinkive.base.exception.BusinessException;
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.basicdata.contants.BasicServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.basicdata.service.TradeTimeService;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.function.IsmpFlowBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.business.model.BusinessConfigModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.BusinessEntityModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.ChoiceAccountRecordModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.UserExtendModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.UserInfoModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.UserRetentionModel;
+import com.thinkive.fxc.ismp.bus.base.business.service.BusinessConfigService;
+import com.thinkive.fxc.ismp.bus.base.business.service.BusinessEntityService;
+import com.thinkive.fxc.ismp.bus.base.business.service.SignAndVerifyService;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserSnapShotService;
+import com.thinkive.fxc.ismp.bus.base.business.utils.ModularNodeUtil;
+import com.thinkive.fxc.ismp.bus.base.business.vo.UserInfoVo;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.business.util.DataFormatUtils;
+import com.thinkive.fxc.ismp.bus.third.constants.StockEnum;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdDictionaryConstants;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdInterfaceConstant;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdTBASConstants;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdInterface;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdTrdAccountService;
+import com.thinkive.server.InvokeException;
+import com.thinkive.server.ResultVo;
+
+ 
+/**
+ * 作者：MIKE
+ * 公司：深圳市思迪信息技术股份公司
+ * 日期时间：2019年3月10日 上午11:24:45
+ * 说明：科创板权限开通申请
+ */
+public class Function1004579 extends IsmpFlowBaseFunction{
+	
+	private String trdaccount;//交易帐号,逗号分隔多个
+	
+	private String jsondata;//签名json字符串 
+	 
+    private String isgl;//是否高龄
+	
+	private UserSnapShotService usersnapshotservice = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERSNAPSHOT, UserSnapShotService.class);
+	
+	@SuppressWarnings("unchecked")
+	public ResultVo execute() throws Exception
+	{
+		initVar();
+		UserInfoService userInfoService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO, UserInfoService.class);
+		 
+		//获取节点属性组
+		Map<String, DataRow> signParamsMap = ModularNodeUtil.checkAndReturnSignNodeProperty(nodePropertyConfigModelList);
+		if(!isgl.equals("1")){
+            signParamsMap.remove("glfxjss");
+        }
+		
+		//提交的所有协议
+		SignAndVerifyService signAndVerifyService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_SIGNANDVERIFY, SignAndVerifyService.class);
+		List<Map<String, String>> allSignList = signAndVerifyService.verifySignTextAndSubmitThird(jsondata, signParamsMap);
+		
+		//选择的帐号开通结果
+		List<ChoiceAccountRecordModel> choiceAccountRecordModels = new ArrayList<ChoiceAccountRecordModel>();
+		
+		//查询业务属性
+		BusinessConfigService businessConfigService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_BUSINESSCONFIG, BusinessConfigService.class);
+		BusinessConfigModel businessConfigModel = businessConfigService.queryByOpSourceAndBusinessCode(businessCode, opSource);
+		BusinessEntityService businessEntityService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_BUSINESSENTITY, BusinessEntityService.class);
+		
+		//获取新业务实例对象
+		BusinessEntityModel businessEntityModel = getNewBusinessEntity();
+		businessEntityModel.setId(businessEntityAndConfigVO.getId());
+		businessEntityModel.setUserId(businessEntityAndConfigVO.getUserId());
+		businessEntityModel.setNodeId(submitBprocNodeConfigAndDefineVO.getNextBpNodeId());
+		
+		//如果没有配置业务属性,或者配置为需要审核
+		if (businessConfigModel == null || DictionaryConstants.BOL_TRUE.equals(businessConfigModel.getNeedAudit()))
+		{
+			choiceAccountRecordModels = DataFormatUtils.packInputAccountAndStkbdInfo(trdaccount, DictionaryConstants.CHOICEACCOUNT_DEALRESULT_NOTSTART);
+			businessEntityService.addEntityAndAgreeAndAccountAndAuditTask(businessEntityModel, submitBprocNodeConfigAndDefineVO.getNodeId(), allSignList, choiceAccountRecordModels,"0");
+		}
+		//如果是统一跑批,或者
+		else if (DictionaryConstants.BUSINESS_DATA_SUBMITTYPE_PP.equals(businessConfigModel.getDataSubmitType()))
+		{
+			choiceAccountRecordModels = DataFormatUtils.packInputAccountAndStkbdInfo(trdaccount, DictionaryConstants.CHOICEACCOUNT_DEALRESULT_NOTSTART);
+			businessEntityService.addEntityAndAgreeAndAccountAndPpTask(businessEntityModel, submitBprocNodeConfigAndDefineVO.getNodeId(), allSignList, choiceAccountRecordModels,"0");
+		}
+		//如果是实时提交
+		else if (DictionaryConstants.BUSINESS_DATA_SUBMITTYPE_THIRD.equals(businessConfigModel.getDataSubmitType()))
+		{
+			Map<String, Object> openResult = openKCB(trdaccount);
+			choiceAccountRecordModels = (List<ChoiceAccountRecordModel>) openResult.get("choiceAccountRecordModels");
+			String dealResult = (String) openResult.get("dealResult");
+			businessEntityModel.setDealResult(dealResult);
+			businessEntityModel.setIsComplete(DictionaryConstants.BOL_TRUE);
+			businessEntityService.addEntityAndAgreeAndAccount(businessEntityModel, submitBprocNodeConfigAndDefineVO.getNodeId(), allSignList, choiceAccountRecordModels,"");
+		}
+		//如果中登服务时间提交第三方、非服务时间跑批
+		else if (DictionaryConstants.BUSINESS_DATA_SUBMITTYPE_SERVICETIME.equals(businessConfigModel.getDataSubmitType()))
+		{
+			//查询用户基本信息
+			UserInfoVo userInfoVo = userInfoService.queryAndCheckUserByUserIdAndType(userId, ThirdInterfaceConstant.USER_ACCOUNT_TYPE_ZQ);
+			DataRow thirdInput = DataFormatUtils.packThirdInput(userInfoVo); 
+		    ThirdInterface thirdInterface = SpringHelper.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDINTERFACE, ThirdInterface.class);
+			thirdInput.set("agree_type", "Z");
+			try {
+				DataRow data =thirdInterface.querySubRiskFlag(thirdInput);//检查客户是否签署科创板协议
+				logger.info("检查客户是否签署科创板协议 :"+data);
+				if(data==null){//若没有签署，则直接签署
+					thirdInterface.signFundElectronicContract(thirdInput);//客户业务协议签署
+				}
+			} catch (Exception e) {
+				logger.info("错误信息：",e);
+				throw new BusinessException(-100457901, e.getMessage());
+			}
+			 
+			
+			TradeTimeService tradeTimeService = SpringHelper.getBean(BasicServiceBeanIdConstants.SERVICE_ID_TRADETIME, TradeTimeService.class);
+			//如果不是中登时间则跑批
+			if (!tradeTimeService.checkZdTradeTime()){
+				choiceAccountRecordModels = DataFormatUtils.packInputAccountAndStkbdInfo(trdaccount, DictionaryConstants.CHOICEACCOUNT_DEALRESULT_NOTSTART);
+				businessEntityService.addEntityAndAgreeAndAccountAndPpTask(businessEntityModel, submitBprocNodeConfigAndDefineVO.getNodeId(), allSignList, choiceAccountRecordModels,"");
+			}else{
+				Map<String, Object> openResult = openKCB(trdaccount);//开通权限
+				choiceAccountRecordModels = (List<ChoiceAccountRecordModel>) openResult.get("choiceAccountRecordModels");
+				String dealResult = (String) openResult.get("dealResult");
+				businessEntityModel.setDealResult(dealResult);
+				businessEntityModel.setIsComplete(DictionaryConstants.BOL_TRUE);
+				businessEntityService.addEntityAndAgreeAndAccount(businessEntityModel, submitBprocNodeConfigAndDefineVO.getNodeId(), allSignList, choiceAccountRecordModels,"0");
+			}
+		}
+		
+		//获取用户信息和用户拓展信息办理业务时数据
+  		UserInfoModel olduserInfoModel = userInfoService.queryUserInfoByUserId(userId);
+  		UserExtendModel oldUserExtendModel = userInfoService.queryUserExtendByUserId(userId);
+  	
+  		UserRetentionModel userretentionmodel = new UserRetentionModel();
+  		userretentionmodel.setEntrustway(entrust_way);
+   		userretentionmodel.setStockaccount(trdaccount);
+   		userretentionmodel.setRiskvalue(riskvalue);
+   		userretentionmodel.setRisklevel(risklevel);
+   		userretentionmodel.setSubitemname(subitemname);
+   		userretentionmodel.setSurveysn(survey_sn);
+   		userretentionmodel.setBankname(bank_name);
+   		userretentionmodel.setBankCardNumber(bank_card_number);
+   		userretentionmodel.setOperationtype(operation_type);
+   		userretentionmodel.setAmountOfMoney(amount_of_money);
+   		userretentionmodel.setMarket(getStockTypeByAcc(trdaccount));
+  		
+   		usersnapshotservice.InsertRetention(olduserInfoModel, oldUserExtendModel, businessEntityModel, userretentionmodel);//添加 客户业务办理时信息记录表
+		
+		resultVo.setResult("choiceAccountRecordModels", choiceAccountRecordModels);
+		resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);//返回成功标示
+		resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+		return resultVo;
+	}
+	
+	private void initVar()
+	{
+		jsondata = this.getAndCheckBlankStrParam("jsondata", ErrorCodeCheckInput.BLANK_FORMAT_SIGNJSON);
+		trdaccount = this.getAndCheckBlankStrParam("trdaccount", ErrorCodeCheckInput.BLANK_TRDACCOUNT); 
+		isgl=this.getStrParameter("isgl");
+	}
+	
+	/**
+	 * @描述：获取用户柜台有效股东帐号
+	 * @作者：张斌
+	 * @时间：2016年9月22日 下午4:45:24
+	 * @param userInfoVo
+	 * @return
+	 * @throws Exception
+	 */
+	private Map<String, DataRow> getGtNormalAccount(UserInfoVo userInfoVo) throws Exception
+	{
+		ThirdTrdAccountService thirdTrdAccountService = SpringHelper.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDTRDACCOUNT, ThirdTrdAccountService.class);
+		List<DataRow> gtAccount = thirdTrdAccountService.queryThirdTraAccountByTrdacctExcls(ThirdInterfaceConstant.TRDACCT_EXCLS_GRGD, userInfoVo, ThirdTBASConstants.THIRDINTERFACE_QUERYTYPE_GT);
+		Map<String, DataRow> gtAccountMap = new HashMap<String, DataRow>();
+		//获取柜台帐号中，状态为正常，且指定状态为已指定或者新指定的帐号
+		for (DataRow item : gtAccount)
+		{
+			if (ThirdTBASConstants.TRDACCOUNT_THIRDSTATE_NOMAL.equals(item.getString("state"))
+					&& (ThirdTBASConstants.TRDACCOUNT_STATE_BINDED.equals(item.getString("bind_state")) || ThirdTBASConstants.TRDACCOUNT_STATE_NEWAPPOINT.equals(item.getString("bind_state"))))
+			{
+				gtAccountMap.put(item.getString("trdacct"), item);
+			}
+		}
+		return gtAccountMap;
+	}
+	
+	/**
+	 * @描述：开通科创板权限
+	 * @作者：张斌
+	 * @时间：2016年9月22日 下午4:45:24
+	 * @param trdaccount
+	 * @return
+	 * @throws Exception
+	 */
+	private Map<String, Object> openKCB(String trdaccount) throws Exception
+	{
+		//中登时间提交第三方
+		List<ChoiceAccountRecordModel> choiceAccountRecordModels = DataFormatUtils.packInputAccountAndStkbdInfo(trdaccount, DictionaryConstants.CHOICEACCOUNT_DEALRESULT_NOTSTART);
+		//查询用户基本信息
+		UserInfoService userInfoService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO, UserInfoService.class);
+		UserInfoVo userInfoVo = userInfoService.queryAndCheckUserByUserIdAndType(userId, ThirdInterfaceConstant.USER_ACCOUNT_TYPE_ZQ);
+		
+		//查询用户柜台所有股东账号
+		Map<String, DataRow> gtAccountMap = getGtNormalAccount(userInfoVo);
+		
+		//开通权限
+		ThirdInterface thirdInterface = SpringHelper.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDINTERFACE, ThirdInterface.class);
+		DataRow thirdInput = DataFormatUtils.packThirdInput(userInfoVo);
+		String dealResult = DictionaryConstants.DEAL_RESULT_SUCCESS;
+		for (ChoiceAccountRecordModel choiceAccountRecordModel : choiceAccountRecordModels) {
+			try {
+				//如果帐号不正常
+				if (!gtAccountMap.containsKey(choiceAccountRecordModel.getTrdAccount())){
+					dealResult = DictionaryConstants.DEAL_RESULT_REAL_TIME_FAILURE;
+					choiceAccountRecordModel.setState(DictionaryConstants.CHOICEACCOUNT_DEALRESULT_FAIL);
+					choiceAccountRecordModel.setDescription(DictionaryConstants.CHOICE_ACCOUNT_ACCOUNTSTATEERROR);
+				}
+				//开通权限
+				else
+				{
+					thirdInput.set("trdaccount", choiceAccountRecordModel.getTrdAccount());
+					thirdInput.set("trdacct_type", StockEnum.getEnumByClsAndStkbd(ThirdInterfaceConstant.TRDACCTEXCLS_STOCK_1, choiceAccountRecordModel.getStkbd()).getTrdacc_type());//账户类型
+					thirdInput.set("trdacct_right", ThirdTBASConstants.AUTHORITY_TYPE_KC);//科创板权限
+					thirdInterface.openKCB(thirdInput);
+					choiceAccountRecordModel.setState(DictionaryConstants.CHOICEACCOUNT_DEALRESULT_SUCCESS);
+					choiceAccountRecordModel.setDescription(DictionaryConstants.CHOICE_ACCOUNT_OPENSUCCESS);
+				}
+			} catch (InvokeException e) {
+				dealResult = DictionaryConstants.DEAL_RESULT_REAL_TIME_FAILURE;
+				String msg = e.getMessage();
+				choiceAccountRecordModel.setState(DictionaryConstants.CHOICEACCOUNT_DEALRESULT_FAIL);
+				choiceAccountRecordModel.setDescription(msg);
+			}
+			
+		}
+		Map<String, Object> result = new HashMap<String, Object>();
+		result.put("choiceAccountRecordModels", choiceAccountRecordModels);
+		result.put("dealResult", dealResult);
+		return result;
+	}
+	
+	
+	
+	/**
+	 * 
+	 * 描述：根据股东账号获取股东类型市场
+	 * 作者：MIKE
+	 * 时间：2018-1-11下午05:42:39
+	 * @param stockAcc
+	 * @return
+	 */
+	public static String getStockTypeByAcc(String stockAcc)
+	{
+		String[] trdaccountArr = stockAcc.split(",");
+		String traMarket="";
+		for (int i = 0; i < trdaccountArr.length; i++) {
+			if(StringUtils.isEmpty(trdaccountArr[i]))
+			{
+				traMarket+="";
+			}
+			else if(trdaccountArr[i].startsWith("A"))//沪A
+			{
+				traMarket+="SH,";
+			}
+			else if(trdaccountArr[i].startsWith("F"))//沪基金
+			{
+				traMarket+="SH,";
+			}
+			else if(trdaccountArr[i].startsWith("E"))//沪信用
+			{
+				traMarket+="SH,";
+			}
+			else if(trdaccountArr[i].startsWith("001")||trdaccountArr[i].startsWith("05"))//深基金
+			{
+				traMarket+="SZ,";
+			}
+			else if(trdaccountArr[i].startsWith("06"))//深信用
+			{
+				traMarket+="SZ,";
+			}
+			else if(trdaccountArr[i].startsWith("00")||trdaccountArr[i].startsWith("01")||trdaccountArr[i].startsWith("07")||trdaccountArr[i].startsWith("08")
+					||trdaccountArr[i].startsWith("40")||trdaccountArr[i].startsWith("480"))//深A
+			{
+				traMarket+="SZ,";
+			}else if(!trdaccountArr[i].contains("A")){
+				traMarket+="SZ,";
+			}else
+			{
+				traMarket+="";
+			}
+		}
+		return traMarket;
+	}
+}

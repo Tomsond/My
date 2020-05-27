@@ -1,0 +1,65 @@
+package com.thinkive.fxc.ismp.bus.third.service.impl;
+
+import org.apache.commons.lang.StringUtils;
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseDao;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdDataService;
+
+/**
+ * 
+ * 描述: 第三方数据库查询服务实现类-测试类
+ * 版权: Copyright (c) 2010
+ * 公司: 思迪科技 
+ * 作者: tianyuan
+ * 版本: 1.0 
+ * 创建日期: 2016年7月27日
+ * 创建时间: 上午9:59:23
+ */
+public class TestThirdDataServiceImpl extends ISMPBaseDao implements ThirdDataService
+{
+	
+	@Override
+	public boolean checkBlacklist(DataRow checkInput)
+	{
+		//模拟方法
+		Boolean flag = true;
+		String sql = "select count(*) from t_test_black_user where client_id = ?";
+		Long count = getJdbcTemplate().queryLong(sql, new Object[] { checkInput.getString("client_id") });
+		if (count > 0)
+		{
+			flag = false;
+		}
+		return flag;
+	}
+	
+	@Override
+	public boolean checkShareholder(DataRow checkInput)
+	{
+		//TODO 融资融券预约，查询持股人是否持股超过5%
+		Boolean flag = false;
+		String sql = "select percentage from t_test_shareholding_percentage where client_id = ?";
+		String baifenbi = this.getJdbcTemplate().queryString(sql, new Object[] { checkInput.getString("client_id") });
+		if (StringUtils.isNotBlank(baifenbi) && Double.parseDouble(baifenbi) < 0.05)
+		{
+			flag = true;
+		}
+		return flag;
+	}
+	
+	@Override
+	public DataRow getAmountLimit(DataRow input)
+	{
+		//TODO 融资融券预约，计算额度方法未实现
+		DataRow amountData = new DataRow();
+		amountData.set("initial_amount", "30000");
+		amountData.set("max_amount", "100000");
+		return amountData;
+	}
+	
+	@Override
+	public Double getCompositeScore(DataRow input)
+	{
+		//TODO 融资融券预约，计算综合评分方法未实现
+		return 70D;
+	}
+}

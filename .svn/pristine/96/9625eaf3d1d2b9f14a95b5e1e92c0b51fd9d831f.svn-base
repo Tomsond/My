@@ -1,0 +1,27 @@
+package com.thinkive.fxc.ismp.bus.business.resetpwd.function.test;
+
+import com.thinkive.fxc.ismp.bus.BaseTest;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessConstants;
+import com.thinkive.fxc.ismp.bus.business.resetpwd.function.Function1004919;
+import com.thinkive.server.Function;
+
+public class Function1004919Test extends BaseTest
+{
+	
+	public void testInvoke()
+	{
+		getRequest().setFuncNo(1004919);
+		getRequest().addFieldValue("account", "776281987263");
+		getRequest().addFieldValue("identity_num", "653130194509302817");
+		getRequest().addFieldValue("name", "麦旋风");
+		
+		getRequest().addFieldValue("nodeId", "resetpwd_information");
+		getRequest().addFieldValue("businessCode", BusinessConstants.BUSINESS_RESETPWD);
+		getRequest().addFieldValue("op_source", "1");
+		getRequest().addFieldValue("op_station", "127.0.0.1");
+		getRequest().addFieldValue("ip", "192.168.1.1");
+		Function function = new Function1004919();
+		function.invoke(getContext());
+		System.out.println("结果数据为：" + getResponse().getData());
+	}
+}

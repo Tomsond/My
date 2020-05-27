@@ -1,0 +1,55 @@
+package com.thinkive.fxc.ismp.bus.base.business.dao.impl;
+
+import java.util.Date;
+import java.util.List;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessTableConstants;
+import com.thinkive.fxc.ismp.bus.base.business.dao.EmergencyLinkmanDao;
+import com.thinkive.fxc.ismp.bus.base.business.model.EmergencyLinkmanModel;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseDao;
+import com.thinkive.fxc.ismp.bus.base.constants.SystemConstants;
+import com.thinkive.fxc.ismp.bus.base.util.ModelUtil;
+
+public class EmergencyLinkmanDaoImpl extends ISMPBaseDao implements EmergencyLinkmanDao
+{
+	
+	@Override
+	public EmergencyLinkmanModel add(EmergencyLinkmanModel emergencyLinkmantModel)
+	{
+		String id = getSeqValue(SystemConstants.DB_ISMP,BusinessTableConstants.T_ISMP_EMERGENCY_LINKMAN);
+		emergencyLinkmantModel.setId(Long.valueOf(id));
+		emergencyLinkmantModel.setCreateDate(new Date());
+		this.getJdbcTemplate().insert(BusinessTableConstants.T_ISMP_EMERGENCY_LINKMAN, emergencyLinkmantModel);
+		return emergencyLinkmantModel;
+	}
+	
+	@Override
+	public int update(EmergencyLinkmanModel emergencyLinkmantModel)
+	{
+		Long userId = emergencyLinkmantModel.getUserId();
+		Long linkmanId = emergencyLinkmantModel.getLinkmanId();
+		//如果userId或者linkmanId不存在，则不进行数据库操作，直接返回
+		if (null == userId || null == linkmanId)
+		{
+			return 0;
+		}
+		emergencyLinkmantModel.setUpdateDate(new Date());
+		String[] identifys = { "USER_ID", "LINKMAN_ID" };
+		String[] identifyValues = { userId.toString(), linkmanId.toString() };
+		return this.getJdbcTemplate().update(BusinessTableConstants.T_ISMP_EMERGENCY_LINKMAN, emergencyLinkmantModel, identifys, identifyValues);
+	}
+	
+	@Override
+	public List<EmergencyLinkmanModel> queryByUserId(Long userId)
+	{
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT ID,USER_ID,LINKMAN_ID,LINKMAN_NAME,LINKMAN_RELATION,LINKMAN_TEL,LINKMAN_ADRESS,LINKMAN_MOBILE,");
+		sql.append("LINKMAN_EMAIL,LINKMAN_IDTYPE,LINKMAN_POSTCODE,LINKMAN_IDNO,LINKMAN_SEX,CREATE_DATE,UPDATE_DATE FROM ");
+		sql.append(BusinessTableConstants.T_ISMP_EMERGENCY_LINKMAN).append(" WHERE USER_ID = ?");
+		@SuppressWarnings("unchecked")
+		List<DataRow> queryResults = getJdbcTemplate().query(sql.toString(), new Object[] { userId });
+		return ModelUtil.packList(queryResults, EmergencyLinkmanModel.class);
+	}
+	
+}

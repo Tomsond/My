@@ -1,0 +1,40 @@
+package com.thinkive.fxc.ismp.bus.business.resetpwd.dao.impl;
+
+import java.sql.Timestamp;
+import java.util.Date;
+import java.util.List;
+
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseDao;
+import com.thinkive.fxc.ismp.bus.base.constants.SystemConstants;
+import com.thinkive.fxc.ismp.bus.business.resetpwd.constants.ResetPwdConstants;
+import com.thinkive.fxc.ismp.bus.business.resetpwd.dao.ResetPwdTypeDao;
+import com.thinkive.fxc.ismp.bus.business.resetpwd.model.ResetPwdTypeModel;
+
+public class ResetPwdTypeDaoImpl extends ISMPBaseDao implements ResetPwdTypeDao
+{
+	
+	public List<ResetPwdTypeModel> addBatch(List<ResetPwdTypeModel> resetPwdTypeModels)
+	{
+		if (resetPwdTypeModels == null || resetPwdTypeModels.isEmpty())
+		{
+			return resetPwdTypeModels;
+		}
+		StringBuilder sql = new StringBuilder("INSERT INTO ");
+		sql.append(ResetPwdConstants.T_ISMP_RESETPWD_TYPE).append("(ID,BUSINESS_ID,NODE_ID,FUNDACCOUNT,PWD_TYPE,PWD_VALUE,STATE,DESCRIPTION,CREATE_DATE,UPDATE_DATE) VALUES(?,?,?,?,?,?,?,?,?,?)");
+		Object[][] params = new Object[resetPwdTypeModels.size()][9];
+		Date now = new Date();
+		for (int i = 0; i < resetPwdTypeModels.size(); i++)
+		{
+			ResetPwdTypeModel item = resetPwdTypeModels.get(i);
+			String id = getSeqValue(SystemConstants.DB_ISMP,ResetPwdConstants.T_ISMP_RESETPWD_TYPE);
+			item.setId(Long.parseLong(id));
+			item.setCreateDate(now);
+			item.setUpdateDate(now);
+			Timestamp timestamp = new Timestamp(now.getTime());
+			params[i] = new Object[] { id, item.getBusinessId(), item.getNodeId(), item.getFundAccount(), item.getPwdType(), item.getPwdValue(), item.getState(), item.getDescription(), timestamp,
+					timestamp };
+		}
+		getJdbcTemplate().batchUpdate(sql.toString(), params);
+		return resetPwdTypeModels;
+	}
+}

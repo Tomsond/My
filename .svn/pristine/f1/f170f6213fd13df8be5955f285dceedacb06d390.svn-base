@@ -1,0 +1,34 @@
+package com.thinkive.fxc.ismp.bus.base.basicdata.dao;
+
+import com.thinkive.fxc.ismp.bus.base.basicdata.vo.AgreementInfoVo;
+
+/**
+ * @描述:  公共--协议信息表(T_FXC_AGREEMENT_INFO)数据层接口
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 尹杰民
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月18日 下午2:23:16
+ */
+public interface AgreementInfoDao
+{
+	
+	/**
+	 * @描述：根据协议编号查询协议信息（包含MD5值）
+	 * @作者：刘恺
+	 * @时间：2016年8月30日 下午12:19:56
+	 * @param agreeFno
+	 * @return
+	 */
+	public AgreementInfoVo queryInfoAndMdByCode(String agreeFno);
+	
+	/**
+	 * @描述：根据协议编号查询协议信息（包含协议内容）
+	 * @作者：刘恺
+	 * @时间：2016年8月30日 下午12:29:37
+	 * @param agreeFno
+	 * @return
+	 */
+	public AgreementInfoVo queryInfoAndContentByCode(String agreeFno);
+	
+}

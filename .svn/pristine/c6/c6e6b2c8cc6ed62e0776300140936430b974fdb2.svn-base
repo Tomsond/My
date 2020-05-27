@@ -1,0 +1,251 @@
+package com.thinkive.fxc.ismp.bus.business.resetpwd.function;
+
+import java.util.Date;
+
+import com.thinkive.base.config.Configuration;
+import com.thinkive.base.exception.BusinessException;
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.base.util.StringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.model.BusinessEntityModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.UserExtendModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.UserFundAccountModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.UserInfoModel;
+import com.thinkive.fxc.ismp.bus.base.business.service.BusinessEntityService;
+import com.thinkive.fxc.ismp.bus.base.business.service.FlowNodeManageService;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.business.vo.BprocNodeConfigAndDefineVO;
+import com.thinkive.fxc.ismp.bus.base.business.vo.BusinessEntityAndConfigVO;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.business.resetpwd.constants.ResetPwdConstants;
+import com.thinkive.fxc.ismp.bus.business.resetpwd.service.ResetPwdService;
+import com.thinkive.fxc.ismp.bus.business.rzrq.preMarginTrading.constant.ErrorCodeBusiness;
+import com.thinkive.fxc.ismp.bus.business.util.DataFormatUtils;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdDictionaryConstants;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdTBASConstants;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdInterface;
+import com.thinkive.server.InvokeException;
+import com.thinkive.server.ResultVo;
+
+/**
+ * @描述: 重置密码---输入资金帐号，获取业务办理数据
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年11月15日 下午3:12:07
+ */
+public class Function1004919 extends ISMPBaseFunction
+{
+	
+	protected String opSource;//客户端类型
+	
+	protected String businessCode;//业务类型
+	
+	protected String nodeId;//节点英文标识
+	
+	private String fundAccount;//资金帐号
+	
+	private String identityNum;//身份证号
+	
+	private String name;//姓名
+	
+	private String flag;//区分重置资金与交易密码类型
+	
+	public ResultVo execute() throws Exception
+	{
+		initVar();
+		
+		FlowNodeManageService flowNodeManageService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_FLOWNODEMANAGE, FlowNodeManageService.class);
+		BprocNodeConfigAndDefineVO submitBprocNodeConfigAndDefineVO = flowNodeManageService.getBprocNodeConfigService(businessCode, opSource, nodeId, this.getRequest().getFuncNo());
+		ResetPwdService resetPwdService = SpringHelper.getBean(ResetPwdConstants.SERVICE_ID_RESETPWD, ResetPwdService.class);
+		UserInfoModel userInfo = getAndsynUserInfo(fundAccount, name, identityNum);
+		String account = userInfo.getFundaccount();//得到客户的资金账号
+		if(!account.equals(fundAccount) && !userInfo.getClientId().equals(fundAccount)){
+		    throw new InvokeException(-1,"客户号或资金账号不匹配");
+		}
+		BusinessEntityAndConfigVO businessEntityAndConfigVO = resetPwdService.queryEacVoNotCompleteByFundAccountNew(account,flag);
+		
+		if(businessEntityAndConfigVO!=null&&!businessEntityAndConfigVO.getNodeId().equals("finish")){//由于重置密码无需登录，所以需要判断客户当前是否是处于最后一步，若是则返回办理数据状态
+	    	flowNodeManageService.checkBusinessEntityCrrNode(submitBprocNodeConfigAndDefineVO, businessEntityAndConfigVO);
+		}
+		//如果后台配置-需要人工审核，在查询到业务办理实例后，如果nodeid=finish，直接讲业务实例数据+密码重置接口返回给前端
+		if (businessEntityAndConfigVO != null && DictionaryConstants.BOL_TRUE.equals(businessEntityAndConfigVO.getNeedAudit())
+				&& DictionaryConstants.FLOW_LASTSTEP_NEXT.equals(businessEntityAndConfigVO.getNodeId()))
+		{
+			ResultVo resultVo = new ResultVo();
+			resultVo.setResult("defaultDate", new DataRow());
+			resultVo.setResult("businessEntityModel", businessEntityAndConfigVO);
+			resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+			resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+			return resultVo;
+		}
+		
+		BusinessEntityModel businessEntityModel = new BusinessEntityModel();
+		businessEntityModel.setUserId(userInfo.getUserId());
+		businessEntityModel.setBusinessCode(businessCode);
+		businessEntityModel.setNodeId(submitBprocNodeConfigAndDefineVO.getNextBpNodeId());
+		businessEntityModel.setIp(ip);
+		businessEntityModel.setOpSource(opSource);
+		businessEntityModel.setOpStation(opStation);
+		businessEntityModel.setFlag(flag);
+		
+		if (businessEntityAndConfigVO == null)
+		{
+			businessEntityModel.setIsComplete(DictionaryConstants.BOL_FALSE);
+			resetPwdService.addBusinessEntityAndExtend(businessEntityModel, userInfo.getFundaccount(), nodeId);
+		}
+		else
+		{
+			//修改流程节点并添加审核任务并修改当前节点
+			businessEntityModel.setId(businessEntityAndConfigVO.getId());
+			BusinessEntityService businessEntityService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_BUSINESSENTITY, BusinessEntityService.class);
+			businessEntityService.changeBusinessFlowNode(businessEntityModel, nodeId);
+		}
+		
+		ResultVo resultVo = new ResultVo();
+		resultVo.setResult("defaultDate", new DataRow());
+		resultVo.setResult("businessEntityModel", businessEntityModel);
+		resultVo.setResult("userInfo", userInfo);
+		resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+		resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+		return resultVo;
+	}
+	
+	/**
+	 * @描述：获取业务入参
+	 * @作者：刘恺
+	 * @时间：2016年8月23日 下午8:55:24
+	 */
+	private void initVar()
+	{
+		opSource = this.getAndCheckBlankStrParam("op_source", ErrorCodeCheckInput.BLANK_OP_SOURCE);
+		businessCode = this.getAndCheckBlankStrParam("businessCode", ErrorCodeCheckInput.BLANK_BUSINESSCODE);
+		nodeId = this.getAndCheckBlankStrParam("nodeId", ErrorCodeCheckInput.BLANK_NODEID);
+		fundAccount = this.getAndCheckBlankStrParam("account", ErrorCodeCheckInput.BLANK_FUNDACCOUNT);
+		identityNum = this.getAndCheckBlankStrParam("identity_num", ErrorCodeCheckInput.BLANK_IDNO);
+		name = this.getAndCheckBlankStrParam("name", ErrorCodeCheckInput.BLANK_USER_NAME);
+		flag= this.getStrParameter("flag","0");//0资金  1交易
+	}
+	
+	/**
+	 * @描述：获取并同步用户基本信息
+	 * @作者：刘恺
+	 * @时间：2016年11月15日 下午5:04:48
+	 * @param account
+	 * @param name
+	 * @param identity_num
+	 * @return
+	 * @throws Exception
+	 */
+	private UserInfoModel getAndsynUserInfo(String account, String name, String identity_num) throws Exception
+	{
+		ThirdInterface thirdInterface = SpringHelper.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDINTERFACE, ThirdInterface.class);
+		DataRow thirdInput = new DataRow();
+		thirdInput.set("identity_num", identity_num);
+		thirdInput.set("name", name);
+		thirdInput.set("account", account);
+		DataRow thirdUserInfo = thirdInterface.queryUserInfoByAccount(thirdInput);
+		if (thirdUserInfo == null || thirdUserInfo.isEmpty())
+		{
+			throw new BusinessException(ErrorCodeBusiness.LOGIN_QUERYTHIRDUSERINFO_FAIL);
+		}
+		
+		String identity_type = thirdUserInfo.getString("identity_type");
+		String client_id = thirdUserInfo.getString("client_id");
+		
+		String check_id_card = Configuration.getString("system.check_id_card","0");
+        if(check_id_card.equals("1")&&!name.equals(thirdUserInfo.getString("name"))||!identity_num.equals(thirdUserInfo.getString("identity_num"))){
+            throw new BusinessException(ErrorCodeBusiness.USER_INFO_CHECK_ID_CARD);
+        }
+		
+		//根据身份证在我们本地数据库查找用户信息
+		UserInfoService userInfoService = (UserInfoService) SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO, UserInfoService.class);
+		UserInfoModel userInfo = userInfoService.queryUserInfobyIdNumAndName(identity_type, identity_num, thirdUserInfo.getString("name"), client_id);
+		if (userInfo == null)
+		{
+			if (DictionaryConstants.IDENTITYNUM_EIGHTEEN == identity_num.length())
+			{
+				String newIdentityNum = DataFormatUtils.idNum18To15(identity_num);
+				userInfo = userInfoService.queryUserInfobyIdNumAndName(identity_type, newIdentityNum, thirdUserInfo.getString("name"), client_id);
+			}
+		}
+		
+		boolean isNewUser = userInfo == null;
+		if (isNewUser)
+		{
+			userInfo = new UserInfoModel();
+		}
+		
+		userInfo.setIdentityType(thirdUserInfo.getString("identity_type"));//证件类型
+		userInfo.setIdentityNum(thirdUserInfo.getString("identity_num"));//证件号码
+		userInfo.setName(thirdUserInfo.getString("name"));//姓名
+		userInfo.setNickName(thirdUserInfo.getString("nick_name"));//昵称
+		userInfo.setSex(thirdUserInfo.getString("sex"));//性别
+		userInfo.setBirthday(thirdUserInfo.getString("birthday"));//生日
+		userInfo.setMobile(thirdUserInfo.getString("mobile"));//手机号码
+		userInfo.setSignOffice(thirdUserInfo.getString("sign_office"));//证件签署机构
+		userInfo.setPapersAddr(thirdUserInfo.getString("papers_addr"));//证件地址
+		userInfo.setValidityBegin(thirdUserInfo.getString("validity_begin"));//证件有效期开始日期
+		userInfo.setValidityEnd(thirdUserInfo.getString("validity_end"));//证件有效期结束日期
+		userInfo.setNationality(thirdUserInfo.getString("country"));//国籍
+		userInfo.setBranchNo(thirdUserInfo.getString("org_id"));//营业部
+		userInfo.setClientId(thirdUserInfo.getString("client_id"));
+		
+		UserExtendModel userExtend = new UserExtendModel();
+		userExtend.setEmail(thirdUserInfo.getString("email"));//邮箱
+		userExtend.setTelephone(thirdUserInfo.getString("telephone"));//联系电话
+		userExtend.setAddress(thirdUserInfo.getString("address"));//联系地址
+		userExtend.setPostCode(thirdUserInfo.getString("post_code"));//邮政编码
+		userExtend.setOccupation(thirdUserInfo.getString("occupational"));//职业
+		userExtend.setEducation(thirdUserInfo.getString("adapter"));//学历
+		userExtend.setEthnicName(thirdUserInfo.getString("nation_id"));//民族编号
+		userExtend.setOpStation(opStation);//操作站点
+		userExtend.setLastLoginTime(new Date());
+		
+		DataRow data = new DataRow();
+		data.set("linkman_name", thirdUserInfo.getString("emergency_name"));
+		data.set("linkman_relation", thirdUserInfo.getString("emergency_relation"));
+		data.set("linkman_mobile", thirdUserInfo.getString("emergency_mobile"));
+		
+		UserFundAccountModel userFundAccount = new UserFundAccountModel();
+		userFundAccount.setFundAccount(account);
+		if(StringHelper.isNotEmpty(thirdUserInfo.getString("account"))){
+			userFundAccount.setFundAccount(thirdUserInfo.getString("account"));
+		}
+		
+		userFundAccount.setIsMain(DictionaryConstants.BOL_TRUE);
+		userFundAccount.setState(ThirdTBASConstants.FUNDACCOUNT_THIRDSTATE_NOMAL);
+		userFundAccount.setType("4");
+		
+		userInfo.remove("fund_account");
+		if (isNewUser)
+		{
+			userInfoService.addUserInfoAndExtendAndAccount(userInfo, userExtend, userFundAccount, data);
+		}
+		else
+		{
+			userInfoService.updateUserInfoAndExtendAndAccount(userInfo, userExtend, userFundAccount, data);
+		}
+		
+		/*if (isNewUser)
+		{
+			userInfoService.addUserInfoAndExtend(userInfo, userExtend);
+		}
+		else
+		{
+			userInfoService.updateUserInfoAndExtend(userInfo, userExtend);
+		}*/
+		
+		userInfo.setFundaccount(thirdUserInfo.getString("account"));
+		return userInfo;
+	}
+	
+}
+
+
+
+

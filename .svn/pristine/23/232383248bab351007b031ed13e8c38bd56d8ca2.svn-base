@@ -1,0 +1,28 @@
+package com.thinkive.fxc.ismp.bus.business.fundaccount.constants;
+
+/**
+ * @描述: 基金业务常量类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年9月20日 上午10:16:31
+ */
+public class JjConstants
+{
+	
+	/**
+	 * 基金信息表
+	 */
+	public static final String T_ISMP_FUND_INFO = "t_ismp_fund_info";
+	
+	/**
+	 * 基金开户扩展信息表
+	 */
+	public static final String T_ISMP_JJ_EXTEND = "t_ismp_jj_extend";
+	
+	/**
+	 * 基金服务类
+	 */
+	public static final String SERVICE_ID_JJBUSINESS = "com.thinkive.fxc.ismp.jjBusinessService";
+}

@@ -1,0 +1,37 @@
+package com.thinkive.fxc.ismp.bus.base.basicdata.dao;
+
+import java.util.List;
+
+import com.thinkive.fxc.ismp.bus.base.basicdata.model.ChkidnoLogModel;
+
+/**
+ * @描述: 公共--公安校验日志表(T_FXC_CHKIDNO_LOG)数据层接口
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月19日 下午3:22:19
+ */
+public interface ChkidnoLogDao
+{
+    
+    /**
+     * @描述：添加公安校验日志
+     * @作者：田源
+     * @时间：2016年8月19日 下午3:38:27
+     * @param chkidnoLogModel
+     * @return ChkidnoLogModel
+     * @throws Exception
+     */
+    public ChkidnoLogModel add(ChkidnoLogModel chkidnoLogModel)throws Exception;
+    
+    /**
+     * @描述：根据参数查询公安校验日志，目前支持按业务编号businessCode,业务实例编号businessId,用户编号userId,客户身份证号idNo这四个参数来检索，四个参数最少传一个,否则返回null
+     * @作者：田源
+     * @时间：2016年8月19日 下午3:40:17
+     * @param chkidnoLogModel
+     * @return List<ChkidnoLogModel>
+     * @throws Exception
+     */
+    public List<ChkidnoLogModel> queryByParams(ChkidnoLogModel chkidnoLogModel)throws Exception;
+}

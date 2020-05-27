@@ -1,0 +1,43 @@
+package com.thinkive.fxc.ismp.bus.base.business.function;
+
+
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.basicdata.contants.BasicServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.basicdata.service.BranchInfoService;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.server.ResultVo;
+
+
+
+/**
+ * 作者：MIKE
+ * 公司：深圳市思迪信息技术股份公司
+ * 日期时间：2017年12月19日 上午10:28:57
+ * 说明：查询营业部信息
+ */
+public class Function1004931 extends ISMPBaseFunction
+{
+	protected ResultVo resultVo = new ResultVo();
+	protected String branch_id;
+	@Override
+	public ResultVo execute() throws Exception
+	{
+	    initVar();
+		BranchInfoService branchinfo = SpringHelper.getBean(BasicServiceBeanIdConstants.SERVICE_ID_BRANCHINFO, BranchInfoService.class);
+		resultVo.setResult(branchinfo.queryList(branch_id));
+		resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+		resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+		return resultVo;
+	}
+	
+	/**
+	 * @描述：初始化入参
+	 * @作者：MIKE
+	 * @时间：2017年12月19日 下午2:08:07
+	 */
+	private void initVar()
+	{
+		branch_id = this.getStrParameter("branch_id");
+	}
+}

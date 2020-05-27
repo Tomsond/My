@@ -1,0 +1,49 @@
+package com.thinkive.fxc.ismp.bus.business.dzhtqs.function;
+
+
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.model.BusinessEntityModel;
+import com.thinkive.fxc.ismp.bus.base.business.service.BusinessEntityService;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.server.InvokeException;
+import com.thinkive.server.ResultVo;
+
+public class Function1005001 extends ISMPBaseFunction
+{
+    private String businessCode = "";//风险揭示书code
+
+    @Override
+    public ResultVo execute() throws InvokeException, Exception
+    {
+        String sub_risk_flag = this.getAndCheckBlankStrParam("sub_risk_flag", ErrorCodeCheckInput.BLANK_BUSINESS_RISK_CODE);
+        ResultVo resultVo = new ResultVo();
+        
+        BusinessEntityModel model;
+        try
+        {
+            BusinessEntityModel businessEntityModel = getNewBusinessEntity();
+            BusinessEntityService businessEntityService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_BUSINESSENTITY, BusinessEntityService.class);
+            model = businessEntityService.queryNotCompleteByUserIdAndBusinessCode(userId, businessCode);
+            if(model==null){
+                if("1".equals(sub_risk_flag)){
+                    model=businessEntityService.add(businessEntityModel, "");//第二个节点
+                }else{
+                    model=businessEntityService.add(businessEntityModel, "");//第一个节点
+                }
+            }
+            resultVo.setResult(model);
+            resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+            resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        
+        return resultVo;
+    }
+    
+}

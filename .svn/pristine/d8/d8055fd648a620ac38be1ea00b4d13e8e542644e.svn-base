@@ -1,0 +1,108 @@
+package com.thinkive.fxc.ismp.bus.business.dzhtqs.function;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessConstants;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.model.AgreeRecordModel;
+import com.thinkive.fxc.ismp.bus.base.business.service.AgreeRecordService;
+import com.thinkive.fxc.ismp.bus.base.business.service.SignAndVerifyService;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserSnapShotService;
+import com.thinkive.fxc.ismp.bus.base.business.vo.UserInfoVo;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.business.dzhtqs.service.SignElectronicContractService;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdDictionaryConstants;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdInterfaceConstant;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdInterface;
+import com.thinkive.server.InvokeException;
+import com.thinkive.server.ResultVo;
+
+/**
+ * 描述: 签署基金产品风险揭示书
+ * 版权: Copyright (c) 2010
+ * 公司: 思迪科技 
+ * 作者: 
+ * 版本: 1.0 
+ * 创建日期: 2016年5月19日 
+ * 创建时间: 下午1:57:29
+ * 
+ */
+public class Function1005003 extends ISMPBaseFunction
+{
+    private String jsondata;//签名json字符串
+    private ThirdInterface thirdInterface;
+	private SignElectronicContractService service;
+	private AgreeRecordService agreeRecordService;
+
+    @SuppressWarnings("deprecation")
+	@Override
+    public ResultVo execute() throws Exception
+    {
+        jsondata = this.getAndCheckBlankStrParam("jsondata", ErrorCodeCheckInput.BLANK_FORMAT_SIGNJSON);
+        
+        //协议签署并留痕
+        SignAndVerifyService signAndVerifyService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_SIGNANDVERIFY, SignAndVerifyService.class);
+        List<Map<String, String>> allSignList =signAndVerifyService.verifySignTextAndSubmitThird(jsondata);
+
+        
+        //查询用户基本信息
+        UserInfoService userInfoService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO, UserInfoService.class);
+        service = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_CONTRACT_SIGN, SignElectronicContractService.class);
+        UserInfoVo userInfoVo = userInfoService.queryAndCheckUserByUserIdAndType(userId, ThirdInterfaceConstant.USER_ACCOUNT_TYPE_ZQ);
+        //查询模板
+        thirdInterface = SpringHelper.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDINTERFACE, ThirdInterface.class);
+        DataRow thirdRow = new DataRow();
+        thirdRow.set("client_id", userInfoVo.getClientId());
+        thirdRow.set("agree_type", "*");
+        DataRow out=new DataRow ();
+        DataRow businessInfoVo = new DataRow();
+		   businessInfoVo.set("userId",userId);
+   	       businessInfoVo.set("nodeId",DictionaryConstants.FLOW_LASTSTEP_NEXT);
+   		   businessInfoVo.set("isComplete",DictionaryConstants.BOL_TRUE);
+   		   businessInfoVo.set("dealResult",DictionaryConstants.DEAL_RESULT_SUCCESS);
+   		   businessInfoVo.set("opSource",opSource);
+   		   businessInfoVo.set("opStation",opStation);
+   		   businessInfoVo.set("ip",ip);
+   		   businessInfoVo.set("fundAccount",fundAccount);
+   		   businessInfoVo.set("business_code", BusinessConstants.BUSINESS_JJFXJSS);
+        try
+        {
+            out =thirdInterface.signRiskContract(thirdRow);
+            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//得到当前时间
+            out.set("create_date", df.format(new Date()));
+        }
+        catch (Exception e)
+        {
+            logger.info("错误信息："+e);
+            businessInfoVo.set("dealResult",DictionaryConstants.DEAL_RESULT_REAL_TIME_FAILURE);
+            throw new InvokeException(-100500401, e+"");
+        }
+        finally{
+        	
+        	Long businessId = service.addSignContractBusinessInfoVo(businessInfoVo);
+       		//step11：协议留痕
+       		//根据用户提交的协议获取协议对象
+       		List<AgreeRecordModel> agreeRecordModels = signAndVerifyService.getAgreeRecordModels(userId, allSignList, businessId, BusinessConstants.BUSINESS_JJFXJSS,"");
+       		agreeRecordService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_AGREERECORD, AgreeRecordService.class);
+       		agreeRecordService.addBatch_new(agreeRecordModels, businessId, BusinessConstants.BUSINESS_JJFXJSS);
+       		//step12：添加业务办理快照
+       		UserSnapShotService userSnapShotService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERSNAPSHOT, UserSnapShotService.class);
+       		userSnapShotService.addUserSnapShot(businessId, userInfoVo);
+        }
+        ResultVo resultVo=new ResultVo();
+        resultVo.setResult(out);
+        resultVo.setErrorNo(0);
+        resultVo.setErrorMsg("调用成功");
+        return resultVo;
+        
+    }
+    
+}

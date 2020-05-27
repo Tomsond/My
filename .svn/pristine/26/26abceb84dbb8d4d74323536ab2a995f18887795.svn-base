@@ -1,0 +1,202 @@
+package com.thinkive.fxc.ismp.bus.third.service.impl;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.log4j.Logger;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.business.vo.UserInfoVo;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.business.util.DataFormatUtils;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdDictionaryConstants;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdInterfaceConstant;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdAssetService;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdInterface;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdTrdAccountService;
+
+/**
+ * @描述: 第三方接口资产服务实现类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2017年2月24日 下午12:31:45
+ */
+public class ThirdAssetServiceImpl implements ThirdAssetService
+{
+	 private Logger logger =Logger.getLogger(ThirdAssetServiceImpl.class);
+    
+	@Override
+	public Map<String, Object> checkAllAssetByZqAccount(UserInfoVo userInfoVo, double needAsset) throws Exception
+	{
+		Map<String, Object> result = new HashMap<String, Object>();
+		String checkFlag = ThirdDictionaryConstants.ASSET_CHECK_FLAG_FAIL;//校验是否通过
+		
+		//获取证券资产
+		DataRow checkZqAllAssetResult = checkZqAllAsset(userInfoVo, needAsset);
+		//证券资产是否满足
+		String zqCheckFlag = checkZqAllAssetResult.getString("zqCheckFlag");
+		//如果证券资产满足情况，直接返回结果
+		if (ThirdDictionaryConstants.ASSET_CHECK_FLAG_PASS.equals(zqCheckFlag))
+		{
+			checkFlag = ThirdDictionaryConstants.ASSET_CHECK_FLAG_PASS;
+			result.put("checkFlag", checkFlag);
+			result.put("checkZqAllAssetResult", checkZqAllAssetResult);
+			return result;
+		}
+		
+		//证券帐号不满足情况，查询信用帐号
+		//获取信用帐号资产
+		UserInfoService userInfoService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO, UserInfoService.class);
+		DataRow params = new DataRow();
+		params.set("userId", userInfoVo.getUserId());
+		params.set("type", ThirdInterfaceConstant.USER_ACCOUNT_TYPE_XY);
+		params.set("isMain", DictionaryConstants.BOL_TRUE);
+		UserInfoVo xyAccountInfo = userInfoService.queryUserInfoVo(params);
+		//信用资产
+		DataRow xyAssetInfo = null;
+		//信用账户存在，查询信用资产
+		if (xyAccountInfo != null)
+		{
+			xyAssetInfo = getAllAssetByAccountType(xyAccountInfo);
+		}
+		
+		//没有信用资产，返回校验失败结构（根据证券帐号校验结果返回综合结果）
+		if (xyAssetInfo == null)
+		{
+			//如果证券帐号校验不通过，返回校验不通过
+			if (ThirdDictionaryConstants.ASSET_CHECK_FLAG_FAIL.equals(zqCheckFlag))
+			{
+				checkFlag = ThirdDictionaryConstants.ASSET_CHECK_FLAG_FAIL;
+			}
+			//如果证券帐号资产不存在,则证明两种资产都没有，数据有问题
+			else
+			{
+				checkFlag = ThirdDictionaryConstants.ASSET_CHECK_FLAG_NODATA;
+			}
+			result.put("checkFlag", checkFlag);
+			result.put("checkZqAllAssetResult", checkZqAllAssetResult);
+			return result;
+		}
+		
+		//有信用资产，结合证券资产计算是否满足
+		double xyAssets = xyAssetInfo.getDouble("net_asset");
+		double zqAssets = checkZqAllAssetResult.getDouble("marketvalue");
+		//判断资产是否满足
+		if ((xyAssets + zqAssets) >= needAsset)
+		{
+			checkFlag = ThirdDictionaryConstants.ASSET_CHECK_FLAG_PASS;
+		}
+		result.put("checkFlag", checkFlag);
+		result.put("checkZqAllAssetResult", checkZqAllAssetResult);
+		result.put("checkXyAllAssetResult", xyAssetInfo);
+		return result;
+	}
+	
+	@Override
+	public DataRow checkZqAllAsset(UserInfoVo userInfoVo, double needAsset) throws Exception
+	{
+		DataRow zqAssetInfo = getAllAssetByAccountType(userInfoVo);
+		String zqCheckFlag;//0：不通过，1：通过，2：不存在
+		if (zqAssetInfo != null)
+		{
+			double zqAssets = zqAssetInfo.getDouble("marketvalue");
+			//资产满足条件
+			if (zqAssets >= needAsset)
+			{
+				zqCheckFlag = ThirdDictionaryConstants.ASSET_CHECK_FLAG_PASS;
+			}
+			//资产不满足条件
+			else
+			{
+				zqCheckFlag = ThirdDictionaryConstants.ASSET_CHECK_FLAG_FAIL;
+			}
+		}
+		//帐号不存在
+		else
+		{
+			zqCheckFlag = ThirdDictionaryConstants.ASSET_CHECK_FLAG_NODATA;
+			zqAssetInfo = new DataRow();
+		}
+		zqAssetInfo.set("zqCheckFlag", zqCheckFlag);
+		return zqAssetInfo;
+	}
+	
+	@Override
+	public DataRow getAllAssetByAccountType(UserInfoVo userInfoVo) throws Exception
+	{
+		DataRow thirdInput = DataFormatUtils.packThirdInput(userInfoVo);
+		thirdInput.set("moneytype", ThirdInterfaceConstant.MONEY_TYPE_RMB); //货币类型 0：人民币
+		thirdInput.remove("account");
+		ThirdInterface thirdInterface = SpringHelper.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDINTERFACE, ThirdInterface.class);
+		List<DataRow> assetList = thirdInterface.getAssetInfo(thirdInput);
+		//如果查询到的资产不存在，返回null
+		if (assetList == null || assetList.size() == 0)
+		{
+			return null;
+		}
+		return assetList.get(0);
+	}
+	
+	@Override
+	public DataRow checkHKAsset(UserInfoVo userInfoVo) throws Exception
+	{
+		DataRow thirdInput = DataFormatUtils.packThirdInput(userInfoVo);
+		ThirdInterface thirdInterface = SpringHelper.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDINTERFACE, ThirdInterface.class);
+		 DataRow assetList = thirdInterface.checkHKAsset(thirdInput);
+		 
+		 if(assetList!=null&&assetList.size()>0){
+			 String assetInfo = assetList.getString("check_flag");//证券资产是否满足
+			 assetList.set("checkFlag", "0"); 
+			 if("0".equals(assetInfo)){//柜台通过是0 ， 1不通过，这里需要转换下标识
+				 assetList.set("checkFlag", "1"); 
+			 }
+		 }else{
+			 assetList = new DataRow();
+			 assetList.set("checkFlag", "0"); 
+		 }
+		return assetList;
+	}
+	
+	
+	//Function2001003
+	
+	@SuppressWarnings("unchecked")
+    @Override
+    public DataRow KcbCheckHKAsset(UserInfoVo userInfoVo) throws Exception
+    {
+        DataRow thirdInput = DataFormatUtils.packThirdInput(userInfoVo);
+        
+
+        ThirdTrdAccountService thirdTrdAccountService = SpringHelper.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDTRDACCOUNT, ThirdTrdAccountService.class);
+        Map<String, Object> accountInfo = thirdTrdAccountService.queryAndCheckGtShaState(userInfoVo,true);
+        List<DataRow> accountList = (List<DataRow>) accountInfo.get("accountList"); 
+        logger.info("KcbCheckHKAsset========"+accountList);
+        for (DataRow dataRow : accountList){
+            //主股东号  main_flag=1
+            String main_flag=dataRow.getString("main_flag");
+            String trdacct=dataRow.getString("trdacct");
+            if("1".equals(main_flag)){
+                thirdInput.set("trdacct", trdacct);
+            }
+        }
+        
+        //logger.info("KcbCheckHKAsset========"+thirdInput);
+        ThirdInterface thirdInterface = SpringHelper.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDINTERFACE, ThirdInterface.class);
+         DataRow assetList = thirdInterface.KcbCheckHKAsset(thirdInput);
+         //柜台：check_flag  0为校验不通过，1为校验通过
+         if(assetList!=null&&assetList.size()>0){
+             assetList.set("checkFlag", assetList.getString("check_flag")); 
+         }else{
+             assetList = new DataRow();
+             assetList.set("checkFlag", "0"); 
+         }
+        return assetList;
+    }
+    
+}

@@ -1,0 +1,28 @@
+package com.thinkive.fxc.ismp.bus.base.business.service;
+
+import com.thinkive.fxc.fileupload.bean.FileUploadResultVo;
+
+/**
+ * @描述: 文件上传服务类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年11月8日 下午1:37:44
+ */
+public interface FileUploadService
+{
+	
+	/**
+	 * @描述：上传文件到文件服务器
+	 * @作者：刘恺
+	 * @时间：2016年11月8日 下午1:42:29
+	 * @param fileName 	文件名称
+	 * @param version	版本号
+	 * @param imagedata	图片base64
+	 * @param isOcr		是否需要orc 0：否，1：是
+	 * @return
+	 * @throws Exception
+	 */
+	public FileUploadResultVo upLoadFileToFileServer(String fileName, String version, String imagedata, String isOcr) throws Exception;
+}

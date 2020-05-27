@@ -1,0 +1,116 @@
+package com.thinkive.fxc.ismp.bus.base.business.dao.impl;
+
+import java.sql.Timestamp;
+import java.util.Date;
+import java.util.List;
+
+import com.thinkive.base.jdbc.session.Session;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessTableConstants;
+import com.thinkive.fxc.ismp.bus.base.business.dao.AgreeRecordDao;
+import com.thinkive.fxc.ismp.bus.base.business.model.AgreeRecordModel;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseDao;
+import com.thinkive.fxc.ismp.bus.base.constants.SystemConstants;
+
+/**
+ * @描述: 协议签署记录表<p>t_ismp_agree_record</p> 数据层接口实现类
+ * @版权: Copyright (c) 2016 
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 尹杰民
+ * @版本: 2.0 
+ * @创建时间: 2016年8月15日 下午3:10:20
+ */
+public class AgreeRecordDaoImpl extends ISMPBaseDao implements AgreeRecordDao
+{
+	
+	@Override
+	public AgreeRecordModel add(AgreeRecordModel agreeRecordModel)
+	{
+		String id = getSeqValue(SystemConstants.DB_ISMP,BusinessTableConstants.T_ISMP_AGREE_RECORD);
+		agreeRecordModel.setId(Long.valueOf(id));
+		agreeRecordModel.setCreateDate(new Date());
+		this.getJdbcTemplate().insert(BusinessTableConstants.T_ISMP_AGREE_RECORD, agreeRecordModel);
+		return agreeRecordModel;
+	}
+	
+	@Override
+	public int update(AgreeRecordModel agreeRecordModel)
+	{
+		agreeRecordModel.setUpdateDate(new Date());
+		return this.getJdbcTemplate().update(BusinessTableConstants.T_ISMP_AGREE_RECORD, agreeRecordModel, "ID", agreeRecordModel.getId());
+	}
+	
+	@Override
+	public void deleteByBusinessIdAndNodeId(Long businessId, String nodeId, Session session) throws Exception
+	{
+		StringBuilder sql = new StringBuilder("DELETE FROM ");
+		sql.append(BusinessTableConstants.T_ISMP_AGREE_RECORD);
+		sql.append(" WHERE BUSINESS_ID = ? AND NODE_ID = ? ");
+		session.update(sql.toString(), new Object[] { businessId, nodeId });
+	}
+	
+	@Override
+	public void addBatch(List<AgreeRecordModel> agreeRecordModels)
+	{
+		if (agreeRecordModels == null || agreeRecordModels.isEmpty())
+		{
+			return;
+		}
+		
+		StringBuilder sql = new StringBuilder("INSERT INTO ");
+		sql.append(BusinessTableConstants.T_ISMP_AGREE_RECORD).append(
+				"(ID,BUSINESS_ID,NODE_ID,AGREE_NO,AGREE_NAME,SIGN_TYPE,SIGN_SOURCE_FLAG,CERT_DN,PROTOCOL_DCSIGN,AGREE_VERSION,CREATE_DATE,UPDATE_DATE) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)");
+		Object[][] params = new Object[agreeRecordModels.size()][12];
+		Date now = new Date();
+		for (int i = 0; i < agreeRecordModels.size(); i++)
+		{
+			AgreeRecordModel item = agreeRecordModels.get(i);
+			String id = getSeqValue(SystemConstants.DB_ISMP,BusinessTableConstants.T_ISMP_AGREE_RECORD);
+			item.setId(Long.parseLong(id));
+			item.setCreateDate(now);
+			item.setUpdateDate(now);
+			Timestamp timestamp = new Timestamp(now.getTime());
+			params[i] = new Object[] { id, item.getBusinessId(), item.getNodeId(), item.getAgreeNo(), item.getAgreeName(), item.getSignType(), item.getSignSourceFlag(), item.getCertDn(),
+					item.getProtocolDcsign(), item.getAgreeVersion(), timestamp, timestamp };
+		}
+		getJdbcTemplate().batchUpdate(sql.toString(), params);
+	}
+	
+	@Override
+	public void addBatch(List<AgreeRecordModel> agreeRecordModels, Session session) throws Exception
+	{
+		if (agreeRecordModels == null || agreeRecordModels.isEmpty())
+		{
+			return;
+		}
+		
+		StringBuilder sql = new StringBuilder("INSERT INTO ");
+		sql.append(BusinessTableConstants.T_ISMP_AGREE_RECORD).append(
+				"(ID,BUSINESS_ID,NODE_ID,AGREE_NO,AGREE_NAME,SIGN_TYPE,SIGN_SOURCE_FLAG,CERT_DN,PROTOCOL_DCSIGN,AGREE_VERSION,CREATE_DATE,UPDATE_DATE) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)");
+		Object[][] params = new Object[agreeRecordModels.size()][12];
+		Date now = new Date();
+		for (int i = 0; i < agreeRecordModels.size(); i++)
+		{
+			AgreeRecordModel item = agreeRecordModels.get(i);
+			String id = getSeqValue(SystemConstants.DB_ISMP,BusinessTableConstants.T_ISMP_AGREE_RECORD);
+			item.setId(Long.parseLong(id));
+			item.setCreateDate(now);
+			item.setUpdateDate(now);
+			Timestamp timestamp = new Timestamp(now.getTime());
+			params[i] = new Object[] { id, item.getBusinessId(), "finish", item.getAgreeNo(), item.getAgreeName(), item.getSignType(), item.getSignSourceFlag(), item.getCertDn(),
+					item.getProtocolDcsign(), item.getAgreeVersion(), timestamp, timestamp };
+		}
+		session.batchUpdate(sql.toString(), params);
+	}
+
+    @Override
+    public void addBatch(AgreeRecordModel agreeRecordModel, Session session) throws Exception
+    {
+        Date now = new Date();
+        agreeRecordModel.setCreateDate(now);
+        agreeRecordModel.setUpdateDate(now);
+        String id = getSeqValue(SystemConstants.DB_ISMP,BusinessTableConstants.T_ISMP_AGREE_RECORD);
+        agreeRecordModel.setId(Long.parseLong(id));
+        session.insert(BusinessTableConstants.T_ISMP_AGREE_RECORD, agreeRecordModel);
+    }
+	
+}

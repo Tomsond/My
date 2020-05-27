@@ -1,0 +1,276 @@
+package com.thinkive.fxc.ismp.bus.base.constants;
+
+/**
+ * 描述: 入参校验错误编号
+ * 版权: Copyright (c) 2010
+ * 公司: 深圳市思迪信息技术股份有限公司
+ * 作者: 刘恺
+ * 版本: 2.0.0 
+ * 创建日期: 2016年8月12日 
+ * 创建时间: 下午1:42:43
+ */
+public class ErrorCodeCheckInput
+{
+	
+	public static final int BLANK_MOBILE = -700001; //手机号不能为空
+	
+	public static final int BLANK_IP = -700002; //IP地址不能为空
+	
+	public static final int BLANK_USERID = -700003; //用户编号不能为空
+	
+	public static final int BLANK_FUNDACCOUNT = -700004; //资金帐号不能为空
+	
+	public static final int BLANK_BUSINESSCODE = -700005; //业务类型不能为空
+	
+	public static final int BLANK_BUSINESSID = -700006; //业务办理编号不能为空
+	
+	public static final int ERROR_BUSINESSCODE = -700007; //业务类型错误
+	
+	public static final int BLANK_VALIDATE_CODE = -700008; //验证码不能为空
+	
+	public static final int BLANK_OPEN_ACCOUNT_TYPE = -700009; //开户类型不能为空
+	
+	public static final int BLANK_QUERYCOUNT = -700010; //查询数量不能为空
+	
+	public static final int BLANK_STRDATE = -700011; //开始时间不能为空
+	
+	public static final int BLANK_ENDDATE = -700012; //结束时间不能为空
+	
+	public static final int BLANK_OP_SOURCE = -700013; //访问来源不能为空
+	
+	public static final int BLANK_USER_NAME = -700014; //客户姓名不能为空
+	
+	public static final int BLANK_IDNO = -700015; //身份证号不能为空
+	
+	public static final int BLANK_IMG_DATA = -700016; //图像数据不能为空
+	
+	public static final int BLANK_IMG_TYPE = -700017; //图像数据类型不能为空
+	
+	public static final int BLANK_CHANNEL_TYPE = -700018; //渠道类型不能为空
+	
+	public static final int BLANK_TRDACCOUNT = -700019; //交易帐号不能为空
+	
+	public static final int BLANK_EMERGENCY_NAME = -700020; //应急联系人姓名不能为空
+	
+	public static final int BLANK_EMERGENCY_MOBILE = -700021; //应急联系人手机号不能为空
+	
+	public static final int BLANK_EMERGENCY_RELATION = -700022; //应急联系人关系不能为空
+	
+	public static final int ERROR_FORMAT_MOBILE = -700023; //手机号码格式错误
+	
+	public static final int BLANK_FORMAT_SIGNJSON = -700024; //签名数据不能为空
+	
+	public static final int BLANK_FUNDACCOUNT_CLIENTID = -700025; //资金帐号和客户号不能都为空
+	
+	public static final int BLANK_ANSWERSTR = -700026; //答案不能为空
+	
+	public static final int BLANK_RZRQAMOUNT = -700027; //融资融券额度不能为空
+	
+	public static final int ERROR_FORMAT_RZRQAMOUNT = -700028; //融资融券额度格式错误
+	
+	public static final int BLANK_PAPERS_ADDR = -700029; //证件地址不能为空
+	
+	public static final int BLANK_SIGN_OFFICE = -700030; //签署地址不能为空
+	
+	public static final int BLANK_VALIDITY_BEGIN = -700031; //有效期开始日期不能为空
+	
+	public static final int BLANK_VALIDITY_END = -700032; //有效期结束日期不能为空
+	
+	public static final int BLANK_ADDITIONAL_INFO = -700033; //用户补充信息不能为空
+	
+	public static final int BLANK_RELATEDPERSONCHOICE = -700034; //关联人信息声明选择结果为空
+	
+	public static final int BLANK_RELATEDPERSONNAME = -700035; //关联人姓名不能为空
+	
+	public static final int BLANK_RELATEDPERSONACCOUNT = -700036; //关联人账户号不能为空
+	
+	public static final int BLANK_SHAREHOLDERCHOICE = -700037; //是否为本证券公司的股东、关联人选择结果不能为空
+	
+	public static final int BLANK_PUBLICCOMPANYCHOICE = -700038; //是否为持有上市公司股份5%以上的股东选择结果不能为空
+	
+	public static final int BLANK_PUBLICCOMPANYNAME = -700039; //持股5%上市公司名称不能为空
+	
+	public static final int BLANK_RESTRICTEDSTOCKCHOICE = -700040; //是否持有限售股选择结果不能为空
+	
+	public static final int BLANK_RESTRICTEDSTOCKLIST = -700041; //限售股列表不能为空
+	
+	public static final int BLANK_COUPONSTYPE = -700042; //还券方式不能为空
+	
+	public static final int BLANK_ENTRUSTTYPE = -700043; //委托方式不能为空
+	
+	public static final int BLANK_STKBD = -700044; //证券市场不能为空
+	
+	public static final int BLANK_SIGNATURE = -700045; //请求签名串不能为空
+	
+	public static final int BLANK_TRADING_ACCOUNT = -700046; //交易账号不能为空
+	
+	public static final int BLANK_NEWMOBILE_ACCOUNT = -700047; //新手机号码不能为空
+	
+	public static final int BLANK_PUBLICCOMPANYLIST = -700048; //上市公司超过5%（含）及一致行动人列表不能为空
+	
+	public static final int CUSTOMERPOST_CHOICE = -700049; //客户联系方式中是否邮寄选择结果不能为空
+	
+	public static final int CUSTOMERPOST_RECEIVER = -700050; //客户联系方式中邮寄收件人不能为空
+	
+	public static final int CUSTOMERPOST_POSTCODE = -700051; //客户联系方式中邮政编码不能为空
+	
+	public static final int CUSTOMERPOST_ADDRESS = -700052; //客户联系方式中邮寄地址不能为空
+	
+	public static final int CUSTOMERTEL_CHOICE = -700053; //客户联系方式中是否固定电话通知选择结果不能为空
+	
+	public static final int CUSTOMERTEL_NUMBER = -700054; //客户联系方式中固定电话号码不能为空
+	
+	public static final int CUSTOMERMOBILE_CHOICE = -700055; //客户联系方式中是否移动电话及短信通知选择结果不能为空
+	
+	public static final int CUSTOMERMOBILE_NUMBER = -700056; //客户联系方式中移动电话号码不能为空
+	
+	public static final int CUSTOMERFAX_CHOICE = -700057; //客户联系方式中是否传真通知选择结果不能为空
+	
+	public static final int CUSTOMERFAX_NUMBER = -700058; //客户联系方式中传真号码不能为空
+	
+	public static final int CUSTOMERMAIL_CHOICE = -700059; //客户联系方式中是否电子邮件通知选择结果不能为空
+	
+	public static final int CUSTOMERMAIL_NUMBER = -700060; //客户联系方式中电子邮件地址不能为空
+	
+	public static final int CONTACTSPOST_CHOICE = -700061; //紧急联系人联系方式中是否邮寄选择结果不能为空
+	
+	public static final int CONTACTSPOST_RECEIVER = -700062; //紧急联系人联系方式中邮寄收件人不能为空
+	
+	public static final int CONTACTSPOST_POSTCODE = -700063; //紧急联系人联系方式中邮政编码不能为空
+	
+	public static final int CONTACTSPOST_ADDRESS = -700064; //紧急联系人联系方式中邮寄地址不能为空
+	
+	public static final int CONTACTSTEL_CHOICE = -700065; //紧急联系人联系方式中是否固定电话通知选择结果不能为空
+	
+	public static final int CONTACTSTEL_NUMBER = -700066; //紧急联系人联系方式中固定电话号码不能为空
+	
+	public static final int CONTACTSMOBILE_CHOICE = -700067; //紧急联系人联系方式中是否移动电话及短信通知选择结果不能为空
+	
+	public static final int CONTACTSMOBILE_NUMBER = -700068; //紧急联系人联系方式中移动电话号码不能为空
+	
+	public static final int CONTACTSFAX_CHOICE = -700069; //紧急联系人联系方式中是否固定电话通知选择结果不能为空
+	
+	public static final int CONTACTSFAX_NUMBER = -700070; //紧急联系人联系方式中传真号码不能为空
+	
+	public static final int CONTACTSMAIL_CHOICE = -700071; //紧急联系人联系方式中是否电子邮件通知选择结果不能为空
+	
+	public static final int CONTACTSMAIL_NUMBER = -700072; //紧急联系人联系方式中电子邮件地址不能为空
+	
+	public static final int CUSTOMERACCESSLIST = -700073; //客户准入条件情况列表不能为空
+	
+	public static final int TRADERIGHT = -700074; //投资者交易权限不能为空
+	
+	public static final int BUYLIMIT = -700075; //投资者买入额度不能为空
+	
+	public static final int AGREEMENT_CHOICE = -700076; //是否选择协议行权选择结果不能为空
+	
+	public static final int AGREEMENT_REALVALUEDEGREE = -700077; //实值度不能为空
+	
+	public static final int AGREEMENT_REALVALUEAMOUNT = -700078; //实值金额不能为空
+	
+	public static final int BLANK_SHAREHOLDERLIST = -700079; //上市公司董事、监事、高级管理人员列表不能为空
+	
+	public static final int LONG_FORMAT_ERROR = -700080; //用户编号格式不正确
+	
+	public static final int BLANK_NODEID = -700081; //节点编号不能为空
+	
+	public static final int BLANK_CERTTYPE = -700082; //证书类型不能为空
+	
+	public static final int BLANK_IDENTITY_TYPE = -700083; //证件类型不能为空
+	
+	public static final int BLANK_IDENTITY_NUM = -700084; //证件号码不能为空
+	
+	public static final int FORMAT_IDENTITY_TYPE = -700084; //证件类型值异常
+	
+	public static final int FORMAT_IDCARD = -700085; //身份证格式不正确
+	
+	public static final int BLANK_NATIONALITY = -700086; //国籍不能为空
+	
+	public static final int BLANK_CERTUID = -700087; //证书用户编号不能为空
+	
+	public static final int BLANK_SURVEYPARAMS = -700088; //获取问卷时，参数不能全为空
+	
+	public static final int BALNK_BANKCODE = -700089; //银行卡编号不能为空
+	
+	public static final int BALNK_OP_ACCOUNT = -700090; //银行卡对应资金帐号不能为空
+	
+	public static final int BALNK_PASSWORD = -700091; //交易密码不能为空
+	
+	public static final int BALNK_LOGIN_ACCOUNT = -700092; //登录帐号不能为空
+	
+	public static final int BLANK_IMG_IMGSECRETKEY = -700093; //图像数据文件服务器私钥不能为空
+	
+	public static final int BLANK_IMG_IMGPATH = -700094; //图像数据文件服务器图片路径不能为空
+	
+	public static final int BLANK_NOINFORMATION = -700095; //用户信息不能为空
+	
+	public static final int BLANK_AGREE_NO = -700096;//协议编号不能都为空
+	
+	public static final int BLANK_MOBILE_VILIDATENO = -700097;//手机验证码不能为空
+	
+	public static final int BLANK_SMS_TYPE = -700098;// 短信类型不能为空
+	
+	public static final int BLANK_ADRESS = -700099;//地址不能为空
+	
+	public static final int BLANK_POSTCODE = -700100;//邮编不能为空
+	
+	public static final int BLANK_EMAIL = -700101;//邮箱不能为空
+	
+	public static final int BLANK_TACODES = -700102;//基金公司编号不能为空
+	
+	public static final int BLANK_SUBJECT_TYPE = -700103;//问卷类型不能为空
+	
+	public static final int BLANK_CUR_PAGE = -700104;//当前页数不能为空
+	
+	public static final int BLANK_NUM_PER_PAGE = -700105;//每页显示条数不能为空
+	
+	public static final int BLANK_TANAMES = -700106;//基金公司名称不能为空
+	
+	public static final int BLANK_PARAMS = -700107;//参数不能为空
+	
+	public static final int BLANK_ENCRYPT_STR = -700108;//加密串不能为空
+	
+	public static final int BLANK_PKCS10 = -700109;//证书请求串不能为空
+	
+	public static final int BLANK_SECONDARY_FUND_ACCOUNT = -700110; //副资金账号不能为空
+	
+	public static final int BLANK_PWD_TYPE = -700111; //密码类型不能为空
+	
+	public static final int BLANK_ZJPWD = -700112; //资金密码不能为空
+	
+	public static final int BLANK_ENUM_NO = -700113; //数据字典类型不能为空
+	
+	public static final int BLANK_ENUM_BANKCONFIGID = -700114; //三方存管配置编号不能为空
+	
+	public static final int BLANK_BANKCARD = -700115;//银行卡号不能为空
+	
+	public static final int BLANK_BANKCARDPWD = -700116;//银行密码不能为空
+	
+	public static final int MONEY_TYPE = -700117;//货币类型不能为空
+	
+	public static final int BLANK_OTCCODE = -700118; //OTC编号不能为空
+	
+	public static final int BLANK_RANDOMCODE = -700119; //随机码不能为空
+	
+	public static final int BLANK_ORG_ID = -700120;//营业部编号不能为空
+	
+	public static final int BLANK_ORG_AGMTTYPESTR = -700121;//资金帐号权限类型不能为空
+
+	
+	public static int BLANK_BUSINESS_PROTOCOL_TYPE= - 700122;//协议类型不能为空
+	
+	public static int BLANK_BUSINESS_FUND_CODE= - 700123;//基金代码不能为空
+	
+	public static int BLANK_BUSINESS_RISK_CODE= - 700124;//是否签署风险揭示书不能为空
+	
+	public static int BLANK_BUSINESS_KCEDITION= -700125;//存在预约信息，不允许重复提交
+	
+    public static final int BLANK_ASSET_FLAG = -700200; // 内部资产是否满足标识不能为空
+
+    public static final int BLANK_TRADE_TIME_FLAG = -700201; // 交易经验是否满足标识不能为空
+
+    public static final int BLANK_AUTHEN_TYPE = -700202; // 认证方式不能为空
+    
+    public static final int BLANK_SUBJECT_NO = -700203; // 主题编号不能为空
+
+}

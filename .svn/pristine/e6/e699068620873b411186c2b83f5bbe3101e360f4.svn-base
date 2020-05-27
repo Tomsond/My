@@ -1,0 +1,290 @@
+package com.thinkive.fxc.ismp.bus.base.business.service;
+
+import java.util.List;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.fxc.ismp.bus.base.business.model.BillingContactNameModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.BusinessEntityModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.UserExtendModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.UserFundAccountModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.UserInfoModel;
+import com.thinkive.fxc.ismp.bus.base.business.vo.CertUserInfoVo;
+import com.thinkive.fxc.ismp.bus.base.business.vo.UserInfoVo;
+
+
+/**
+ * 作者：MIKE
+ * 公司：深圳市思迪信息技术股份公司
+ * 日期时间：2017年1月20日 下午5:03:08
+ * 说明：客户信息服务层接口
+ */
+public interface UserInfoService
+{
+	
+	/**
+	 * @描述：根据用户编号和资金帐号查询用户基本信息,并校验用户密码是否正常
+	 * @作者：刘恺
+	 * @时间：2016年8月25日 下午12:04:49
+	 * @param userId
+	 * @param fundAccount
+	 * @return
+	 */
+	public UserInfoVo queryAndCheckUserByUserIdAndAccount(Long userId, String fundAccount) throws Exception;
+	
+	/**
+	 * @描述：根据用户编号和资金帐号类型查询用户基本信息,并校验用户是否存在、密码是否正常
+	 * @作者：刘恺
+	 * @时间：2016年8月25日 下午12:06:38
+	 * @param userId
+	 * @param type
+	 * @return UserInfoVo
+	 */
+	public UserInfoVo queryAndCheckUserByUserIdAndType(Long userId, String type) throws Exception;
+	
+	/**
+	 * @描述：根据用户编号userId、资金帐号fundAccount和资金帐号类型type查询用户和用户有效账号信息,最少传两个
+	 * @作者：刘恺
+	 * @时间：2016年8月25日 下午12:02:41
+	 * @param params userId:用户编号，fundAccount资金帐号，type：资金帐号类型
+	 * @return UserInfoVo
+	 */
+	public UserInfoVo queryUserInfoVo(DataRow params);
+	
+	/**
+	 * @描述：根据用户编号查询用户扩展信息
+	 * @作者：刘恺
+	 * @时间：2016年8月26日 上午10:42:18
+	 * @param userId
+	 * @return
+	 */
+	public UserExtendModel queryUserExtendByUserId(Long userId);
+	
+	/**
+	 * @描述：根据用户编号更新用户扩展信息
+	 * @作者：刘恺
+	 * @时间：2016年8月26日 上午11:01:08
+	 * @param updateExtend
+	 */
+	public int updateUserExtend(UserExtendModel updateExtend);
+	
+	/**
+	 * @描述：根据用户编号查询用户信息
+	 * @作者：刘恺
+	 * @时间：2016年8月26日 下午10:06:48
+	 * @param userId
+	 * @return
+	 */
+	public UserInfoModel queryUserInfoByUserId(Long userId);
+	
+	/**
+	 * @描述：根据用户编号查询证书用户信息
+	 * @作者：刘恺
+	 * @时间：2016年8月30日 下午3:03:43
+	 * @param userId
+	 * @return
+	 */
+	public CertUserInfoVo queryCertUser(Long userId);
+	
+	/**
+	 * @描述： 修改用户信息拓展信息(包含业务信息，快照，支持事物)，执行成功返回true，否则false
+	 * @作者：田源
+	 * @时间：2016年9月7日 下午4:12:33
+	 * @param userExtendModel
+	 * @param businessEntityModel
+	 * @return Boolean
+	 * @throws Exception
+	 */
+	public Boolean updateUserExtend(UserExtendModel userExtendModel, BusinessEntityModel businessEntityModel,String str) throws Exception;
+	
+	/**
+	 * @描述：根据资金帐号查询用户视图
+	 * @作者：刘恺
+	 * @时间：2016年9月6日 下午9:45:40
+	 * @param fundAccount
+	 * @return
+	 */
+	public UserInfoVo queryUserInfoVoByFundAccount(String fundAccount);
+	
+	/**
+	 * @描述：根据用户编号和资金帐号更新所有资金帐号密码错误次数
+	 * @作者：刘恺
+	 * @时间：2016年9月7日 下午12:44:42
+	 * @param userId
+	 * @return
+	 */
+	public int updatePwdErrorTimeByUserIdAndAccount(Long userId, String fundAccount, int errorTime);
+	
+	/**
+	 * @描述：根据自增编号更新用户资金帐号数据
+	 * @作者：刘恺
+	 * @时间：2016年9月7日 下午1:07:11
+	 * @param userFundAccountModel
+	 * @return
+	 */
+	public int updateFundAccountById(UserFundAccountModel userFundAccountModel);
+	
+	/**
+	 * @描述：根据自增编号更新用户资金帐号数据
+	 * @作者：刘恺
+	 * @时间：2016年9月7日 下午1:07:11
+	 * @param userFundAccountModel
+	 * @return
+	 */
+	public int updatePwdErrorTimeByUserId(Long userId, int errorTime);
+	
+	/**
+	 * @描述：根据证件类型、证件号码、姓名、客户号查询用户
+	 * @作者：刘恺
+	 * @时间：2016年9月7日 下午11:40:46
+	 * @param identity_type
+	 * @param identity_num
+	 * @param string
+	 * @param client_id
+	 * @return
+	 */
+	public UserInfoModel queryUserInfobyIdNumAndName(String identityType, String identityNum, String name, String clientId);
+	
+	
+	/**
+	 * @描述：根据用户编号查询用户第二联系人信息
+	 * @作者：MIKE
+	 * @时间：2017年1月20日 下午11:40:46
+	 * @param user_id
+	 * @return
+	 */
+	public DataRow queryBillingContact(Long user_id);
+	
+	
+	/**
+	 * @描述：新增用户信息、用户扩展信息、用户资金帐号
+	 * @作者：刘恺
+	 * @时间：2016年9月9日 上午10:57:09
+	 * @param userInfoModel
+	 * @param userExtendModel
+	 * @throws Exception
+	 */
+	public void addUserInfoAndExtendAndAccount(UserInfoModel userInfoModel, UserExtendModel userExtendModel, UserFundAccountModel userFundAccountModel,DataRow data) throws Exception;
+	
+	/**
+	 * @描述：更新用户信息、用户扩展信息、用户资金帐号
+	 * @作者：刘恺
+	 * @时间：2016年9月9日 下午12:16:19
+	 * @param userInfoModel
+	 * @param userExtendModel
+	 * @param userFundAccountModel
+	 * @throws Exception
+	 */
+	public void updateUserInfoAndExtendAndAccount(UserInfoModel userInfoModel, UserExtendModel userExtendModel, UserFundAccountModel userFundAccountModel,DataRow data) throws Exception;
+	
+	/**
+	 * @描述：修改用户交易密码
+	 * @作者：田源
+	 * @时间：2016年9月8日 上午11:34:08
+	 * @param userId
+	 * @param fundAccount
+	 * @param newPwd
+	 * @param businessEntityModel
+	 * @return int
+	 */
+	public int updatePasswordByAccount(Long userId, String fundAccount, String newPwd);
+	
+	/**
+	 * @描述：添加业务办理记录(包含业务实例，流程节点记录，流程节点操作日志)
+	 * @作者：田源
+	 * @时间：2016年9月8日 下午2:56:40
+	 * @param businessEntityModel
+	 * @return Long
+	 * @throws Exception
+	 */
+	public BusinessEntityModel addBusinessInfo(BusinessEntityModel businessEntityModel) throws Exception;
+	
+	/**
+	 * @描述：修改用户基本信息(包含添加业务信息，快照，支持事务)
+	 * @作者：田源
+	 * @时间：2016年9月8日 下午5:39:58
+	 * @param userInfoModel
+	 * @param businessEntityModel
+	 * @param userInfoVo 
+	 * @return businessEntityModel
+	 */
+	public BusinessEntityModel updateUserInfoModel(UserInfoModel userInfoModel, BusinessEntityModel businessEntityModel, UserInfoVo userInfoVo) throws Exception;
+	
+	/**
+	 * @描述：修改用户基本信息(包含添加业务信息，快照，支持事务)，修改业务实例
+	 * @作者：谢能琥
+	 * @时间：2016年9月8日 下午5:39:58
+	 * @param userInfoModel
+	 * @param businessEntityModel
+	 * @param userInfoVo 
+	 * @return Boolean
+	 */
+	public Boolean updateUserInfoModelAndUpdateBusinessEntity(UserInfoModel userInfoModel, BusinessEntityModel businessEntityModel, UserInfoVo userInfoVo) throws Exception;
+	
+	/**
+	 * @描述：检测手机用户是否已存在( 存在返回true 否则false)
+	 * @作者：田源
+	 * @时间：2016年9月8日 下午6:04:52
+	 * @param mobile
+	 * @return boolean
+	 */
+	public boolean existMobile(String mobile);
+	
+	/**
+	 * @描述：添加或更新第三方资金帐号到数据库
+	 * @作者：刘恺
+	 * @时间：2016年9月9日 下午6:31:20
+	 * @param zjAccountList 第三方返回的资金帐号集合
+	 * @param userId
+	 * @return
+	 */
+	public DataRow addOrUpdateUserAccount(List<DataRow> zjAccountList, Long userId);
+
+	/**
+	 * @描述：查询用户所有信息（不包含资金账号和股东号）
+	 * @作者：田源
+	 * @时间：2016年9月18日 下午8:06:39
+	 * @param userId
+	 * @return DataRow
+	 */
+    public DataRow queryUserAllInfo(Long userId);
+
+	/**
+	 * @描述：添加用户基本信息和扩展信息（事务）
+	 * @作者：刘恺
+	 * @时间：2016年11月16日 上午10:44:24
+	 * @param userInfoModel
+	 * @param userExtendModel
+	 * @throws Exception
+	 */
+    public void addUserInfoAndExtend(UserInfoModel userInfoModel, UserExtendModel userExtendModel) throws Exception;
+
+    /**
+     * @描述：更新用户基本信息和扩展信息（事务）
+     * @作者：刘恺
+     * @时间：2016年11月16日 上午10:44:58
+     * @param userInfoModel
+     * @param userExtendModel
+     * @throws Exception
+     */
+    public void updateUserInfoAndExtend(UserInfoModel userInfoModel, UserExtendModel userExtendModel) throws Exception;
+    
+    
+    /**
+     * @描述：更新用户第二联系人信息（事务）
+     * @作者：MIKE
+     * @时间：2017年01月20日 下午17:44:58
+     * @param billingcontact
+     * @throws Exception
+     */
+    public void updateBillingContact(BillingContactNameModel billingcontact) throws Exception;
+    
+    
+    /**
+     * @描述: 检查用户身份证是否过期
+     * @作者：MIKE
+     * @时间：2017年6月3日
+     * @param user_id
+     * @param endtime
+     */
+    public DataRow certificatesFlag(Long user_id, String endtime);
+}

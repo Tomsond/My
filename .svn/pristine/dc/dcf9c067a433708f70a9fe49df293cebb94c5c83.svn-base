@@ -1,0 +1,48 @@
+package com.thinkive.fxc.ismp.bus.business.entrust.dao.impl;
+
+import java.util.Date;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseDao;
+import com.thinkive.fxc.ismp.bus.base.constants.SystemConstants;
+import com.thinkive.fxc.ismp.bus.base.util.ModelUtil;
+import com.thinkive.fxc.ismp.bus.business.entrust.contants.EntrustDictionaryInfoContants;
+import com.thinkive.fxc.ismp.bus.business.entrust.dao.UserEntrustDao;
+import com.thinkive.fxc.ismp.bus.business.entrust.model.UserEntrustModel;
+
+/**
+ * @描述: 用户委托方式表(T_ISMP_USER_ENTRUST)数据层实现类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0.0 
+ * @创建时间: 2016年9月6日 上午10:10:46
+ */
+public class UserEntrustDaoImpl extends ISMPBaseDao implements UserEntrustDao
+{
+
+    @Override
+    public UserEntrustModel add(UserEntrustModel userEntrustModel)
+    {
+        String id = getSeqValue(SystemConstants.DB_ISMP,EntrustDictionaryInfoContants.T_ISMP_USER_ENTRUST);
+        userEntrustModel.setId(Long.valueOf(id));
+        userEntrustModel.setCreateDate(new Date());
+        this.getJdbcTemplate().insert(EntrustDictionaryInfoContants.T_ISMP_USER_ENTRUST, userEntrustModel);
+        return userEntrustModel;
+    }
+
+    @Override
+    public int update(UserEntrustModel userEntrustModel)
+    {
+        return this.getJdbcTemplate().update(EntrustDictionaryInfoContants.T_ISMP_USER_ENTRUST, userEntrustModel, "USER_ID", userEntrustModel.getUserId());
+    }
+
+    @Override
+    public UserEntrustModel queryByUserId(Long userId)
+    {
+        String sql="SELECT ID,USER_ID,CREATE_DATE,ENTRUST_CODE FROM T_ISMP_USER_ENTRUST WHERE USER_ID = ?";
+        DataRow queryResult=this.getJdbcTemplate().queryMap(sql, new Object[]{userId});
+        return ModelUtil.packInfo(queryResult, UserEntrustModel.class);
+    }
+    
+}

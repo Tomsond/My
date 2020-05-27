@@ -1,0 +1,49 @@
+package com.thinkive.fxc.ismp.bus.base.business.service.impl;
+
+import java.util.List;
+
+import com.thinkive.fxc.ismp.bus.base.business.dao.ImageInformationDao;
+import com.thinkive.fxc.ismp.bus.base.business.model.ImageInformationModel;
+import com.thinkive.fxc.ismp.bus.base.business.service.ImageInformationService;
+
+/**
+ * @描述: 影像资料信息确认服务实现类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年9月11日 下午4:48:17
+ */
+public class ImageInformationServiceImpl implements ImageInformationService
+{
+	
+	private ImageInformationDao imageInformationDao;
+	
+	public void setImageInformationDao(ImageInformationDao imageInfomationDao)
+	{
+		this.imageInformationDao = imageInfomationDao;
+	}
+	
+	@Override
+	public ImageInformationModel add(ImageInformationModel imageInformationModel)
+	{
+		return imageInformationDao.add(imageInformationModel);
+	}
+	
+	@Override
+	public ImageInformationModel addOrUpdate(ImageInformationModel imageInformationModel)
+	{
+		int count = imageInformationDao.updateByBusinessIdAndNodeId(imageInformationModel);
+		if (count < 1)
+		{
+			imageInformationDao.add(imageInformationModel);
+		}
+		return imageInformationModel;
+	}
+	
+	@Override
+	public List<ImageInformationModel> queryByParams(Long businessId, String nodeId)
+	{
+		return imageInformationDao.queryByParams(businessId, nodeId);
+	}
+}

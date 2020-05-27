@@ -1,0 +1,17 @@
+package com.thinkive.fxc.ismp.bus.base.basicdata.dao;
+
+import com.thinkive.fxc.ismp.bus.base.basicdata.model.OnewayVideoLogModel;
+
+/**
+ * @描述: 公共-单向视频操作流水日志(T_FXC_ONEWAYVIDEO_LOG) 数据层接口
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 尹杰民
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月18日 下午5:32:40
+ */
+public interface OnewayVideoLogDao
+{
+    public OnewayVideoLogModel add(OnewayVideoLogModel onewayVideoLogModel) throws Exception;
+    
+}

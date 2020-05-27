@@ -1,0 +1,151 @@
+package com.thinkive.fxc.ismp.bus.business.zqCancel.service.impl;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.jdbc.session.Session;
+import com.thinkive.base.jdbc.session.SessionFactory;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessConstants; 
+import com.thinkive.fxc.ismp.bus.base.business.dao.AgreeRecordDao;
+import com.thinkive.fxc.ismp.bus.base.business.dao.ChoiceAccountRecordDao;
+import com.thinkive.fxc.ismp.bus.base.business.dao.PpTaskDao;
+import com.thinkive.fxc.ismp.bus.base.business.dao.ProcNodeDefineDao; 
+import com.thinkive.fxc.ismp.bus.base.business.model.AgreeRecordModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.BusinessEntityModel; 
+import com.thinkive.fxc.ismp.bus.base.business.model.ChoiceAccountRecordModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.PpTaskModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.ProcNodeDefineModel; 
+import com.thinkive.fxc.ismp.bus.base.business.vo.UserInfoVo;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.SystemConstants; 
+import com.thinkive.fxc.ismp.bus.business.ggt.contants.GgtContants;
+import com.thinkive.fxc.ismp.bus.business.ggt.service.GgtService;
+import com.thinkive.fxc.ismp.bus.business.ggtCancel.constants.GgtCancelConstants;
+import com.thinkive.fxc.ismp.bus.business.ggtCancel.service.GgtCancelService;
+import com.thinkive.fxc.ismp.bus.business.service.impl.BusinessCommonServiceImpl;
+import com.thinkive.fxc.ismp.bus.business.util.DataFormatUtils;
+import com.thinkive.fxc.ismp.bus.business.zqCancel.service.ZqCancelService;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdDictionaryConstants;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdInterfaceConstant;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdTBASConstants;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdInterface;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdTrdAccountService;
+
+/**
+ * @描述: 债券合格投资者服务接口实现类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0.0 
+ * @创建时间: 2016年9月19日 下午4:41:26
+ */
+
+@SuppressWarnings("unused")
+public class ZqCancelServiceImpl extends BusinessCommonServiceImpl implements ZqCancelService{
+	
+private ProcNodeDefineDao procNodeDefineDao;
+    
+    private PpTaskDao ppTaskDao;
+    
+    private ChoiceAccountRecordDao choiceAccountRecordDao;
+    
+    private AgreeRecordDao agreeRecordDao;
+    
+    public void setAgreeRecordDao(AgreeRecordDao agreeRecordDao)
+    {
+        this.agreeRecordDao = agreeRecordDao;
+    }
+    
+    public void setProcNodeDefineDao(ProcNodeDefineDao procNodeDefineDao)
+    {
+        this.procNodeDefineDao = procNodeDefineDao;
+    }
+    
+    public void setPpTaskDao(PpTaskDao ppTaskDao)
+    {
+        this.ppTaskDao = ppTaskDao;
+    }
+    
+    public void setChoiceAccountRecordDao(ChoiceAccountRecordDao choiceAccountRecordDao)
+    {
+        this.choiceAccountRecordDao = choiceAccountRecordDao;
+    }
+	
+    @Override
+    public void choiceTrdAccountAddPpTask(String[] trdAccounts, BusinessEntityModel businessEntityModel, String nodeId)
+            throws Exception
+    {
+        Session session = null;
+        try
+        {
+            //创建session，开启事务
+            session = SessionFactory.getSession();
+            session.beginTrans();
+            
+            //更新业务实例当前节点
+            this.updateBusinessEntityModel(businessEntityModel, session);
+            
+            Long businessId = businessEntityModel.getId();
+            String ip = businessEntityModel.getIp();
+            String opSource = businessEntityModel.getOpSource();
+            String opStation = businessEntityModel.getOpStation();
+            
+            //批量添加账号选择记录
+            choiceAccountRecordDao.deleteByBusinessIdAndNodeId(businessId, nodeId, session);
+            List<ChoiceAccountRecordModel> choiceAccountRecordModels = new ArrayList<ChoiceAccountRecordModel>();
+            for (String trdAccount : trdAccounts)
+            {
+                String[] accountStkbd = trdAccount.split("\\|");
+                
+                ChoiceAccountRecordModel choiceAccountRecordModel = new ChoiceAccountRecordModel();
+                choiceAccountRecordModel.setBusinessId(businessId);
+                choiceAccountRecordModel.setNodeId(nodeId);
+                choiceAccountRecordModel.setTrdAccount(accountStkbd[0]);
+                if(accountStkbd.length > 1){
+                    choiceAccountRecordModel.setStkbd(accountStkbd[1]);
+                }
+                choiceAccountRecordModel.setState(DictionaryConstants.CHOICEACCOUNT_DEALRESULT_NOTSTART);
+                choiceAccountRecordModels.add(choiceAccountRecordModel);
+            }
+            choiceAccountRecordDao.addBatch(choiceAccountRecordModels, session);
+            
+            //更新节点记录
+            this.addOrUpdateFlowNodeModel(businessId, nodeId, ip, opSource, opStation, session);
+            
+            //添加节点记录操作日志
+            this.addNodeLogModel(businessId, nodeId, ip, opSource, opStation, session);
+            
+            //添加跑批任务、
+            PpTaskModel ppTaskModel = new PpTaskModel();
+            ppTaskModel.setBusinessId(businessId);
+            ppTaskModel.setIsLoop(DictionaryConstants.BOL_FALSE);
+            ppTaskModel.setTaskName(businessEntityModel.getBusinessCode());
+            ppTaskModel.setTaskStatus(DictionaryConstants.PP_TASK_STATUS_EFFECTIVE);
+            ppTaskModel.setExecStatus(DictionaryConstants.PP_TASK_EXEC_STATUS_NODEAL);
+            ppTaskDao.add(ppTaskModel, session);
+            
+            session.commitTrans();
+        }
+        catch (Exception e)
+        {
+            if (session != null)
+            {
+                session.rollbackTrans();
+            }
+            throw e;
+        }
+        finally
+        {
+            if (session != null)
+            {
+                session.close();
+            }
+        }
+        
+    }
+	
+}

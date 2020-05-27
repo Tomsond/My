@@ -1,0 +1,21 @@
+package com.thinkive.fxc.ismp.bus.base.basicdata.dao.impl;
+
+import java.util.Date;
+
+import com.thinkive.fxc.ismp.bus.base.basicdata.contants.BaseTableConstants;
+import com.thinkive.fxc.ismp.bus.base.basicdata.dao.QuestionnaireFlowDao;
+import com.thinkive.fxc.ismp.bus.base.basicdata.model.QuestionnaireFlowModel;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseDao;
+
+public class QuestionnaireFlowDaoImpl extends ISMPBaseDao implements QuestionnaireFlowDao{
+
+	@Override
+	public int questionnaireFlowInsert(QuestionnaireFlowModel modeel)  throws Exception{
+		    String branchId = getSeqValue(BaseTableConstants.T_ISMP_QUESTIONNAIREFLOW);
+		    modeel.setId(Long.valueOf(branchId));
+		    modeel.setCreateDate(new Date());
+		    modeel.setUpdateDate(new Date());
+	        int count = this.getJdbcTemplate().insert(BaseTableConstants.T_ISMP_QUESTIONNAIREFLOW, modeel);
+	        return count;
+	}
+}

@@ -1,0 +1,21 @@
+package com.thinkive.fxc.ismp.bus.base.basicdata.dao.impl;
+
+import java.util.Date;
+
+import com.thinkive.fxc.ismp.bus.base.basicdata.contants.BaseTableConstants;
+import com.thinkive.fxc.ismp.bus.base.basicdata.dao.ProprietyDao;
+import com.thinkive.fxc.ismp.bus.base.basicdata.model.ProprietyModel;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseDao;
+
+public class ProprietyDaoImpl extends ISMPBaseDao implements ProprietyDao{
+
+	@Override
+	public int InsertPropriety(ProprietyModel modeel)  throws Exception{
+			String branchId = getSeqValue(BaseTableConstants.T_ISMP_BUSINESS_PROPRIETY);
+			modeel.setId(Long.valueOf(branchId));
+			modeel.setCreateDate(new Date());
+		    int count = this.getJdbcTemplate().insert(BaseTableConstants.T_ISMP_BUSINESS_PROPRIETY, modeel);
+		    return count;
+	}
+
+}

@@ -1,0 +1,118 @@
+package com.thinkive.fxc.ismp.bus.business.assets.thirdbank.contants;
+
+/**
+ * @描述: 三方存管业务错误编号
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月31日 下午5:41:54
+ */
+public final class ThirdBankErrorCode
+{
+	
+    /**
+     * 添加或者更新用户三房存管数据失败
+     */
+	public static final int ADDORUPDATEUSERBANKBIND_CODE = -100413602;
+	
+	/**
+	 * 该银行卡已绑定用户资金帐号
+	 */
+	public static final int  BANKCARD_BOUND= -100413603;
+	
+	/**
+	 * 没有对应银行编号的三方存管银行信息
+	 */
+	public static final int  NO_BANKCODE= -100413604;
+	
+	/**
+	 * 银行类型中自动绑定方式字段设置不正确
+	 */
+	public static final int ERROR_BIND_TYPE=-100413605;
+	
+	/**
+	 * 三方存管为预指定式，银行卡号不能为空
+	 */
+	public static final int PRE_CARD_NO_BLANK=-100413608;
+	
+	/**
+	 * 非交易时间，不能绑定三方存管
+	 */
+	public static final int NO_TRADEDATE=-100413609;
+	
+	/**
+	 * 三方存管绑定银行卡数量超过最大限制
+	 */
+	public static final int MORE_THAN_THIRDBANKLIMIT=-100413610;
+	
+	/**
+     * 添加三方存管业务办理信息失败
+     */
+    public static final int ADD_THIRDBANK_BUSINESS_FAILURE=-100413611;
+    
+    /**
+     * 用户没有匹配的银行卡号
+     */
+    public static final int NO_MATCHING_USERBANKBIND=-100413701;
+    
+    /**
+     * 不能取消主银行卡
+     */
+    public static final int NO_CANCEL_MAINBANKCARD=-100413702;
+    
+    /**
+     * 取消资金账号和银行卡的绑定失败
+     */
+    public static final int CANCEL_FOUNTACCOUNT_BANKCARD_FAILURE=-100413703;
+    
+    /**
+     * 旧银行编号不能为空
+     */
+    public static final int BLANK_OLD_BANKCODE=-100418201;
+    
+    /**
+     * 新银行编号不能为空
+     */
+    public static final int BLANK_NEW_BANKCODE=-100418202;
+    
+    /**
+     * 银行卡对应资金帐号不能为空
+     */
+    public static final int BLANK_OPEN_ACCOUNT=-100418203;
+    
+    /**
+     * 确认完成三方存管失败数据失败
+     */
+    public static final int COMPLETE_CANCEL_BIND_FAILURE=-100449301;
+
+    /**
+     * 账号密码校验失败
+     */
+    public static final int VALIdate_ACCOUNT_PASSWORD_FAILURE=-100449401;
+    
+    /**
+     * 资金余额及利息积数>0,请进行存管预销户（结息转账）
+     */
+    public static final int ZJYE_LXJS_MORETHAN_ZERO=-100449402;
+    
+    /**
+     * 取消资金账号和银行卡的绑定失败
+     */
+    public static final int CANCEL_THIRDBANKBIND_FAILURE=-100452501;
+    
+    /**
+     * 无法同行更换存管银行
+     */
+    public static final int SAME_BANK_CANNOT__MODIFY =-100452502;
+    
+    /**
+     *修改 三方存管业务办理数据失败
+     */
+    public static final int MODIFY_FALURE_THIRDBANK =-100452503;
+
+    /**
+     * 存管当日开户禁止销户
+     */
+    public static final int CANCEL_THIRDBANKCHANGE_FAILURE=-100413704;
+}

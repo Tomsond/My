@@ -1,0 +1,137 @@
+package com.thinkive.fxc.ismp.bus.business.otc.model;
+
+import com.thinkive.base.jdbc.DataRow;
+
+/**
+ * @描述: OTC信息表（T_ISMP_OTCINFO）
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2017年3月1日 下午4:26:42
+ */
+public class OtcInfo extends DataRow
+{
+	
+	private static final long serialVersionUID = -1568031705370556960L;
+	
+	private static final String ID = "id"; //自增编号
+	
+	private static final String OTC_CODE = "otc_code"; //otc编码
+	
+	private static final String OTC_NAME = "otc_name"; //otc名称
+	
+	private static final String STATE = "state"; //状态 0：无效，1：有效
+	
+	private static final String AGREE_NO = "agree_no"; //协议编号(关联协议信息表的CODE)
+	
+	/**
+	 * @描述：设置自增编号
+	 * @作者：刘恺
+	 * @创建时间: 2017年3月1日 下午4:30:52
+	 * @param id
+	 */
+	public void setId(Long id)
+	{
+		set(ID, id);
+	}
+	
+	/**
+	 * @描述：获取自增编号
+	 * @作者：刘恺
+	 * @创建时间: 2017年3月1日 下午4:29:12
+	 * @return
+	 */
+	public Long getId()
+	{
+		return getLong(ID);
+	}
+	
+	/**
+	 * @描述：设置状态
+	 * @作者：刘恺
+	 * @创建时间: 2017年3月1日 下午4:30:52
+	 * @param id
+	 */
+	public void setState(String state)
+	{
+		set(STATE, state);
+	}
+	
+	/**
+	 * @描述：获取状态
+	 * @作者：刘恺
+	 * @创建时间: 2017年3月1日 下午4:29:12
+	 * @return
+	 */
+	public String getState()
+	{
+		return getString(STATE);
+	}
+	
+	/**
+	 * @描述：设置协议编号
+	 * @作者：刘恺
+	 * @创建时间: 2017年3月1日 下午4:30:52
+	 * @param id
+	 */
+	public void setAgreeNo(String agreeNo)
+	{
+		set(AGREE_NO, agreeNo);
+	}
+	
+	/**
+	 * @描述：获取协议编号
+	 * @作者：刘恺
+	 * @创建时间: 2017年3月1日 下午4:29:12
+	 * @return
+	 */
+	public String getAgreeNo()
+	{
+		return getString(AGREE_NO);
+	}
+	
+	/**
+	 * @描述：设置OTC编号
+	 * @作者：刘恺
+	 * @创建时间: 2017年3月1日 下午4:29:04
+	 * @param otc_code
+	 */
+	public void setOtcCode(String otc_code)
+	{
+		set(OTC_CODE, otc_code);
+	}
+	
+	/**
+	 * @描述：获取OTC编号
+	 * @作者：刘恺
+	 * @创建时间: 2017年3月1日 下午4:29:12
+	 * @return
+	 */
+	public String getOtcCode()
+	{
+		return getString(OTC_CODE);
+	}
+	
+	/**
+	 * @描述：设置OTC名称
+	 * @作者：刘恺
+	 * @创建时间: 2017年3月1日 下午4:29:19
+	 * @param otc_name
+	 */
+	public void setOtcName(String otc_name)
+	{
+		set(OTC_NAME, otc_name);
+	}
+	
+	/**
+	 * @描述：获取OTC名称
+	 * @作者：刘恺
+	 * @创建时间: 2017年3月1日 下午4:29:28
+	 * @return
+	 */
+	public String getOtcName()
+	{
+		return getString(OTC_NAME);
+	}
+}

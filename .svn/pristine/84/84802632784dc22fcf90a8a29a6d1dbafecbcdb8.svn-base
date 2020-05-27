@@ -1,0 +1,61 @@
+package com.thinkive.fxc.ismp.bus.base.business.function;
+
+import java.util.List;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.business.vo.UserInfoVo;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.business.util.DataFormatUtils;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdDictionaryConstants;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdTBASConstants;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdInterface;
+import com.thinkive.server.ResultVo;
+
+/**
+ * @描述: 调用第三方接口 获取测评题目
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年9月18日 下午10:55:49
+ */
+public class Function1004197 extends ISMPBaseFunction
+{
+	
+	private Long userId;
+	
+	private String fundAccount;
+	
+	private String subId;
+	
+	@Override
+	public ResultVo execute() throws Exception
+	{
+		initVar();
+		UserInfoService userInfoService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO, UserInfoService.class);
+		UserInfoVo userInfoVo = userInfoService.queryAndCheckUserByUserIdAndAccount(userId, fundAccount);
+		DataRow thirdInput = DataFormatUtils.packThirdInput(userInfoVo);
+		thirdInput.set("sub_id", subId);
+		ThirdInterface thirdInterface = SpringHelper.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDINTERFACE, ThirdInterface.class);
+		List<DataRow> questionnaireQues = thirdInterface.getQuestionnaireQues(thirdInput);
+		ResultVo resultVo = new ResultVo();
+		resultVo.setResult(questionnaireQues);
+		return resultVo;
+	}
+	
+	/**
+	 * @描述：获取业务入参
+	 * @作者：刘恺
+	 * @时间：2016年8月23日 下午8:55:24
+	 */
+	private void initVar()
+	{
+		userId = this.formatLongParam(this.getAndCheckBlankStrParam("user_id", ErrorCodeCheckInput.BLANK_USERID), ErrorCodeCheckInput.LONG_FORMAT_ERROR);
+		subId = this.getStrParameter("sub_id", ThirdTBASConstants.SNO_FXCP); //大标题序号  -1查询全部 1为风险问卷 2：港股通适当性测评
+		fundAccount = this.getAndCheckBlankStrParam("fundid", ErrorCodeCheckInput.BLANK_FUNDACCOUNT);
+	}
+}

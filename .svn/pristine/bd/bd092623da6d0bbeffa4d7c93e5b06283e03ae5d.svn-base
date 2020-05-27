@@ -1,0 +1,56 @@
+package com.thinkive.fxc.ismp.bus.base.basicdata.dao;
+
+import java.util.List;
+
+import com.thinkive.fxc.ismp.bus.base.basicdata.model.ProvinceModel;
+
+/**
+ * @描述: 公共-省份信息表(T_FXC_PROVINCE)数据层接口
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月18日 下午2:34:46
+ */
+public interface ProvinceDao
+{
+    /**
+     * @描述：添加省份信息
+     * @作者：田源
+     * @时间：2016年8月18日 下午2:08:19
+     * @param ProvinceModel
+     * @return ProvinceModel
+     * @throws Exception
+     */
+    public ProvinceModel add(ProvinceModel provinceModel)throws Exception;
+    
+    /**
+     * @描述：修改省份信息,返回成功更新记录数
+     * @作者：田源
+     * @时间：2016年8月18日 下午2:12:04
+     * @param ProvinceModel
+     * @return int
+     * @throws Exception
+     */
+    public int update(ProvinceModel provinceModel)throws Exception;
+    
+    /**
+     * @描述：根据id查询省份信息
+     * @作者：田源
+     * @时间：2016年8月18日 下午2:18:34
+     * @param id
+     * @return ProvinceModel
+     * @throws Exception
+     */
+    public ProvinceModel queryById(Long id)throws Exception;
+    
+    /**
+     * @描述：根据参数查询省份信息，支持按regionId,provinceName,isDisplay三个条件任意组装
+     * @作者：田源
+     * @时间：2016年8月18日 下午3:24:12
+     * @param provinceModel
+     * @return List<ProvinceModel>
+     * @throws Exception
+     */
+    public List<ProvinceModel> queryByParams(ProvinceModel provinceModel)throws Exception;
+}

@@ -1,0 +1,28 @@
+package com.thinkive.fxc.ismp.bus.base.function;
+
+import com.thinkive.fxc.ismp.bus.BaseTest;
+import com.thinkive.fxc.ismp.bus.business.function.Function1004476;
+import com.thinkive.server.Function;
+
+
+/**
+ * 作者：MIKE
+ * 公司：深圳市思迪信息技术股份公司
+ * 日期时间：2017年2月25日 上午10:48:34
+ * 说明：对账单邮箱设置测试类
+ */
+public class Function1004476Test extends BaseTest
+{
+    
+    public void testInvoke()
+    {
+    	getRequest().addFieldValue("user_id", "21");
+        getRequest().addFieldValue("fundid", "872928300000");
+    	getRequest().addFieldValue("strdate", "2017-02-25");
+        getRequest().addFieldValue("enddate", "2017-02-25");
+        getRequest().setFuncNo(1004476);
+        Function function = new Function1004476();
+        function.invoke(getContext());
+        System.out.println("结果数据为：" + getResponse().getData());
+    }
+}

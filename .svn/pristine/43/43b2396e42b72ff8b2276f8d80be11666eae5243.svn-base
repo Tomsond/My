@@ -1,0 +1,128 @@
+package com.thinkive.fxc.ismp.bus.business.certificate.business;
+
+import com.thinkive.base.config.Configuration;
+import com.thinkive.base.exception.BusinessException;
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.service.CertManageService;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.business.vo.CertUserInfoVo;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.CertConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeSystem;
+import com.thinkive.server.InvokeException;
+import com.thinkive.server.ResultVo;
+
+/**
+ * @描述: 检查用户是否申请过证书--通用
+ */
+public class Function1004406 extends ISMPBaseFunction
+{
+	
+	private Long userId;//用户编号
+	
+	private String certType;//证书请求串
+	
+	@Override
+	public ResultVo execute()
+	{
+		initVar();
+		
+		ResultVo resultVo = new ResultVo();
+		resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+		resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+		
+		String cert_source = CertConstants.CERTSOURCE_ZD;
+		UserInfoService userInfoService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO, UserInfoService.class);
+		CertUserInfoVo userInfo = userInfoService.queryCertUser(userId);
+		if (userInfo == null || userInfo.isEmpty())
+		{
+			throw new BusinessException(ErrorCodeSystem.NOTEXIST_USER);
+		}
+		
+		CertManageService certManageService = (CertManageService) SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_CERTMANAGE);
+		if (CertConstants.CERT_TYPE_ALL.equals(certType))
+		{ //全部查询
+			DataRow certData_ZJ = certManageService.checkCertExist(userInfo, Configuration.getString("cert.certSourceZJ"));
+			DataRow certData_ZD = certManageService.checkCertExist(userInfo, CertConstants.CERTSOURCE_ZD);
+			
+			DataRow result = packAllCertData(certData_ZJ, certData_ZD);
+			resultVo.setResult(result);
+			return resultVo;
+		}
+		//查询一种
+		if (CertConstants.CERT_TYPE_ZJ.equals(certType))
+		{
+			cert_source = Configuration.getString("cert.certSourceZJ");
+		}
+		DataRow certData = certManageService.checkCertExist(userInfo, cert_source);
+		DataRow result = packOneCert(certData);
+		resultVo.setResult(result);
+		return resultVo;
+	}
+	
+	private DataRow packOneCert(DataRow certData)
+	{
+		DataRow outData = new DataRow();
+		outData.set("hasTgcert", DictionaryConstants.BOL_FALSE);
+		outData.set("hascert", DictionaryConstants.BOL_FALSE);
+		if (certData != null && !certData.isEmpty())
+		{ //证书存在
+			outData.set("cert_sn", certData.getString("cert_sn"));
+			outData.set("cert_state", certData.getString("cert_status"));
+			outData.set("hasTgcert", certData.getString("hasTgCert"));
+			outData.set("hascert", DictionaryConstants.BOL_TRUE);
+			outData.set("cert_id", certData.getString("cert_id"));
+			outData.set("cert_dn", certData.getString("cert_dn"));
+			outData.set("cert_start_time", certData.getString("cert_start_time"));
+			outData.set("cert_end_time", certData.getString("cert_end_time"));
+		}
+		return outData;
+	}
+	
+	private DataRow packAllCertData(DataRow certData_ZJ, DataRow certData_ZD) throws InvokeException
+	{
+		DataRow outData = new DataRow();
+		outData.set("hasTgcert_zj", DictionaryConstants.BOL_FALSE);
+		outData.set("hascert_zj", DictionaryConstants.BOL_FALSE);
+		outData.set("hasTgcert_zd", DictionaryConstants.BOL_FALSE);
+		outData.set("hascert_zd", DictionaryConstants.BOL_FALSE);
+		if (certData_ZJ != null && !certData_ZJ.isEmpty())
+		{ //证书存在
+			outData.set("cert_sn_zj", certData_ZJ.getString("cert_sn"));
+			outData.set("cert_state_zj", certData_ZJ.getString("cert_status"));
+			outData.set("hasTgcert_zj", certData_ZJ.getString("hasTgCert"));
+			outData.set("hascert_zj", DictionaryConstants.BOL_TRUE);
+			outData.set("cert_id_zj", certData_ZJ.getString("cert_id"));
+			outData.set("cert_dn_zj", certData_ZJ.getString("cert_dn"));
+			outData.set("cert_start_time_zj", certData_ZJ.getString("cert_start_time"));
+			outData.set("cert_end_time_zj", certData_ZJ.getString("cert_end_time"));
+		}
+		if (certData_ZD != null && !certData_ZD.isEmpty())
+		{ //证书存在
+			outData.set("cert_sn_zd", certData_ZD.getString("cert_sn"));
+			outData.set("cert_state_zd", certData_ZD.getString("cert_status"));
+			outData.set("hasTgcert_zd", certData_ZD.getString("hasTgCert"));
+			outData.set("hascert_zd", DictionaryConstants.BOL_TRUE);
+			outData.set("cert_id_zd", certData_ZD.getString("cert_id"));
+			outData.set("cert_dn_zd", certData_ZD.getString("cert_dn"));
+			outData.set("cert_start_time_zd", certData_ZD.getString("cert_start_time"));
+			outData.set("cert_end_time_zd", certData_ZD.getString("cert_end_time"));
+		}
+		return outData;
+	}
+	
+	/**
+	 * @描述：获取业务入参
+	 * @作者：刘恺
+	 * @时间：2016年8月23日 下午8:55:24
+	 */
+	private void initVar()
+	{
+		userId = this.formatLongParam(this.getAndCheckBlankStrParam("user_id", ErrorCodeCheckInput.BLANK_USERID), ErrorCodeCheckInput.LONG_FORMAT_ERROR);
+		certType = this.getAndCheckBlankStrParam("cert_type", ErrorCodeCheckInput.BLANK_CERTTYPE);
+	}
+}

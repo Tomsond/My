@@ -1,0 +1,67 @@
+package com.thinkive.fxc.ismp.bus.base.business.constants;
+
+/**
+ * @描述: 选择帐号节点属性定义
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月19日 上午10:19:35
+ */
+public class SurveyNodePropertyConstants
+{
+	
+	/**
+	 * @描述:问卷来源
+	 * @可选值:0-本地数据库，1-第三方
+	 * @节点类型:问卷
+	 */
+	public static final String PROPERTY_KEY_QUESTION_SOURCE = "question_source";
+	
+	/**
+	 * @描述:问卷提交方式
+	 * @可选值:0-本地数据库，1-实时提交第三方，2-跑批统一提交第三方
+	 * @节点类型:问卷
+	 */
+	public static final String PROPERTY_KEY_COMMIT_TYPE = "commit_type";
+	
+	/**
+	 * @描述:第三方问卷编号
+	 * @节点类型:问卷
+	 * @依赖其他节点属性:PROPERTY_KEY_COMMIT_TYPE＝1(问卷提交方式) || PROPERTY_KEY_COMMIT_TYPE＝2(问卷提交方式) 
+	 */
+	public static final String PROPERTY_KEY_THIRD_CODE = "third_code";
+	
+	/**
+	 * @描述:数据库问卷编号	
+	 * @可选值:0-否，1-是
+	 * @节点类型:问卷
+	 * @依赖其他节点属性:PROPERTY_KEY_QUESTION_SOURCE=0(问卷来源) || PROPERTY_KEY_COMMIT_TYPE＝0(问卷提交方式)
+	 */
+	public static final String PROPERTY_KEY_LOCAL_CODE = "local_code";
+	
+	/**
+	 * @描述:问卷通过等级
+	 * @格式:等级用逗号分割，例如：积极性,保守型
+	 * @节点类型:问卷
+	 */
+	public static final String PROPERTY_KEY_PASS_GRADE = "pass_grade";
+	
+	/**
+	 * @描述:问卷通过分数
+	 * @格式:分值用闭区间表示，例如[60-79]，数据库中格式60,79|80,100(逗号分割最大最小值，|分割多组分数)
+	 * @节点类型:问卷
+	 */
+	public static final String PROPERTY_KEY_PASS_VALUE = "pass_value";
+	
+	/**
+	 * @描述:是否自动校验通过，如果选择是，在流程节点进入该节点时，
+	 * 直接判断数据库或者第三方接口问卷分数或等级是否满足（未设置等级和分数则只要有问卷大难即表示满足），
+	 * 如果满足节点直接通过，进入下一个节点	
+	 * @可选值:0-否，1-是
+	 * @节点类型:问卷
+	 * @依赖其他节点属性:PROPERTY_KEY_QUESTION_SOURCE=0(问卷来源) || PROPERTY_KEY_COMMIT_TYPE＝0(问卷提交方式)
+	 */
+	public static final String PROPERTY_KEY_AUTO_CHECK = "auto_check";
+	
+}

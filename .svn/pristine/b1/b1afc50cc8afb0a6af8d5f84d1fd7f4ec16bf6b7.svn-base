@@ -1,0 +1,119 @@
+package com.thinkive.fxc.ismp.bus.base.business.dao.impl;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessTableConstants;
+import com.thinkive.fxc.ismp.bus.base.business.dao.ImageRecordDao;
+import com.thinkive.fxc.ismp.bus.base.business.model.ImageRecordModel;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseDao;
+import com.thinkive.fxc.ismp.bus.base.constants.SystemConstants;
+import com.thinkive.fxc.ismp.bus.base.util.ModelUtil;
+
+/**
+ * @描述: 影像资料记录表<p>t_ismp_image_record</p> 数据层接口实现类
+ * @版权: Copyright (c) 2016 
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 尹杰民
+ * @版本: 2.0 
+ * @创建时间: 2016年8月15日 下午4:50:41
+ */
+public class ImageRecordDaoImpl extends ISMPBaseDao implements ImageRecordDao
+{
+	
+	@Override
+	public ImageRecordModel add(ImageRecordModel imageRecordModel)
+	{
+		String id = getSeqValue(SystemConstants.DB_ISMP,BusinessTableConstants.T_ISMP_IMAGE_RECORD);
+		imageRecordModel.setId(Long.valueOf(id));
+		imageRecordModel.setCreateDate(new Date());
+		this.getJdbcTemplate().insert(BusinessTableConstants.T_ISMP_IMAGE_RECORD, imageRecordModel);
+		return imageRecordModel;
+	}
+	
+	@Override
+	public int update(ImageRecordModel imageRecordModel)
+	{
+		imageRecordModel.setUpdateDate(new Date());
+		return this.getJdbcTemplate().update(BusinessTableConstants.T_ISMP_IMAGE_RECORD, imageRecordModel, "ID", imageRecordModel.getId());
+	}
+	
+	@Override
+	public int updateByBIdAndNIdAndCode(ImageRecordModel imageRecordModel)
+	{
+		Long businessId = imageRecordModel.getBusinessId();
+		String nodeId = imageRecordModel.getNodeId();
+		String mediaCode = imageRecordModel.getMediaCode();
+		if (businessId == 0 || StringUtils.isBlank(nodeId) || StringUtils.isBlank(mediaCode))
+		{
+			return 0;
+		}
+		imageRecordModel.setUpdateDate(new Date());
+		return this.getJdbcTemplate().update(BusinessTableConstants.T_ISMP_IMAGE_RECORD, imageRecordModel, new String[] { "BUSINESS_ID", "NODE_ID", "MEDIA_CODE" },
+				new Object[] { businessId, nodeId, mediaCode });
+	}
+	
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<ImageRecordModel> queryByParams(ImageRecordModel imageRecordModel)
+	{
+		StringBuilder sql = new StringBuilder();
+		List<String> paramsList = new ArrayList<String>();
+		sql.append("SELECT ID, BUSINESS_ID, NODE_ID, SIVE_TYPE, MEDIA_CODE, IMAGE_PATH, IMAGE_DATA");
+		sql.append(", SECRET_KEY, CREATE_DATE, UPDATE_DATE  FROM ");
+		sql.append(BusinessTableConstants.T_ISMP_IMAGE_RECORD).append(" WHERE 1 = 1 ");
+		Long businessId = imageRecordModel.getBusinessId();
+		if (0 != businessId)
+		{
+			sql.append(" AND BUSINESS_ID = ?");
+			paramsList.add(businessId.toString());
+		}
+		String nodeId = imageRecordModel.getNodeId();
+		if (StringUtils.isNotBlank(nodeId))
+		{
+			sql.append(" AND NODE_ID = ?");
+			paramsList.add(nodeId);
+		}
+		String mediaCode = imageRecordModel.getMediaCode();
+		if (StringUtils.isNotBlank(mediaCode))
+		{
+			sql.append(" AND MEDIA_CODE = ?");
+			paramsList.add(mediaCode);
+		}
+		List<DataRow> queryResult = this.getJdbcTemplate().query(sql.toString(), paramsList.toArray());
+		return ModelUtil.packList(queryResult, ImageRecordModel.class);
+	}
+	
+	@Override
+	public Long queryCountByCodes(List<String> mediaCodes, Long businessId, String nodeId)
+	{
+		StringBuilder sql = new StringBuilder("SELECT COUNT(ID) FROM ");
+		sql.append(BusinessTableConstants.T_ISMP_IMAGE_RECORD).append(" WHERE BUSINESS_ID = ? AND NODE_ID = ? ");
+		List<String> params = new ArrayList<String>();
+		params.add(String.valueOf(businessId));
+		params.add(nodeId);
+		if (mediaCodes != null && !mediaCodes.isEmpty())
+		{
+			sql.append("AND MEDIA_CODE IN ( ");
+			for (int i = 0; i < mediaCodes.size(); i++)
+			{
+				String item = mediaCodes.get(i);
+				if (i == (mediaCodes.size() - 1))
+				{
+					sql.append("?");
+					params.add(item);
+					break;
+				}
+				sql.append("?,");
+				params.add(item);
+				
+			}
+			sql.append(" ) ");
+		}
+		return getJdbcTemplate().queryLong(sql.toString(), params.toArray());
+	}
+}

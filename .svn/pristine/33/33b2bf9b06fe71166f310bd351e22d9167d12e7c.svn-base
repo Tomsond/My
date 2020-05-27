@@ -1,0 +1,178 @@
+package com.thinkive.fxc.ismp.bus.base.constants;
+
+/**
+ * @描述: 系统配置常量类
+ * @版权: Copyright (c) 2016
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0
+ * @创建时间: 2016年8月12日 上午10:09:08
+ */
+/**
+ * @描述: 
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月25日 下午10:58:29
+ */
+public class SystemConstants
+{
+	
+	/**
+	 * 综合受理平台BUS数据库配置
+	 */
+	public static final String DB_ISMP = "db_ismp";
+	
+	/**
+	 * 大综台数据库对接源BUS数据库配置
+	 */
+	public static final String DB_ISMP_WORK = "work_ismp";
+	/**
+     * 中台基础数据源数据库配置
+     */
+    public static final String ZT_DB="web";
+	
+	/**
+	 * 第三方接口对接TBAS
+	 */
+	public static final String THIRD_BUS = "third_bus";
+	
+	/**
+	 * pswbus的ID
+	 */
+	public static final String PWD_BUS = "pwd_bus";
+	
+	/**
+	 * 托管bus地址
+	 */
+	public static final String TG_BUS = "tg_bus";
+	
+	/**
+	 * 证书bus地址
+	 */
+	public static final String CERT_BUS = "cert_bus";
+	/**
+     * 开户跑批bus地址
+     */
+    public static final String KHPP_BUS = "khpp_bus";
+	
+	/**
+	 * 数据库类型---MYSQL
+	 */
+	public static final String DB_TYPE_MYSQL = "mysql";
+	
+	/**
+	 * 数据库类型---ORACLE
+	 */
+	public static final String DB_TYPE_ORACLE = "oracle";
+	
+	/**
+	 * 配置文件中配置项【数据库类型】字段
+	 */
+	public static final String CONFIG_KEY_SYSTEM_DBTYPE = "system.dbtype";
+	
+	/**
+	 * 配置文件中配置项【第三方接口是否需要密码】字段
+	 */
+	public static final String CONFIG_KEY_SYSTEM_THIRD_NEED_PWD = "system.third_need_pwd";
+	
+	/**
+	 * 配置文件中配置项【短信验证码是否校验】字段
+	 */
+	public static final String CONFIG_KEY_SMS_SMSVALIDATE = "sms.smsValidate";
+	
+	/**
+	 * 配置文件中配置项【短信验证码有效时间】字段
+	 */
+	public static final String CONFIG_KEY_SMS_SMSCODESAVE_TIME = "sms.smscodesave_time";
+	
+	/**
+	 * redis数据源
+	 */
+	public static final String REDIS_DATASOURCE = "web";
+	
+	/**
+	 * 配置文件中配置项【登录最大错误次数】字段 
+	 */
+	public static final String CONFIG_KEY_SYSTEM_MAXERRORINPUT = "sysConfig.maxErrorInput";
+	
+	/**
+	 * 配置文件中配置项【是否统计密码错误次数】字段 
+	 */
+	public static final String CONFIG_KEY_SYSTEM_COUNTPWDERROR = "system.countpwderror";
+	
+	/**
+	 * 配置文件中配置项【每种类型的短信，同一个用户每天最大的发送次数】字段 
+	 */
+	public static final String CONFIG_KEY_SMS_USERBUSINESSSENDMAX = "sms.userBusinessSendMax";
+	
+	/**
+	 * 配置文件中配置项【每种类型的短信，同一个IP每天最大的发送次数】字段 
+	 */
+	public static final String CONFIG_KEY_SMS_IPBUSINESSSENDMAX = "sms.ipBusinessSendMax";
+	
+	/**
+	 * 文件服务器地址配置项
+	 */
+	public static final String CONFIG_KEY_SYSTEM_FILESERVERURL = "system.fileServerUrl";
+	
+	/**
+	 * 配置文件中配置项【图片验证码缓存时间】字段
+	 */
+	public static final String CONFIG_KEY_SYSTEM_RANDOMCODECACHETIME = "system.randomCodeCacheTime";
+	
+	/**
+	 * 配置文件中配置项【web接入层类型】字段
+	 */
+	public static final String CONFIG_KEY_SYSTEM_WEBTYPE = "system.webType";
+	
+	/**
+	 * 配置文件中配置项【redis缓存系统前缀】字段
+	 */
+	public static final String CONFIG_KEY_SYSTEM_REDISKEY = "system.redisKey";
+	
+	/**
+	 * web接入层类型---JAVA
+	 */
+	public static final String WEB_TYPE_JAVA = "j";
+	
+	/**
+	 * web接入层类型---C++
+	 */
+	public static final String WEB_TYPE_C = "c";
+	
+	/**
+	 * 协议转存PDF 存储的位置
+	 */
+	public static final String CONFIG_PDF_PATH = "ht.beforePdfPath";
+	
+	/**
+	 * 协议转存PDF 存储的位置
+	 */
+	public static final String CONFIG_PDF_TEMPLATE = "ht.template";
+	
+	/**
+	 * 转 PDF 处理中文的字体位置
+	 */
+	public static final String CONFIG_TO_PDF_FONT = "ht.pdfFont";
+	
+	
+	/**
+	 * 文件服务器配置文件上传地址
+	 */
+	public static final String CONFIG_FILESERVER_WRITEURL = "fileServer.writeURL";
+	/**
+	 * 文件服务器配置文件读取地址
+	 */
+	public static final String CONFIG_FILESERVER_READURL = "fileServer.readURL";
+	/**
+	 * 文件服务器版本号
+	 */
+	public static final String CONFIG_FILESERVER_VERSION = "fileServer.version";
+	
+	/**
+	 * 存储操作站点标识
+	 */
+	public static final String OPERATING_SITE_FLAG = "system.operatingSite";
+}

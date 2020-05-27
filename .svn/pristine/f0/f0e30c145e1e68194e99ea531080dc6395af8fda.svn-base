@@ -1,0 +1,96 @@
+package com.thinkive.fxc.ismp.bus.base.business.dao.impl;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessTableConstants;
+import com.thinkive.fxc.ismp.bus.base.business.dao.RejectRecordDao;
+import com.thinkive.fxc.ismp.bus.base.business.model.RejectRecordModel;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseDao;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.util.ModelUtil;
+
+/**
+ * @描述: 驳回记录DAO实现类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2017年3月29日 下午4:26:52
+ */
+public class RejectRecordDaoImpl extends ISMPBaseDao implements RejectRecordDao
+{
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<RejectRecordModel> queryByParams(RejectRecordModel rejectRecordModel)
+	{
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT ID,USER_ID,BUSINESS_ID,STEP_CHILDREN_NODE,STEP,REJREASON,REVIEWER_SID,IS_FIX,REJECT_TYPE,CREATE_DATE,UPDATE_DATE FROM ");
+		sql.append(BusinessTableConstants.T_FXC_REJECT_RECORD);
+		sql.append(" WHERE 1= 1 ");
+		List<String> params = new ArrayList<String>();
+		Long businessId = rejectRecordModel.getBusinessId();
+		if (businessId != null && 0 != businessId)
+		{
+			sql.append(" AND BUSINESS_ID = ?");
+			params.add(businessId.toString());
+		}
+		String step = rejectRecordModel.getStep();
+		if (StringUtils.isNotBlank(step))
+		{
+			sql.append(" AND STEP = ?");
+			params.add(step);
+		}
+		String stepChildrenNode = rejectRecordModel.getStepChildrenNode();
+		if (StringUtils.isNotBlank(stepChildrenNode))
+		{
+			sql.append(" AND STEP_CHILDREN_NODE = ?");
+			params.add(stepChildrenNode);
+		}
+		String isFix = rejectRecordModel.getIsFix();
+		if (StringUtils.isNotBlank(isFix))
+		{
+			sql.append(" AND IS_FIX = ?");
+			params.add(isFix);
+		}
+		List<DataRow> queryResult = this.getJdbcTemplate().query(sql.toString(), params.toArray());
+		return ModelUtil.packList(queryResult, RejectRecordModel.class);
+	}
+	
+	@Override
+	public RejectRecordModel queryByBidAndStepAndStepChild(Long businessId, String step, String stepChildrenNode)
+	{
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT ID,USER_ID,BUSINESS_ID,STEP_CHILDREN_NODE,STEP,REJREASON,REVIEWER_SID,IS_FIX,REJECT_TYPE,CREATE_DATE,UPDATE_DATE FROM ");
+		sql.append(BusinessTableConstants.T_FXC_REJECT_RECORD);
+		sql.append(" WHERE BUSINESS_ID = ? AND STEP = ? AND STEP_CHILDREN_NODE = ?");
+		DataRow queryResult = this.getJdbcTemplate().queryMap(sql.toString(), new Object[] { businessId, step, stepChildrenNode });
+		return ModelUtil.packInfo(queryResult, RejectRecordModel.class);
+	}
+	
+	@Override
+	public int updateById(RejectRecordModel rejectRecordModel)
+	{
+		Long id = rejectRecordModel.getId();
+		rejectRecordModel.setUpdateDate(new Date());
+		int total = this.getJdbcTemplate().update(BusinessTableConstants.T_FXC_REJECT_RECORD, rejectRecordModel, "id", id);
+		rejectRecordModel.setId(id);
+		return total;
+	}
+	
+	@Override
+	public long queryNotFixRecordCount(Long businessId)
+	{
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT COUNT(ID) FROM ");
+		sql.append(BusinessTableConstants.T_FXC_REJECT_RECORD);
+		sql.append(" WHERE BUSINESS_ID = ?  AND IS_FIX = ? ");
+		return this.getJdbcTemplate().queryLong(sql.toString(), new Object[] { businessId, DictionaryConstants.BOL_FALSE });
+	}
+	
+}

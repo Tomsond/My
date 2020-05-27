@@ -1,0 +1,62 @@
+package com.thinkive.fxc.ismp.bus.base.business.service.impl;
+
+import java.util.List;
+
+import com.thinkive.fxc.ismp.bus.base.business.dao.FlowNodeDao;
+import com.thinkive.fxc.ismp.bus.base.business.model.FlowNodeModel;
+import com.thinkive.fxc.ismp.bus.base.business.service.FlowNodeService;
+
+/**
+ * @描述: 业务办理流程节点记录服务实现类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月24日 上午10:05:40
+ */
+public class FlowNodeServiceImpl implements FlowNodeService
+{
+	
+	private FlowNodeDao flowNodeDao;
+	
+	public void setFlowNodeDao(FlowNodeDao flowNodeDao)
+	{
+		this.flowNodeDao = flowNodeDao;
+	}
+	
+	@Override
+	public FlowNodeModel add(FlowNodeModel flowNodeModel)
+	{
+		return flowNodeDao.add(flowNodeModel);
+	}
+	
+	@Override
+	public int update(FlowNodeModel flowNodeModel)
+	{
+		return flowNodeDao.update(flowNodeModel);
+	}
+	
+	@Override
+	public FlowNodeModel queryByBusinessIdAndNodeId(Long businessId, String nodeId)
+	{
+		return flowNodeDao.queryByBusinessIdAndNodeId(businessId, nodeId);
+	}
+	
+	@Override
+	public FlowNodeModel addOrUpdate(FlowNodeModel flowNodeModel)
+	{
+		FlowNodeModel queryFlowNodeModel = queryByBusinessIdAndNodeId(flowNodeModel.getBusinessId(), flowNodeModel.getNodeId());
+		if (queryFlowNodeModel == null)
+		{
+			return add(flowNodeModel);
+		}
+		update(flowNodeModel);
+		return queryFlowNodeModel;
+	}
+
+    @Override
+    public List<FlowNodeModel> queryByBusinessId(Long businessId)
+    {
+        return flowNodeDao.queryByBusinessId(businessId);
+    }
+}

@@ -1,0 +1,25 @@
+#1.普通数据配置
+name: zhangsan
+
+#2.对象配置
+person:
+  name: zhangsan
+  age: 20
+
+server:
+  prort: 8081
+
+#行内对象（不常用）
+#person: {name: zhangsan,age: 20}
+
+#集合（字符串）
+city:
+  -beijing
+  -shanghai
+
+#集合（对象）
+city:
+  - name: beijing
+    area: 100
+  - name: shanghai
+    area: 200

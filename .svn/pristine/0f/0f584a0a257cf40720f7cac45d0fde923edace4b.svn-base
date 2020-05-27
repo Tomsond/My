@@ -1,0 +1,364 @@
+package com.thinkive.fxc.ismp.bus.base.basicdata.vo;
+
+import java.util.Date;
+
+import org.apache.commons.lang.StringUtils;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.DateHelper;
+
+/**
+ * @描述: 问卷视图
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月30日 下午3:35:04
+ */
+public class QuestionInfoVo extends DataRow
+{
+	
+	private static final long serialVersionUID = -578581498128232865L;
+	
+	private static final String A_ID = "a_id";//答案ID
+	
+	private static final String QUE_ID = "que_id";//问题ID
+	
+	private static final String NAME = "name";//答案内容
+	
+	private static final String ORDER_LINE = "order_line";//答案排序
+	
+	private static final String STATE = "state";//状态
+	
+	private static final String EXT_CODE = "ext_code";//外部扩展编号
+	
+	private static final String MARK = "mark";//分值
+	
+	private static final String IS_TRUE = "is_true";//是否为正确答案
+	
+	private static final String CREATE_DATE = "create_date";//答案创建日期
+	
+	private static final String CREATE_BY = "create_by";//答案创建人
+	
+	private static final String UPDATE_DATE = "update_date";//答案更新日期
+	
+	private static final String UPDATE_BY = "update_by";//答案更新人
+	
+	private static final String SUB_ID = "sub_id";//问卷主题ID
+	
+	private static final String SUBJECT_CODE = "subject_code";//问卷主题编号
+	
+	private static final String QUESTION_CONTENT = "question_content";//题目内容
+	
+	private static final String TYPE = "type";//题目类型，单选还是多选
+	
+	private static final String IS_CHECK = "is_check";//用户是否选择
+	
+	private static final String QUE_EXT_CODE = "que_ext_code";//问题第三方编号
+	
+	/**
+	 * 获取答案ID
+	 */
+	public Long getAId()
+	{
+		return getLong(A_ID);
+	}
+	
+	/**
+	 * 设置答案ID
+	 */
+	public void setAId(Long aid)
+	{
+		set(A_ID, aid);
+	}
+	
+	/**
+	 * 获取问题ID
+	 */
+	public Long getQueId()
+	{
+		return getLong(QUE_ID);
+	}
+	
+	/**
+	 * 设置问题ID
+	 */
+	public void setQueId(Long queId)
+	{
+		set(QUE_ID, queId);
+	}
+	
+	/**
+	 * 获取答案内容
+	 */
+	public String getName()
+	{
+		return getString(NAME);
+	}
+	
+	/**
+	 * 获取答案内容
+	 */
+	public void setName(String name)
+	{
+		set(NAME, name);
+	}
+	
+	/**
+	 * 获取排序值
+	 */
+	public Long getOrderLine()
+	{
+		return getLong(ORDER_LINE);
+	}
+	
+	/**
+	 * 获取排序值
+	 */
+	public void setOrderLine(Long orderLine)
+	{
+		set(ORDER_LINE, orderLine);
+	}
+	
+	/**
+	 * 获取状态
+	 */
+	public String getState()
+	{
+		return getString(STATE);
+	}
+	
+	/**
+	 * 获取状态
+	 */
+	public void setState(String state)
+	{
+		set(STATE, state);
+	}
+	
+	/**
+	 * 获取外部扩展编号
+	 */
+	public String getExtCode()
+	{
+		return getString(EXT_CODE);
+	}
+	
+	/**
+	 * 获取外部扩展编号
+	 */
+	public void setExtCode(String extCode)
+	{
+		set(EXT_CODE, extCode);
+	}
+	
+	/**
+	 * 获取分数
+	 */
+	public Long getMark()
+	{
+		return getLong(MARK);
+	}
+	
+	/**
+	 * 设置分数
+	 */
+	public void setMark(Long mark)
+	{
+		set(MARK, mark);
+	}
+	
+	/**
+	 * 获取是否为正确答案
+	 */
+	public String getIsTrue()
+	{
+		return getString(IS_TRUE);
+	}
+	
+	/**
+	 * 获取是否为正确答案
+	 */
+	public void setIsTrue(String isTrue)
+	{
+		set(IS_TRUE, isTrue);
+	}
+	
+	/**
+	 * 获取创建时间
+	 */
+	public Date getCreateDate()
+	{
+		String createDate = getString(CREATE_DATE);
+		if (StringUtils.isNotEmpty(createDate))
+		{
+			return DateHelper.parseString(createDate, DateHelper.pattern_time);
+		}
+		else
+		{
+			return null;
+		}
+	}
+	
+	/**
+	 * 设置创建时间
+	 */
+	public void setCreateDate(Date createDate)
+	{
+		set(CREATE_DATE, createDate);
+	}
+	
+	/**
+	 * 获取更新时间
+	 */
+	public Date getUpdateDate()
+	{
+		String updateDate = getString(UPDATE_DATE);
+		if (StringUtils.isNotEmpty(updateDate))
+		{
+			return DateHelper.parseString(updateDate, DateHelper.pattern_time);
+		}
+		else
+		{
+			return null;
+		}
+	}
+	
+	/**
+	 * 设置更新时间
+	 */
+	public void setUpdateDate(Date updateDate)
+	{
+		set(UPDATE_DATE, updateDate);
+	}
+	
+	/**
+	 * 获取创建人
+	 */
+	public Long getCreateBy()
+	{
+		return getLong(CREATE_BY);
+	}
+	
+	/**
+	 * 设置创建人
+	 */
+	public void setCreateBy(Long createBy)
+	{
+		set(CREATE_BY, createBy);
+	}
+	
+	/**
+	 * 获取修改人
+	 */
+	public Long getUpdateBy()
+	{
+		return getLong(UPDATE_BY);
+	}
+	
+	/**
+	 * 设置修改人
+	 */
+	public void setUpdateBy(Long updateBy)
+	{
+		set(UPDATE_BY, updateBy);
+	}
+	
+	/**
+	 * 获取问卷主题ID
+	 */
+	public Long getSubId()
+	{
+		return getLong(SUB_ID);
+	}
+	
+	/**
+	 * 设置问卷主题ID
+	 */
+	public void setSubId(Long subId)
+	{
+		set(SUB_ID, subId);
+	}
+	
+	/**
+	 * 获取问卷主题编号
+	 */
+	public String getSubjectCode()
+	{
+		return getString(SUBJECT_CODE);
+	}
+	
+	/**
+	 * 设置问卷主题编号
+	 */
+	public void setSubjectCode(String subjectCode)
+	{
+		set(SUBJECT_CODE, subjectCode);
+	}
+	
+	/**
+	 * 获取题目内容
+	 */
+	public String getQuestionContent()
+	{
+		return getString(QUESTION_CONTENT);
+	}
+	
+	/**
+	 * 设置题目内容
+	 */
+	public void setQuestionContent(String questionContent)
+	{
+		set(QUESTION_CONTENT, questionContent);
+	}
+	
+	/**
+	 * 获取问题类型（0：单选，1：多选）
+	 */
+	public String getType()
+	{
+		return getString(TYPE);
+	}
+	
+	/**
+	 * 设置问题类型（0：单选，1：多选）
+	 */
+	public void setType(String type)
+	{
+		set(TYPE, type);
+	}
+	
+	/**
+	 * 获取是否被用户选择（true:已选择 ;false:未选择）
+	 */
+	public Boolean getIsCheck()
+	{
+		
+		return getBoolean(IS_CHECK);
+	}
+	
+	/**
+	 * 设置是否被用户选择（true:已选择 ;false:未选择）
+	 */
+	public void setIsCheck(Boolean isCheck)
+	{
+		set(IS_CHECK, isCheck);
+	}
+	
+	/**
+	 * 获取问题第三方编号
+	 */
+	public String getQueExtCode()
+	{
+		
+		return getString(QUE_EXT_CODE);
+	}
+	
+	/**
+	 * 设置问题第三方编号
+	 */
+	public void setQueExtCode(String queExtCode)
+	{
+		set(QUE_EXT_CODE, queExtCode);
+	}
+}

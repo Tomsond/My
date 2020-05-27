@@ -1,0 +1,185 @@
+package com.thinkive.fxc.ismp.bus.base.business.model;
+
+import java.sql.Timestamp;
+import java.util.Date;
+
+import com.thinkive.base.jdbc.DataRow;
+
+/**
+ * @描述: 问卷测评结果记录表<p>T_ISMP_SURVEY_ANSWER_RESULT</p>
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2017年3月13日 下午4:21:38
+ */
+public class SurveyAnswerResultModel extends DataRow
+{
+	
+	private static final long serialVersionUID = -3722215164363763779L;
+	
+	private static final String ID = "id";
+	
+	private static final String BUSINESS_ID = "business_id";
+	
+	private static final String NODE_ID = "node_id";
+	
+	private static final String SUB_ID = "sub_id";
+	
+	private static final String SUB_VALUE = "sub_value";
+	
+	private static final String VALUE_NAME = "value_name";
+	
+	private static final String VALUE_LEVEL = "value_level";
+	
+	private static final String CREATE_DATE = "create_date";
+	
+	private static final String UPDATE_DATE = "update_date";
+	
+	/**
+	 * 获取自增主键
+	 */
+	public Long getId()
+	{
+		return getLong(ID);
+	}
+	
+	/**
+	 * 设置自增主键
+	 */
+	public void setId(Long id)
+	{
+		set(ID, id);
+	}
+	
+	/**
+	 * 获取业务流水ID
+	 */
+	public Long getBusinessId()
+	{
+		return getLong(BUSINESS_ID);
+	}
+	
+	/**
+	 * 设置业务流水ID
+	 */
+	public void setBusinessId(Long businessId)
+	{
+		set(BUSINESS_ID, businessId);
+	}
+	
+	/**
+	 * 获取问卷分数
+	 */
+	public String getSubValue()
+	{
+		return getString(SUB_VALUE);
+	}
+	
+	/**
+	 * 设置问卷分数
+	 */
+	public void setSubValue(String subValue)
+	{
+		set(SUB_VALUE, subValue);
+	}
+	
+	/**
+	 * 获取卷分数对应等级名称
+	 */
+	public String getValueName()
+	{
+		return getString(VALUE_NAME);
+	}
+	
+	/**
+	 * 设置问卷分数对应等级名称
+	 */
+	public void setValueName(String valueName)
+	{
+		set(VALUE_NAME, valueName);
+	}
+	
+	/**
+	 * 获取问卷分数对应等级
+	 */
+	public String getValueLevel()
+	{
+		return getString(VALUE_LEVEL);
+	}
+	
+	/**
+	 * 设置问卷分数对应等级
+	 */
+	public void setValueLevel(String valueLevel)
+	{
+		set(VALUE_LEVEL, valueLevel);
+	}
+	
+	/**
+	 * 获取业务类型编号
+	 */
+	public String getNodeId()
+	{
+		return getString(NODE_ID);
+	}
+	
+	/**
+	 * 设置业务类型编号
+	 */
+	public void setNodeId(String nodeId)
+	{
+		set(NODE_ID, nodeId);
+	}
+	
+	/**
+	 * 获取问卷编号
+	 */
+	public Long getSubId()
+	{
+		return getLong(SUB_ID);
+	}
+	
+	/**
+	 * 设置问卷编号
+	 */
+	public void setSubId(Long subId)
+	{
+		set(SUB_ID, subId);
+	}
+	
+	/**
+	* 获取创建时间
+	*/
+	public Date getCreateDate()
+	{
+		return (Date) get(CREATE_DATE);
+	}
+	
+	/**
+	 * 设置创建时间
+	 */
+	public void setCreateDate(Date createDate)
+	{
+		Timestamp timestamp = new Timestamp(createDate.getTime());
+		set(CREATE_DATE, timestamp);
+	}
+	
+	/**
+	 * 获取更新时间
+	 */
+	public Date getUpdateDate()
+	{
+		return (Date) get(UPDATE_DATE);
+	}
+	
+	/**
+	 * 设置更新时间
+	 */
+	public void setUpdateDate(Date updateDate)
+	{
+		Timestamp timestamp = new Timestamp(updateDate.getTime());
+		set(UPDATE_DATE, timestamp);
+	}
+	
+}

@@ -1,0 +1,20 @@
+package com.thinkive.fxc.ismp.bus.business.smjj.constants;
+
+public class SmjjConstants {
+	
+	/**
+	 * 私募基金外部资产证明图片记录表
+	 */
+	public static final String T_ISMP_SM_IMAGE_RECORD = "T_ISMP_SM_IMAGE_RECORD";
+	/**
+	 * 私募基金资产记录表
+	 */
+	public static final String T_ISMP_SM_ASSETS = "T_ISMP_SM_ASSETS";
+
+	
+	/**
+	 * 影像资料记录服务类
+	 */
+	public static final String SERVICE_ID_SMJJIMAGERECORD = "smjjImageRecordService";
+    public static final String SMJJ_SIGNPROTOCOl = "smjj_signProtocol";
+}

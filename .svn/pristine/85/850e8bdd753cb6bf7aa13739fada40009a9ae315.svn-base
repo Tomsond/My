@@ -1,0 +1,92 @@
+package com.thinkive.fxc.ismp.bus.business.entrust.model;
+
+import java.sql.Timestamp;
+import java.util.Date;
+
+import com.thinkive.base.jdbc.DataRow;
+
+/**
+ * @描述: 用户委托方式表(T_ISMP_USER_ENTRUST)模型
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0.0 
+ * @创建时间: 2016年9月6日 上午10:06:00
+ */
+public class UserEntrustModel extends DataRow
+{
+
+    private static final long serialVersionUID = -322964220317109780L;
+    
+    private static final String ID="id";
+    
+    private static final String USER_ID="user_id";
+    
+    private static final String ENTRUST_CODE="entrust_code";
+    
+    private static final String CREATE_DATE="create_date";
+    
+    /**
+     * 获取主键ID
+     */
+    public long getId()
+    {
+        return getLong(ID);
+    }
+    
+    /**
+     * 设置主键ID
+     */
+    public void setId(Long id)
+    {
+        set(ID, id);
+    }
+    
+    
+    /**
+     * 获取委托方式编号
+     */
+    public String getEntrustCode()
+    {
+        return getString(ENTRUST_CODE);
+    }
+    
+    /**
+     * 设置委托方式编号
+     */
+    public void setEntrustCode(String entrustCode)
+    {
+        set(ENTRUST_CODE, entrustCode);
+    }
+    
+    /**
+     * 获取创建时间
+     */
+    public Date getCreateDate()
+    {
+        return (Date) get(CREATE_DATE);
+    }
+    
+    /**
+     * 设置创建时间
+     */
+    public void setCreateDate(Date createDate)
+    {
+        Timestamp timestamp = new Timestamp(createDate.getTime());
+        set(CREATE_DATE, timestamp);
+    }
+    
+    /**
+     * 获取用户ID
+     */
+    public Long getUserId() {
+        return getLong(USER_ID);
+    }
+    
+    /**
+     * 设置用户ID
+     */
+    public void setUserId(Long userId) {
+        set(USER_ID, userId);
+    }
+}

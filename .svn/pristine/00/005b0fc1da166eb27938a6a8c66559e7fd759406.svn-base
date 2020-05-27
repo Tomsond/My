@@ -1,0 +1,156 @@
+package com.thinkive.fxc.ismp.bus.base.business.model;
+
+import java.sql.Timestamp;
+import java.util.Date;
+
+import com.thinkive.base.jdbc.DataRow;
+
+/**
+ * @描述: 业务流程定义表(T_ISMP_BUSITYPE_DEFINE)模型
+ * @版权: Copyright (c) 2016 
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0 
+ * @创建时间: 2016年8月12日 上午10:51:27
+ */
+public class BusiTypeDefineModel extends DataRow
+{
+
+    private static final long serialVersionUID = -1656404830447465687L;
+    
+    private static final String BTYPE_ID = "btype_id";
+    
+    private static final String BTYPE_NAME = "btype_name";
+    
+    private static final String BUSINESS_CODE = "business_code";
+    
+    private static final String REMARK = "remark";
+    
+    private static final String CREATE_DATE = "create_date";
+    
+    private static final String UPDATE_DATE = "update_date";
+    
+    private static final String CREATE_USER = "create_user";
+    
+    private static final String LAST_UPDATEUSER = "last_updateuser";
+    
+    /**
+     * 获取流程标识
+     */
+    public Long getBtypeId() {
+        return getLong(BTYPE_ID);
+    }
+
+    /**
+     * 设置流程标识
+     */
+    public void setBtypeId(Long btypeId) {
+        set(BTYPE_ID, btypeId);
+    }
+    
+    
+    /**
+     * 获取流程名称
+     */
+    public String getBtypeName() {
+        return getString(BTYPE_NAME);
+    }
+
+    /**
+     * 设置流程名称
+     */
+    public void setBtypeName(String btypeName) {
+        set(BTYPE_NAME, btypeName);
+    }   
+    
+    /**
+     * 获取业务类型编号
+     */
+    public String getBusinessCode() {
+        return getString(BUSINESS_CODE);
+    }
+
+    /**
+     * 设置业务类型编号
+     */
+    public void setBusinessCode(String businessCode) {
+        set(BUSINESS_CODE, businessCode);
+    }   
+    
+    /**
+     * 获取备注
+     */
+    public String getRemark() {
+        return getString(REMARK);
+    }
+
+    /**
+     * 设置备注
+     */
+    public void setRemark(String remark) {
+        set(REMARK, remark);
+    }  
+    
+    /**
+     * 获取创建时间
+     */
+    public Date getCreateDate()
+    {
+        return (Date) get(CREATE_DATE);
+    }
+    
+    /**
+     * 设置创建时间
+     */
+    public void setCreateDate(Date createDate)
+    {
+        Timestamp timestamp = new Timestamp(createDate.getTime());
+        set(CREATE_DATE, timestamp);
+    }
+    
+    
+    /**
+     * 获取更新时间
+     */
+    public Date getUpdateDate()
+    {
+        return (Date) get(UPDATE_DATE);
+    }
+    
+    /**
+     * 设置更新时间
+     */
+    public void setUpdateDate(Date updateDate)
+    {
+        Timestamp timestamp = new Timestamp(updateDate.getTime());
+        set(UPDATE_DATE, timestamp);
+    }
+    
+    /**
+     * 获取创建人
+     */
+    public Long getCreateUser() {
+        return getLong(CREATE_USER);
+    }
+
+    /**
+     * 设置创建人
+     */
+    public void setCreateUser(Long createUser) {
+        set(CREATE_USER, createUser);
+    }  
+    
+    /**
+     * 获取最后修改人
+     */
+    public Long getLastUpdateUser() {
+        return getLong(LAST_UPDATEUSER);
+    }
+
+    /**
+     * 设置最后修改人
+     */
+    public void setLastUpdateUser(Long lastUpdateUser) {
+        set(LAST_UPDATEUSER, lastUpdateUser);
+    }  
+}

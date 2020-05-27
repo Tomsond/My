@@ -1,0 +1,72 @@
+package com.thinkive.fxc.ismp.bus.base.basicdata.dao.impl;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.StringHelper;
+import com.thinkive.fxc.ismp.bus.base.basicdata.contants.BaseTableConstants;
+import com.thinkive.fxc.ismp.bus.base.basicdata.dao.BranchExtinfoDao;
+import com.thinkive.fxc.ismp.bus.base.basicdata.model.BranchExtinfoModel;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseDao;
+import com.thinkive.fxc.ismp.bus.base.constants.SystemConstants;
+import com.thinkive.fxc.ismp.bus.base.util.ModelUtil;
+
+/**
+ * @描述: 公共-营业部扩展信息表(T_FXC_BRANCH_EXTINFO) 数据层接口实现类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 尹杰民
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月18日 下午4:03:23
+ */
+public class BranchExtinfoDaoImpl extends ISMPBaseDao implements BranchExtinfoDao
+{
+    
+    @Override
+    public BranchExtinfoModel add(BranchExtinfoModel branchExtinfoModel)
+    {
+        String branchId = getSeqValue(SystemConstants.DB_ISMP,BaseTableConstants.T_FXC_BRANCH_EXTINFO);
+        branchExtinfoModel.setBranchId(Long.valueOf(branchId));
+        branchExtinfoModel.setCreateDate(new Date());
+        this.getJdbcTemplate().insert(BaseTableConstants.T_FXC_BRANCH_EXTINFO, branchExtinfoModel);
+        return branchExtinfoModel;
+    }
+    
+    @Override
+    public int update(BranchExtinfoModel branchExtinfoModel)
+    {
+        Long branchId = branchExtinfoModel.getBranchId();
+        branchExtinfoModel.setUpdateDate(new Date());
+        return this.getJdbcTemplate().update(BaseTableConstants.T_FXC_BRANCH_EXTINFO, branchExtinfoModel, "BRANCH_ID",
+                branchId);
+    }
+    
+    @Override
+    public BranchExtinfoModel queryByBranchNo(String branchNo)
+    {
+        StringBuilder sql = new StringBuilder();
+        sql.append(" SELECT BE.BRANCH_ID, BE.CUST_CODE, BE.CUST_PWD, BE.JGDM, BE.WDDM FROM ");
+        sql.append(BaseTableConstants.T_FXC_BRANCH_EXTINFO);
+        sql.append(" BE INNER JOIN ");
+        sql.append(BaseTableConstants.T_FXC_BANK_INFO);
+        sql.append(" BI ON BE.BRANCH_ID = BI.ID");
+        sql.append(" WHERE BI.BRANCH_NO = ?");
+        DataRow queryResult = this.getJdbcTemplate().queryMap(sql.toString(), new Object[] { branchNo });
+        return ModelUtil.packInfo(queryResult, BranchExtinfoModel.class);
+    }
+    
+    @Override
+	public List<DataRow> queryList(String branch_id) throws Exception {
+		StringBuilder builder = new StringBuilder();
+		builder.append("SELECT INFO.BRANCH_NAME,INFO.BRANCH_NO FROM T_PUB_BRANCH_INFO INFO WHERE 1=1 ");
+		List<String> args = new ArrayList<String>();
+		if(StringHelper.isNotEmpty(branch_id)){
+			args.add(branch_id);
+			builder.append(" AND INFO.BRANCH_NO=? ");
+		}
+	    builder.append("  ORDER BY INFO.ORDERLINE ASC");
+		return this.getJdbcTemplateWork().query(builder.toString(),args.toArray());
+	}
+}

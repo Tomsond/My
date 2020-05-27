@@ -1,0 +1,154 @@
+package com.thinkive.fxc.ismp.bus.business.ggtCancel.function;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.basicdata.contants.BasicServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.basicdata.service.TradeTimeService;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.business.vo.UserInfoVo;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.business.ggtCancel.constants.GgtCancelConstants;
+import com.thinkive.fxc.ismp.bus.business.ggtCancel.service.GgtCancelService;
+import com.thinkive.fxc.ismp.bus.business.util.DataFormatUtils;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdDictionaryConstants;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdInterfaceConstant;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdInterface;
+import com.thinkive.server.InvokeException;
+import com.thinkive.server.ResultVo;
+import com.thinkive.server.util.SpringUtil;
+/**
+ * @描述: 港股通权限取消 ----账户状态查询
+ * @版权: Copyright (c) 2010 
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 杨成
+ * @版本: 2.0.0
+ * @创建时间: 2019.9.24 14:06:22
+ */
+public class Function1004220  extends ISMPBaseFunction{
+	
+	private long userId;
+	
+	private String businessCode;//业务类型
+
+	@SuppressWarnings("unchecked")
+    @Override
+	public ResultVo execute() throws InvokeException, Exception {
+	    
+	    //String assistRepositoryFlag = DictionaryConstants.BOL_FALSE;//是否有港股通持仓  0无，1有
+	    //String onWayTradeFlag = DictionaryConstants.BOL_FALSE;//是否有港股通在途交易  0无，1有
+		
+		//step1.校验入参
+		checkInput();
+		
+		ResultVo resultVo = new ResultVo();
+		
+		//step2:查询用户基本信息和用户账号信息
+		UserInfoService userInfoService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO, UserInfoService.class);
+		UserInfoVo userInfoVo = userInfoService.queryAndCheckUserByUserIdAndType(userId, ThirdInterfaceConstant.USER_ACCOUNT_TYPE_ZQ);
+		ThirdInterface thirdInterface = SpringUtil.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDINTERFACE, ThirdInterface.class);
+		DataRow thirdInput = DataFormatUtils.packThirdInput(userInfoVo);
+		
+		//step3：获取柜台帐号
+		GgtCancelService service = SpringHelper.getBean(GgtCancelConstants.SERVER_ID_GGT_CANCEL, GgtCancelService.class);
+        Map<String, Object> accountInfo = null;
+        //深港通 深A
+        if(GgtCancelConstants.BUSINESS_SGTCANCEL.equals(businessCode))
+        {
+            accountInfo = service.getSgtAccountState(userInfoVo);
+        }
+        //沪港通 沪A
+        else if(GgtCancelConstants.BUSINESS_HGTCANCEL.equals(businessCode))
+        {
+            accountInfo = service.getHgtAccountState(userInfoVo);
+        }
+        //港股通 沪A+深A
+        else if(GgtCancelConstants.BUSINESS_GGTCANCEL.equals(businessCode)){
+            accountInfo = service.getGgtAccountState(userInfoVo);
+        }
+        
+        String accountState = accountInfo.get("accountState").toString();
+        List<DataRow> accountList = (List<DataRow>) accountInfo.get("accountList");
+        
+        if(accountList != null && accountList.size() > 0)
+        {
+            String ymt_code = "";
+            //查询港股通权限
+            List<DataRow> rightList = thirdInterface.queryGGTRights(thirdInput);
+            
+            Iterator<DataRow> iterator = accountList.iterator();
+            while (iterator.hasNext())
+            {
+                DataRow accountData = iterator.next();
+                ymt_code = accountData.getString("ymt_code");
+                String open_flag = DictionaryConstants.BOL_FALSE;
+                String trdacct = accountData.getString("trdacct");
+                if(rightList != null && rightList.size() > 0)
+                {
+                    for(DataRow rigdata : rightList)
+                    {
+                        if(rigdata.getString("trdacct").equals(trdacct))
+                        {
+                            open_flag = DictionaryConstants.BOL_TRUE;
+                        }
+                    }
+                }
+                accountData.set("open_flag", open_flag);//是否开通权限 0未开通   1已开通
+                
+                //过滤没有港股通权限的账户
+                if(accountData.getString("open_flag").equals(DictionaryConstants.BOL_FALSE)){
+                    iterator.remove();
+                }
+            }
+            
+            /*//校验港股持仓
+            List<DataRow> repList = thirdInterface.checkAssistRepository(thirdInput);
+            if(repList != null && repList.size() > 0)
+            {
+                assistRepositoryFlag = DictionaryConstants.BOL_TRUE;
+            }
+            //校验是否有在途交易
+            List<DataRow> wayList = thirdInterface.isOnWayTrade(thirdInput);
+            if(wayList != null && wayList.size() > 0)
+            {
+                onWayTradeFlag = DictionaryConstants.BOL_TRUE;
+            }*/
+        }
+        
+        //判断交易时间
+        String isTradeTime = DictionaryConstants.BOL_FALSE;
+        TradeTimeService tradeTimeService = SpringHelper.getBean(BasicServiceBeanIdConstants.SERVICE_ID_TRADETIME, TradeTimeService.class);
+        if (tradeTimeService.checkZdTradeTime()){
+            isTradeTime = DictionaryConstants.BOL_TRUE;
+        } 
+        
+        DataRow otherInfo = new DataRow();
+        otherInfo.set("isTradeTime", isTradeTime);//是否为中登时间，0：否，1：是
+        otherInfo.set("accountState", accountState);//证券股东号状态（所有帐号统计）   0：不存在,1：正常,2：异常状态,3：未指定
+        //otherInfo.set("assistRepositoryFlag", assistRepositoryFlag);//是否有港股通持仓  0无，1有
+        //otherInfo.set("onWayTradeFlag", onWayTradeFlag);//是否有港股通在途交易  0无，1有
+        resultVo.setResult("otherInfo", otherInfo);
+        resultVo.setResult("accountList", accountList);
+		resultVo.setErrorNo(0);
+		resultVo.setErrorMsg("调用成功");
+		return resultVo;
+	}
+	
+	/**
+	 * @描述：获取入参并校验
+	 * @作者：杨成
+	 * @时间：2019年9月24日 下午14:22
+	 * @throws Exception
+	 */
+	private void checkInput() throws Exception{
+		userId = Long.valueOf(this.getAndCheckBlankStrParam("user_id", ErrorCodeCheckInput.BLANK_USERID));
+		businessCode = this.getAndCheckBlankStrParam("businessCode", ErrorCodeCheckInput.BLANK_BUSINESSCODE);
+	}
+
+}

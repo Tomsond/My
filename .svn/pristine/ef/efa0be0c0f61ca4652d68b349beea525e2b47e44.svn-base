@@ -1,0 +1,383 @@
+package com.thinkive.fxc.ismp.bus.base.business.model;
+
+import java.sql.Timestamp;
+import java.util.Date;
+
+import com.thinkive.base.jdbc.DataRow;
+
+/**
+ * @描述: 业务办理视频记录表<p>T_ISMP_VIDEO_RECORD</p>
+ * @版权: Copyright (c) 2016 
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 尹杰民
+ * @版本: 2.0 
+ * @创建时间: 2016年8月12日 下午3:28:29
+ */
+public class VideoRecordModel extends DataRow
+{
+    private static final long   serialVersionUID = 8217543528485322364L;
+    
+    private static final String ID               = "id";
+    
+    private static final String BUSINESS_ID      = "business_id";
+    
+    private static final String NODE_ID          = "node_id";
+    
+    private static final String VIDEO_TYPE       = "video_type";
+    
+    private static final String SAVE_SITE        = "save_site";
+    
+    private static final String IS_SERVER_RECORD = "is_server_record";
+    
+    private static final String CUST_STREAM      = "cust_stream";
+    
+    private static final String SECRET_KEY       = "secret_key";
+    
+    private static final String SRV_NAME         = "srv_name";
+    
+    private static final String START_TIME       = "start_time";
+    
+    private static final String VIDEO_LENGTH     = "video_length";
+    
+    private static final String APPROVE_DATE     = "approve_date";
+    
+    private static final String APPROVE_STAT     = "approve_stat";
+    
+    private static final String APPROVE_ID       = "approve_id";
+    
+    private static final String TOTAL_TIME       = "total_time";
+    
+    private static final String SRV_ID           = "srv_id";
+    
+    private static final String MSG_CONTENT      = "msg_content";
+    
+    private static final String RANDOM           = "random";
+    
+    private static final String CREATE_DATE      = "create_date";
+    
+    private static final String UPDATE_DATE      = "update_date";
+    
+    /**
+     * 获取自增主键
+     */
+    public Long getId()
+    {
+        return getLong(ID);
+    }
+    
+    /**
+     * 设置自增主键
+     */
+    public void setId(Long id)
+    {
+        set(ID, id);
+    }
+    
+    /**
+     * 获取业务流水ID
+     */
+    public Long getBusinessId()
+    {
+        return getLong(BUSINESS_ID);
+    }
+    
+    /**
+     * 设置业务流水ID
+     */
+    public void setBusinessId(Long businessId)
+    {
+        set(BUSINESS_ID, businessId);
+    }
+    
+    /**
+     * 获取业务类型编号
+     */
+    public String getNodeId()
+    {
+        return getString(NODE_ID);
+    }
+    
+    /**
+     * 设置业务类型编号
+     */
+    public void setNodeId(String nodeId)
+    {
+        set(NODE_ID, nodeId);
+    }
+    
+    /**
+     * 获取视频类型
+     */
+    public String getVideoType()
+    {
+        return getString(VIDEO_TYPE);
+    }
+    
+    /**
+     * 设置视频类型
+     */
+    public void setVideoType(String videoType)
+    {
+        set(VIDEO_TYPE, videoType);
+    }
+    
+    /**
+     * 获取视频类型
+     */
+    public String getSaveSite()
+    {
+        return getString(SAVE_SITE);
+    }
+    
+    /**
+     * 设置视频文件保存位置
+     */
+    public void setSaveSite(String saveSite)
+    {
+        set(SAVE_SITE, saveSite);
+    }
+    
+    /**
+     * 获取是否是服务端录制
+     */
+    public String getIsServerRecord()
+    {
+        return getString(IS_SERVER_RECORD);
+    }
+    
+    /**
+     * 设置是否是服务端录制
+     */
+    public void setIsServerRecord(String isServerRecord)
+    {
+        set(IS_SERVER_RECORD, isServerRecord);
+    }
+    
+    /**
+     * 获取客户视频文件地址
+     */
+    public String getCustStream()
+    {
+        return getString(CUST_STREAM);
+    }
+    
+    /**
+     * 设置客户视频文件地址
+     */
+    public void setCustStream(String custStream)
+    {
+        set(CUST_STREAM, custStream);
+    }
+    
+    /**
+     * 获取文件密钥
+     */
+    public String getSecretKey()
+    {
+        return getString(SECRET_KEY);
+    }
+    
+    /**
+     * 设置文件密钥
+     */
+    public void setSecretKey(String secretKey)
+    {
+        set(SECRET_KEY, secretKey);
+    }
+    
+    /**
+     * 获取坐席姓名
+     */
+    public String getSrvName()
+    {
+        return getString(SRV_NAME);
+    }
+    
+    /**
+     * 设置坐席姓名
+     */
+    public void setSrvName(String srvName)
+    {
+        set(SRV_NAME, srvName);
+    }
+    
+    /**
+     * 获取开始视频见证时间
+     */
+    public String getStartTime()
+    {
+        return getString(START_TIME);
+    }
+    
+    /**
+     * 设置开始视频见证时间
+     */
+    public void setStartTime(String startTime)
+    {
+        set(START_TIME, startTime);
+    }
+    
+    /**
+     * 获取视频长度
+     */
+    public String getVideoLength()
+    {
+        return getString(VIDEO_LENGTH);
+    }
+    
+    /**
+     * 设置视频长度
+     */
+    public void setVideoLength(String videoLength)
+    {
+        set(VIDEO_LENGTH, videoLength);
+    }
+    
+    /**
+     * 获取审核时间
+     */
+    public String getApproveDate()
+    {
+        return getString(APPROVE_DATE);
+    }
+    
+    /**
+     * 设置审核时间
+     */
+    public void setApproveDate(String approveDate)
+    {
+        set(APPROVE_DATE, approveDate);
+    }
+    
+    /**
+     * 获取审核状态
+     */
+    public String getApproveStat()
+    {
+        return getString(APPROVE_STAT);
+    }
+    
+    /**
+     * 设置审核状态
+     */
+    public void setApproveStat(String approveStat)
+    {
+        set(APPROVE_STAT, approveStat);
+    }
+    
+    /**
+     * 获取审核人ID
+     */
+    public Long getApproveId()
+    {
+        return getLong(APPROVE_ID);
+    }
+    
+    /**
+     * 设置审核人ID
+     */
+    public void setApproveId(Long approveId)
+    {
+        set(APPROVE_ID, approveId);
+    }
+    
+    /**
+     * 获取总用时
+     */
+    public String getTotalTime()
+    {
+        return getString(TOTAL_TIME);
+    }
+    
+    /**
+     * 设置总用时
+     */
+    public void setTotalTime(String totalTime)
+    {
+        set(TOTAL_TIME, totalTime);
+    }
+    
+    /**
+     * 获取座席ID
+     */
+    public Long getSrvId()
+    {
+        return getLong(SRV_ID);
+    }
+    
+    /**
+     * 设置座席ID
+     */
+    public void setSrvId(Long srvId)
+    {
+        set(SRV_ID, srvId);
+    }
+    
+    /**
+     * 获取聊天记录内容
+     */
+    public String getMsgContent()
+    {
+        return getString(MSG_CONTENT);
+    }
+    
+    /**
+     * 设置聊天记录内容
+     */
+    public void setMsgContent(String msgContent)
+    {
+        set(MSG_CONTENT, msgContent);
+    }
+    
+    /**
+     * 获取微信视频时需要用户念出来的随机数字
+     */
+    public String getRandom()
+    {
+        return getString(RANDOM);
+    }
+    
+    /**
+     * 设置微信视频时需要用户念出来的随机数字
+     */
+    public void setRandom(String random)
+    {
+        set(RANDOM, random);
+    }
+    
+    /**
+     * 获取创建时间
+     */
+    public Date getCreateDate()
+    {
+        return (Date) get(CREATE_DATE);
+    }
+    
+    /**
+     * 设置创建时间
+     */
+    public void setCreateDate(Date createDate)
+    {
+        Timestamp timestamp = new Timestamp(createDate.getTime());
+        set(CREATE_DATE, timestamp);
+    }
+    
+    /**
+     * 获取更新时间
+     */
+    public Date getUpdateDate()
+    {
+        return (Date) get(UPDATE_DATE);
+    }
+    
+    /**
+     * 设置更新时间
+     */
+    public void setUpdateDate(Date updateDate)
+    {
+        Timestamp timestamp = new Timestamp(updateDate.getTime());
+        set(UPDATE_DATE, timestamp);
+    }
+    
+    
+}

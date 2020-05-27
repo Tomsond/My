@@ -1,0 +1,105 @@
+package com.thinkive.fxc.ismp.bus.business.ggtCancel.function;
+
+import java.util.Map;
+
+import com.thinkive.base.exception.BusinessException;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.model.BusinessEntityModel;
+import com.thinkive.fxc.ismp.bus.base.business.service.BusinessEntityService;
+import com.thinkive.fxc.ismp.bus.base.business.service.FlowNodeManageService;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.business.vo.BprocNodeConfigAndDefineVO;
+import com.thinkive.fxc.ismp.bus.base.business.vo.BusinessEntityAndConfigVO;
+import com.thinkive.fxc.ismp.bus.base.business.vo.UserInfoVo;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeSystem;
+import com.thinkive.fxc.ismp.bus.business.ggtCancel.constants.GgtCancelConstants;
+import com.thinkive.fxc.ismp.bus.business.ggtCancel.service.GgtCancelService;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdInterfaceConstant;
+import com.thinkive.server.InvokeException;
+import com.thinkive.server.ResultVo;
+
+/**
+`* @描述: 港股通权限取消-提交取消权限帐号 
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 杨成
+ * @版本: 2.0.0 
+ * @创建时间: 2019年9月26日 上午9:44:44
+ */
+public class Function1004222 extends ISMPBaseFunction{
+	
+	  private Long userId; //用户ID
+      
+	  private String trdaccount; //帐号数组，用逗号分格   股东号|市场,股东号|市场  A1234567|00
+	  
+	  private String nodeId;//业务节点ID
+
+	@Override
+	public ResultVo execute() throws InvokeException, Exception {
+		
+		//流程入口需要数据
+        checkInput();
+        
+        //检查用户是否存在
+        UserInfoService userInfoService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO, UserInfoService.class);
+        UserInfoVo userInfoVo = userInfoService.queryAndCheckUserByUserIdAndType(userId, ThirdInterfaceConstant.USER_ACCOUNT_TYPE_ZQ);
+        if (userInfoVo == null)
+        {
+            throw new BusinessException(ErrorCodeSystem.NOTEXIST_USER, "用户不存在");
+        }
+        //查询节点配置
+        FlowNodeManageService flowNodeManageService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_FLOWNODEMANAGE, FlowNodeManageService.class);
+        Map<String, Object> checkResult = flowNodeManageService.checkNodeAuthAndReturnInfo(userId, businessCode, opSource, nodeId);
+        BusinessEntityAndConfigVO businessEntityAndConfigVO = (BusinessEntityAndConfigVO) checkResult.get("businessEntityAndConfigVO");//业务实例
+        BprocNodeConfigAndDefineVO submitBprocNodeConfigAndDefineVO = (BprocNodeConfigAndDefineVO) checkResult.get("submitBprocNodeConfigAndDefineVO");//当前操作的流程节点配置和定义
+        boolean isNewBusiness = businessEntityAndConfigVO == null ? true : false;
+        
+        //业务实例
+        BusinessEntityService businessEntityService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_BUSINESSENTITY, BusinessEntityService.class);
+        BusinessEntityModel businessEntityModel = getNewBusinessEntity();
+        if(isNewBusiness)
+        {
+            businessEntityModel.setNodeId(nodeId);
+            businessEntityService.add(businessEntityModel);
+        }
+        else
+        {
+            businessEntityModel.setId(businessEntityAndConfigVO.getId());
+        }
+        businessEntityModel.setNodeId(submitBprocNodeConfigAndDefineVO.getNextBpNodeId());
+        
+        //提交所选股东号，更新业务实例节点，并新增账号选择记录
+        GgtCancelService ggtCancelService = SpringHelper.getBean(GgtCancelConstants.SERVER_ID_GGT_CANCEL, GgtCancelService.class);
+        String[] trdAccounts = trdaccount.split(",");
+        
+        //保存选择的账号，并提交跑批
+        businessEntityModel.setBusinessCode(businessCode);
+        businessEntityModel.setDealResult(DictionaryConstants.DEAL_RESULT_NEEDPP);
+        ggtCancelService.choiceTrdAccountAddPpTask(trdAccounts, businessEntityModel,nodeId);
+        
+        ResultVo resultVo = new ResultVo();
+        resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+        resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+        return resultVo;
+	}
+	
+	
+	/**
+     * @描述：获取入参并校验
+     * @作者：杨成
+     * @时间：2019年9月26日 上午9：46
+     * @throws InvokeException
+     */
+    private void checkInput() throws InvokeException{
+        userId = Long.valueOf(this.getAndCheckBlankStrParam("user_id", ErrorCodeCheckInput.BLANK_USERID));
+        trdaccount = this.getAndCheckBlankStrParam("trdaccount", ErrorCodeCheckInput.BLANK_TRDACCOUNT);//沪A
+        businessCode = this.getAndCheckBlankStrParam("businessCode", ErrorCodeCheckInput.BLANK_BUSINESSCODE);
+        nodeId = this.getAndCheckBlankStrParam("nodeId", ErrorCodeCheckInput.BLANK_NODEID);
+        opSource = this.getAndCheckBlankStrParam("op_source", ErrorCodeCheckInput.BLANK_OP_SOURCE);
+    }
+
+}

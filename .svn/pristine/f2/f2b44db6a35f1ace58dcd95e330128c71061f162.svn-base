@@ -1,0 +1,144 @@
+package com.thinkive.fxc.ismp.bus.business.zq.function;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.DateHelper;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.base.util.StringHelper;
+import com.thinkive.fxc.ismp.bus.base.basicdata.contants.BasicServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.basicdata.service.TradeTimeService;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.business.vo.UserInfoVo;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.business.util.DataFormatUtils;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdDictionaryConstants;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdInterfaceConstant;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdTBASConstants;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdInterface;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdTrdAccountService;
+import com.thinkive.server.ResultVo;
+import com.thinkive.server.util.SpringUtil;
+
+/**
+ * @描述: 债券合格投资者开通--前置条件检查
+ * @版权: Copyright (c) 2019 
+ * @公司: 思迪科技 
+ * @作者: 江昶
+ * @版本: 1.0 
+ * @创建日期: 2019年9月17日 
+ * @创建时间: 上午11:22:06
+ */
+public class Function1004235 extends ISMPBaseFunction {
+
+	private UserInfoVo userInfo;
+	
+	private ThirdInterface thirdInterface;
+	
+	private UserInfoService userInfoService;
+	@SuppressWarnings("unchecked")
+	public ResultVo execute() throws Exception {
+		ResultVo resultVo = new ResultVo();
+		userInfoService = SpringUtil.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO, UserInfoService.class);
+		userInfo = userInfoService.queryAndCheckUserByUserIdAndType(userId,
+				ThirdInterfaceConstant.USER_ACCOUNT_TYPE_ZQ);
+
+		DataRow thirdInput = DataFormatUtils.packThirdInput(userInfo);
+		thirdInput.set("branch_no", thirdInput.getString("branchno"));//营业部
+		thirdInput.set("money_type", ThirdInterfaceConstant.MONEY_TYPE_RMB);//营业部
+		
+		thirdInterface = SpringUtil.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDINTERFACE, ThirdInterface.class);
+	
+		String credit_record_flag = DictionaryConstants.BOL_FALSE;//是否存在不良诚信记录  默认 0不存在   1存在
+		String sfcg_account_status = DictionaryConstants.BOL_FALSE;//三方存管账户状态         默认0正常  1不正常
+		String risk_assessment_flag = DictionaryConstants.BOL_FALSE;//风险等级是否最低保守型 默认0不是  1是
+		String is_young_age = DictionaryConstants.BOL_FALSE;//是否小于18岁         默认0不是  1是
+//		String is_risk_user = DictionaryConstants.BOL_FALSE;//风险名单客户 ---登录已拦截
+		
+		//是否有不良诚信记录
+        String credit_record = userInfo.getString("credit_record");
+        logger.info("不良诚信记录有无："+credit_record);
+        if ( ("9").equals(credit_record) || ("无不良诚信记录").equals(credit_record))
+        {
+            credit_record_flag = DictionaryConstants.BOL_FALSE;//不存在
+        }else{
+            credit_record_flag = DictionaryConstants.BOL_TRUE;//存在
+        }
+		
+		//是否小于18岁
+		String birthday = userInfo.getBirthday();
+        if(!checkAge(birthday, 18))
+        {
+            is_young_age = DictionaryConstants.BOL_TRUE ;//年龄小于18岁
+        }
+        
+        
+        //查询风险测评结果
+        thirdInput.set("user_id", userId);
+        thirdInput.set("survey_sn", ThirdTBASConstants.SNO_FXCP);
+        DataRow FxcpDr = thirdInterface.getQuestionnaire(thirdInput);
+        logger.info("查询风险测评结果:"+FxcpDr);
+        double risk_level = FxcpDr.getDouble("risklevel");
+        if (1 < risk_level) {
+            risk_assessment_flag = DictionaryConstants.BOL_TRUE;//，风险等级是否大于保守，1是，0不是
+        }
+//        if("0".equals(FxcpDr.getString("status")) || "0".equals(FxcpDr.getString("risklevel"))){// status 0-无效 1-有效  或者 risklevel=0 表示未做风险测评
+//            risk_assessment_flag = DictionaryConstants.BOL_TRUE; //1已过期
+//        }
+        
+        
+        
+        //三方存管账户状态
+        String thirdBankFlag = "";
+        DataRow thirdBankData = thirdInterface.queryThirdBankStatus(thirdInput);
+        logger.info("三方存管账户状态返回结果："+thirdBankData);
+        if(thirdBankData != null && thirdBankData.size() > 0)
+        {
+            thirdBankFlag = thirdBankData.getString("bkaccount_status");//0:正常  其他不正常
+            logger.info("thirdBankFlag: "+thirdBankFlag);
+        }
+        if ( !DictionaryConstants.BOL_FALSE.equals(thirdBankFlag))
+        {
+            sfcg_account_status =  DictionaryConstants.BOL_TRUE;// 1 不正常
+        }
+        
+        DataRow result = new DataRow();
+        result.set("credit_record_flag",credit_record_flag);
+        result.set("sfcg_account_status",sfcg_account_status);
+        result.set("risk_assessment_flag",risk_assessment_flag);
+        result.set("is_young_age",is_young_age);
+        result.set("risk_level_name",FxcpDr.getString("subitemname"));//风险等级名称
+		resultVo.setResult(result);
+		resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);// 返回成功标示
+		resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+		return resultVo;
+	}
+
+	
+	  private boolean checkAge(String firsTransactionData, int year)
+	    {
+	        DataRow firstTradeTimeResult = new DataRow();
+	        firstTradeTimeResult.set("flag", DictionaryConstants.BOL_TRUE);
+	        boolean flag = true;
+	        Date firstDate = DateHelper.parseString(firsTransactionData, "yyyyMMdd");
+	        Calendar limitCalendar = Calendar.getInstance();
+	        limitCalendar.setTime(firstDate);
+	        limitCalendar.add(Calendar.YEAR, year);
+	        Calendar now = Calendar.getInstance();
+	        now.set(Calendar.HOUR_OF_DAY, 0);
+	        now.set(Calendar.MINUTE, 0);
+	        now.set(Calendar.SECOND, 0);
+	        int compareResult = now.compareTo(limitCalendar);
+	        if (-1 == compareResult)
+	        { //未满N月
+	            flag = false;
+	        }
+	        return flag;
+	    }
+	
+}

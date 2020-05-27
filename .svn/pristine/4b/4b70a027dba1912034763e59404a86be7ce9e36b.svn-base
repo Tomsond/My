@@ -1,0 +1,292 @@
+package com.thinkive.fxc.ismp.bus.business.smjj.function;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.DateHelper;
+import com.thinkive.base.util.JsonHelper;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.base.util.StringHelper;
+import com.thinkive.fxc.ismp.bus.base.basicdata.contants.BasicServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.basicdata.service.TradeTimeService;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.function.IsmpFlowBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.business.model.BusinessEntityModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.NodePropertyConfigModel;
+import com.thinkive.fxc.ismp.bus.base.business.service.BusinessEntityService;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.business.utils.FlowNodeManageUtil;
+import com.thinkive.fxc.ismp.bus.base.business.vo.BusinessEntityAndConfigVO;
+import com.thinkive.fxc.ismp.bus.base.business.vo.UserInfoVo;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.business.util.DataFormatUtils;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdDictionaryConstants;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdInterfaceConstant;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdTBASConstants;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdInterface;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdTrdAccountService;
+import com.thinkive.server.ResultVo;
+import com.thinkive.server.util.SpringUtil;
+
+/**
+ * @描述: 私募基金合格投资者--资质查询
+ * @版权: Copyright (c) 2019 
+ * @公司: 思迪科技 
+ * @作者: 江昶
+ * @版本: 1.0 
+ * @创建日期: 2019年9月17日 
+ * @创建时间: 上午11:22:06
+ */
+public class Function3100015 extends IsmpFlowBaseFunction {
+
+	private UserInfoVo userInfo;
+	
+	private ThirdInterface thirdInterface;
+	
+	private UserInfoService userInfoService;
+	@SuppressWarnings("unchecked")
+	public ResultVo execute() throws Exception {
+		ResultVo resultVo = new ResultVo();
+		userInfoService = SpringUtil.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO, UserInfoService.class);
+		userInfo = userInfoService.queryAndCheckUserByUserIdAndType(userId,
+				ThirdInterfaceConstant.USER_ACCOUNT_TYPE_ZQ);
+
+		DataRow thirdInput = DataFormatUtils.packThirdInput(userInfo);
+		thirdInput.set("branch_no", thirdInput.getString("branchno"));//营业部
+		thirdInput.set("money_type", ThirdInterfaceConstant.MONEY_TYPE_RMB);//币种
+		
+		thirdInterface = SpringUtil.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDINTERFACE, ThirdInterface.class);
+		
+		// step1：节点权限校验，并返回当前业务实例
+        Map<String, Object> checkResult = FlowNodeManageUtil.checkNodeAuthAndReturnInfo(userId, businessCode, opSource,
+                nodeId);
+        BusinessEntityAndConfigVO businessEntityAndConfigVO = (BusinessEntityAndConfigVO) checkResult
+                .get("businessEntityAndConfigVO");
+        List<NodePropertyConfigModel> nodePropertyConfigModelList = (List<NodePropertyConfigModel>) checkResult
+                .get("nodePropertyConfigModelList");// 节点属性列表
+        BusinessEntityService businessEntityService = SpringUtil
+                .getBean(BusinessServiceBeanIdConstants.SERVICE_ID_BUSINESSENTITY, BusinessEntityService.class);
+        boolean isNewBusiness = businessEntityAndConfigVO == null ? true : false;
+
+        // step2：新增业务办理实例
+        if (isNewBusiness) {
+            BusinessEntityModel businessEntityModel = new BusinessEntityModel();
+            businessEntityModel.setUserId(userId);
+            businessEntityModel.setOpSource(opSource);
+            businessEntityModel.setOpStation(opStation);
+            businessEntityModel.setBusinessCode(businessCode);
+            businessEntityModel.setIsComplete(DictionaryConstants.BOL_FALSE);
+            businessEntityModel.setIp(ip);
+            businessEntityModel.setNodeId(nodeId);
+            businessEntityService.add(businessEntityModel, nodeId);
+            businessEntityAndConfigVO = new BusinessEntityAndConfigVO();
+            businessEntityAndConfigVO.putAll(businessEntityModel);
+        }
+		
+		
+		//List<DataRow> resultList = thirdInterface.queryAssetInfo(thirdInput);
+		List<DataRow> resultList = thirdInterface.queryStockAsset(thirdInput);
+		logger.info("查询资产结果:"+JsonHelper.getJSONString(resultList));
+		DataRow result = new DataRow();
+		String assert_val ="";
+		result.set("asset_flag", DictionaryConstants.BOL_FALSE);//资产是否大于等于500万，1是，0不是
+		if (resultList!= null && !resultList.isEmpty()) {
+			for (int i = 0; i < resultList.size(); i++) {
+				DataRow resultData = resultList.get(i);
+				assert_val = resultData.getString("assert_val");
+				if (resultData.getDouble("assert_val") >= 5000000) {
+					result.set("asset_flag", DictionaryConstants.BOL_TRUE);//资产是否大于等于500万，1是，0不是
+					
+				}
+				result.set("asset",assert_val);
+			}
+		}
+
+		//交易经验
+		DataRow trdtimeCheckResult = checkTrdTime(thirdInput);
+        result.set("trdtime_flag", trdtimeCheckResult.getString("flag"));
+        result.set("firsTransactionDate", trdtimeCheckResult.getString("firsTransactionDate"));
+		
+//		SmjjImageRecordService imageRecordService = SpringUtil
+//				.getBean(SmjjConstants.SERVICE_ID_SMJJIMAGERECORD, SmjjImageRecordService.class);
+//		SmjjAssetsRecordModel smjjAssetsRecordModel  = new SmjjAssetsRecordModel();
+//		smjjAssetsRecordModel.setUserId(userId);
+//		smjjAssetsRecordModel.setAssets(assert_val);
+//		imageRecordService.addOrUpdate(smjjAssetsRecordModel);
+		
+		//查询风险测评结果
+		String riskassessmentFlag = DictionaryConstants.BOL_FALSE; //0未过期 1已过期
+		DataRow fxcpInput = DataFormatUtils.packThirdInput(userInfo);
+		fxcpInput.set("user_id", userId);
+		fxcpInput.set("survey_sn", ThirdTBASConstants.SNO_FXCP);
+		DataRow FxcpDr = thirdInterface.getQuestionnaire(fxcpInput);
+		logger.info("查询风险测评结果:"+FxcpDr);
+		double risk_level = FxcpDr.getDouble("risklevel");
+		if (1 < risk_level) {
+			result.set("risk_level_flag", DictionaryConstants.BOL_TRUE);//，风险等级是否大于保守，1是，0不是
+		}
+		else {
+			result.set("risk_level_flag", DictionaryConstants.BOL_FALSE);//，风险等级是否大于保守，1是，0不是
+		}
+		if("0".equals(FxcpDr.getString("status")) || "0".equals(FxcpDr.getString("risklevel"))){// status 0-无效 1-有效  或者 risklevel=0 表示未做风险测评
+            riskassessmentFlag = DictionaryConstants.BOL_TRUE; //1已过期
+        }
+		result.set("risk_status",riskassessmentFlag);
+		result.set("risk_level_name",FxcpDr.getString("subitemname"));
+		
+		
+		//是否中登时间
+		TradeTimeService tradeTimeService = SpringUtil.getBean(BasicServiceBeanIdConstants.SERVICE_ID_TRADETIME,
+                TradeTimeService.class);
+        if (tradeTimeService.checkZdTradeTime()) {
+            result.set("is_tradetime", DictionaryConstants.BOL_TRUE);
+        }else{
+            result.set("is_tradetime", DictionaryConstants.BOL_FALSE);
+        }
+		
+        
+        
+        //获取柜台帐号
+        ThirdTrdAccountService thirdTrdAccountService = SpringHelper.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDTRDACCOUNT, ThirdTrdAccountService.class);
+        Map<String, Object> accountInfo = thirdTrdAccountService.queryAndCheckGtAllAccountState(userInfo, true);
+        List<DataRow> accountList = (List<DataRow>) accountInfo.get("accountList");
+        //String accountState = (String) accountInfo.get("accountState");
+        String userRiskFlag = "";
+        if(accountList != null && accountList.size() > 0)
+        {
+            String ymt_code = "";
+            for (DataRow accountData : accountList)
+            {
+                ymt_code = accountData.getString("ymt_code");
+                
+            }
+            //step4:重点监控账户检查
+            thirdInput.set("ymt_code", ymt_code);//一码通
+            thirdInput.set("exchange_type", "0");//交易类别  0-资金， G-沪HK,S-深HK
+            if(StringHelper.isNotBlank(ymt_code))
+            {
+                DataRow zdjkjc = thirdInterface.funcExtacctMonitoracctCheck(thirdInput);
+                logger.info("重点监控账户检查返回结果："+zdjkjc);
+                userRiskFlag = zdjkjc.getString("deal_flag");//处理标志 0-列为风险名单，不允许继续业务；1没有列为风险名单-允许继续业务。
+            }
+            
+        }
+        result.set("is_risk_user",userRiskFlag);
+        
+        //三方存管账户状态
+        String thirdBankFlag = "";
+        DataRow thirdBankData = thirdInterface.queryThirdBankStatus(thirdInput);
+        logger.info("三方存管账户状态返回结果："+thirdBankData);
+        if(thirdBankData != null && thirdBankData.size() > 0)
+        {
+            thirdBankFlag = thirdBankData.getString("bkaccount_status");//0:正常  其他不正常
+            logger.info("thirdBankFlag: "+thirdBankFlag);
+        }
+        if ( DictionaryConstants.BOL_FALSE.equals(thirdBankFlag))
+        {
+            result.set("sfcg_account_status",DictionaryConstants.BOL_FALSE);//0正常
+        }else{
+            result.set("sfcg_account_status",DictionaryConstants.BOL_TRUE);
+        }
+        
+        //是否是私募合格投资者
+        List<DataRow> isSmjjList = thirdInterface.queryExtsecumAcct(thirdInput);
+        logger.info("是否是私募合格投资者返回结果："+isSmjjList);
+        if (isSmjjList!= null && !isSmjjList.isEmpty()) {
+            DataRow dataRow = isSmjjList.get(0);
+            
+            result.set("right_open_date", dataRow.getString("right_open_date"));//权限开通日期
+            result.set("valid_date", dataRow.getString("valid_date"));//有效日期
+            result.set("is_qualified_flag", DictionaryConstants.BOL_TRUE);//是否是私募基金合格投资者，1是，0不是
+        }
+        else {
+            result.set("is_qualified_flag", DictionaryConstants.BOL_FALSE);//是否是私募基金合格投资者，1是，0不是
+        }
+        
+        //是否有不良诚信记录
+        String credit_record = userInfo.getString("credit_record");
+        logger.info("不良诚信记录有无："+credit_record);
+        if ( credit_record.equals("9") || credit_record.equals("无不良诚信记录"))
+        {
+            result.set("credit_record_flag", DictionaryConstants.BOL_FALSE);//0没有
+        }else{
+            result.set("credit_record_flag", DictionaryConstants.BOL_TRUE);
+        }
+        
+//        if("1".equals(result.getString("asset_flag")) && "1".equals(result.getString("trdtime_flag"))){
+            // 内部资产和交易经验都满足时，跳过smjj_userInput节点
+            BusinessEntityModel businessEntityModel = new BusinessEntityModel();
+            businessEntityModel.setId(businessEntityAndConfigVO.getId());
+            businessEntityModel.setBusinessCode(businessEntityAndConfigVO.getBusinessCode());
+            businessEntityModel.setNodeId(submitBprocNodeConfigAndDefineVO.getNextBpNodeId());
+            businessEntityModel.setOpSource(opSource);
+            businessEntityModel.setIp(ip);
+            businessEntityModel.setOpStation(opStation);
+            businessEntityService.changeBusinessFlowNode(businessEntityModel, nodeId);
+//        }
+        
+		resultVo.setResult(result);
+		resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);// 返回成功标示
+		resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+		return resultVo;
+	}
+
+	private DataRow checkTrdTime(DataRow thirdInput)
+    {
+        DataRow result = new DataRow();
+        result.set("flag", DictionaryConstants.BOL_TRUE);
+        DataRow firsTransactionResult = thirdInterface.getFirsTransactionData(thirdInput);
+        String firsTransactionDate = firsTransactionResult.getString("firsTransactionData");
+        if (StringHelper.isBlank(firsTransactionDate) || "0".equals(firsTransactionDate))
+        {
+            String isTrade = firsTransactionResult.getString("isTrade");
+            if (DictionaryConstants.BOL_TRUE.equals(isTrade))
+            {
+                result.set("flag", DictionaryConstants.BOL_FALSE);
+                result.set("error_no", "95");
+                result.set("error_msg", "交易时间不足两年");
+                return result;
+            }
+            else
+            {
+                result.set("flag", "2");
+                result.set("error_no", "96");
+                result.set("error_msg", "获取用户首次交易时间失败");
+                return result;
+            }
+        }
+        if (!checkFirstTradeTime(firsTransactionDate, 24))
+        {
+            result.set("flag", DictionaryConstants.BOL_FALSE);
+            result.set("error_no", "95");
+            result.set("error_msg", "交易时间不足两年");
+        }
+        result.set("firsTransactionDate", firsTransactionDate);
+        return result;
+    }
+    
+    private boolean checkFirstTradeTime(String firsTransactionData, int month)
+    {
+        DataRow firstTradeTimeResult = new DataRow();
+        firstTradeTimeResult.set("flag", DictionaryConstants.BOL_TRUE);
+        boolean flag = true;
+        Date firstDate = DateHelper.parseString(firsTransactionData, "yyyyMMdd");
+        Calendar limitCalendar = Calendar.getInstance();
+        limitCalendar.setTime(firstDate);
+        limitCalendar.add(Calendar.MONTH, month);
+        Calendar now = Calendar.getInstance();
+        now.set(Calendar.HOUR_OF_DAY, 0);
+        now.set(Calendar.MINUTE, 0);
+        now.set(Calendar.SECOND, 0);
+        int compareResult = now.compareTo(limitCalendar);
+        if (-1 == compareResult)
+        { //未满N月
+            flag = false;
+        }
+        return flag;
+    }
+
+}

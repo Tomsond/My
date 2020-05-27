@@ -1,0 +1,62 @@
+package com.thinkive.fxc.ismp.bus.business.zdjy;
+
+import java.util.List;
+import java.util.Map;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.business.vo.UserInfoVo;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdDictionaryConstants;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdInterfaceConstant;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdTrdAccountService;
+import com.thinkive.server.ResultVo;
+
+/**
+ * @描述：指定用户沪A帐号状态
+ * @作者：刘为
+ * @时间：2016年11月2日 上午10:42:14
+ * @return
+ * @throws InvokeException
+ * @throws Exception
+ */
+public class Function1004471 extends ISMPBaseFunction
+{
+	
+	private Long userId;
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public ResultVo execute() throws Exception
+	{
+		initVar();
+		
+		UserInfoService userInfoService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO, UserInfoService.class);
+		UserInfoVo userInfoVo = userInfoService.queryAndCheckUserByUserIdAndType(userId, ThirdInterfaceConstant.USER_ACCOUNT_TYPE_ZQ);
+		
+		//step2:如果为空说明没有正在办理的业务，直接查询柜台所有账号数据及其指定状态
+		ThirdTrdAccountService thirdTrdAccountService = SpringHelper.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDTRDACCOUNT, ThirdTrdAccountService.class);
+		Map<String, Object> accountInfo = thirdTrdAccountService.queryAndCheckGtShaState(userInfoVo, true);
+		List<DataRow> shaAccountList = (List<DataRow>) accountInfo.get("accountList");
+		String accountState = (String) accountInfo.get("accountState");
+		
+		DataRow accountStateInfo = new DataRow();
+		
+		ResultVo resultVo = new ResultVo();
+		accountStateInfo.set("accountState", accountState);
+		resultVo.setResult("accountList", shaAccountList);
+		resultVo.setResult("accountStateInfo", accountStateInfo);
+		resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+		resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+		return resultVo;
+	}
+	
+	private void initVar()
+	{
+		userId = this.formatLongParam(this.getAndCheckBlankStrParam("user_id", ErrorCodeCheckInput.BLANK_USERID), ErrorCodeCheckInput.LONG_FORMAT_ERROR);
+	}
+}

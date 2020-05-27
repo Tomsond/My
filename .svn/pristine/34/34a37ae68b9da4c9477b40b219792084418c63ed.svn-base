@@ -1,0 +1,95 @@
+package com.thinkive.fxc.ismp.bus.base.business.function;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import com.thinkive.base.config.Configuration;
+import com.thinkive.base.exception.BusinessException;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.base.util.StringHelper;
+import com.thinkive.fxc.ismp.bus.base.basicdata.contants.BasicServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.basicdata.model.EnumValueModel;
+import com.thinkive.fxc.ismp.bus.base.basicdata.service.EnumInfoService;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessConstants;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.business.util.SmsUtils;
+import com.thinkive.server.InvokeException;
+import com.thinkive.server.ResultVo;
+
+/**
+ * @描述: 通用--发送手机短信验证码
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0.0 
+ * @创建时间: 2016年9月14日 下午5:44:38
+ */
+public class Function1004181 extends ISMPBaseFunction
+{
+	
+	private Long userId; //用户id
+	
+	private String mobile_no; //手机号码
+	
+	private String sms_type; //短信类型，对应业务类别  取数据字典
+	
+	private String business_id; //业务办理ID
+	
+	private String business_code;//业务类型
+	@Override
+	public ResultVo execute() throws Exception
+	{
+		//入参校验
+		checkInput();
+		
+		ResultVo resultVo = new ResultVo();
+		//配置为不校验短信，则不发送短信
+		if (DictionaryConstants.BOL_FALSE.equals(Configuration.getString("sms.smsValidate")))
+		{
+			resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+			resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+			return resultVo;
+		}
+		
+		//检测短信发送类型是否存在
+		EnumInfoService enumService = SpringHelper.getBean(BasicServiceBeanIdConstants.SERVICE_ID_ENUMINFO, EnumInfoService.class);
+		EnumValueModel enumValueModel = enumService.getEnumByTypeAndValue(DictionaryConstants.ENUMNO_SMS_TYPE, sms_type);
+		String smsTypeString = enumValueModel.getItemValue();
+		
+		//判断是否已发送过短信
+		boolean hadSend = SmsUtils.hadSend(smsTypeString, mobile_no);
+		
+		//如果没有发送过短信，则发送
+		if (!hadSend)
+		{
+			//获取新的短信验证码
+			String saved_code = SmsUtils.getNewCode(smsTypeString, mobile_no);
+			Map<String, String> keyWords = new HashMap<String, String>();
+			keyWords.put("verificationcode", saved_code);//验证码
+			//根据短信类型发送短信
+			SmsUtils.sendByType(sms_type, BusinessConstants.SEND_TYPE_CHECK, keyWords, mobile_no, userId, business_id, ip, mac,business_code);
+		}
+		
+		resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+		resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+		return resultVo;
+	}
+	
+	private void checkInput() throws InvokeException
+	{
+		
+		userId = this.formatLongParam(this.getAndCheckBlankStrParam("user_id", ErrorCodeCheckInput.BLANK_USERID), ErrorCodeCheckInput.LONG_FORMAT_ERROR);
+		mobile_no = this.getAndCheckBlankStrParam("mobile_no", ErrorCodeCheckInput.BLANK_MOBILE);
+		sms_type = this.getStrParameter("sms_type");
+		business_id = this.getStrParameter("business_id");
+		business_code = this.getStrParameter("business_code");
+		ip = this.getAndCheckBlankStrParam("ip", ErrorCodeCheckInput.BLANK_IP);
+		if (!StringHelper.isMoblie(mobile_no))
+		{
+			throw new BusinessException(ErrorCodeCheckInput.ERROR_FORMAT_MOBILE);
+		}
+		
+	}
+}

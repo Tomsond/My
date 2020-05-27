@@ -1,0 +1,270 @@
+package com.thinkive.fxc.ismp.bus.business.resetpwd.function;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.basicdata.contants.BasicServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.basicdata.service.TradeTimeService;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.model.BusinessConfigModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.BusinessEntityModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.UserInfoModel;
+import com.thinkive.fxc.ismp.bus.base.business.service.BusinessConfigService;
+import com.thinkive.fxc.ismp.bus.base.business.service.BusinessEntityService;
+import com.thinkive.fxc.ismp.bus.base.business.service.FlowNodeManageService;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.business.vo.BprocNodeConfigAndDefineVO;
+import com.thinkive.fxc.ismp.bus.base.business.vo.BusinessEntityAndConfigVO;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.business.resetpwd.constants.ResetPwdConstants;
+import com.thinkive.fxc.ismp.bus.business.resetpwd.model.ResetPwdTypeModel;
+import com.thinkive.fxc.ismp.bus.business.resetpwd.service.ResetPwdService;
+import com.thinkive.fxc.ismp.bus.business.util.DataFormatUtils;
+import com.thinkive.fxc.ismp.bus.business.util.PwdEncryptUtil;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdDictionaryConstants;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdTBASConstants;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdInterface;
+import com.thinkive.server.ResultVo;
+
+/**
+ * @描述: 重置密码---重置交易密码、重置资金密码
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年11月25日 上午10:36:13
+ */
+public class Function1004923 extends ISMPBaseFunction
+{
+	
+	private String opSource;//客户端类型
+	
+	private String businessCode;//业务类型
+	
+	private String nodeId;//节点英文标识
+	
+	private String fundAccount;//资金帐号
+	
+	private String pwdTypes;//密码类型
+	
+	private String jyPassword;//交易密码
+	
+	private String zjPassword;//资金密码
+	
+	private String flag;//区分重置资金与交易密码类型
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public ResultVo execute() throws Exception
+	{
+		initVar();
+		
+		//节点权限校验，并返回当前业务实例
+		FlowNodeManageService flowNodeManageService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_FLOWNODEMANAGE, FlowNodeManageService.class);
+		BprocNodeConfigAndDefineVO submitBprocNodeConfigAndDefineVO = flowNodeManageService.getBprocNodeConfigService(businessCode, opSource, nodeId, this.getRequest().getFuncNo());
+		ResetPwdService resetPwdService = SpringHelper.getBean(ResetPwdConstants.SERVICE_ID_RESETPWD, ResetPwdService.class);
+		BusinessEntityAndConfigVO businessEntityAndConfigVO = resetPwdService.queryEacVoNotCompleteByFundAccountNew(fundAccount,flag);
+		flowNodeManageService.checkBusinessEntityCrrNode(submitBprocNodeConfigAndDefineVO, businessEntityAndConfigVO);
+		Long businessId = businessEntityAndConfigVO.getId();
+		
+		//查询业务属性
+		BusinessConfigService businessConfigService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_BUSINESSCONFIG, BusinessConfigService.class);
+		BusinessConfigModel businessConfigModel = businessConfigService.queryByOpSourceAndBusinessCode(businessCode, opSource);
+		
+		BusinessEntityService businessEntityService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_BUSINESSENTITY, BusinessEntityService.class);
+		
+		List<ResetPwdTypeModel> resetPwdTypes = new ArrayList<ResetPwdTypeModel>();
+		
+		//如果没有配置业务属性,或者配置为需要审核
+		if (businessConfigModel == null || DictionaryConstants.BOL_TRUE.equals(businessConfigModel.getNeedAudit()))
+		{
+			resetPwdTypes = getPwdTypes(true, businessId, DictionaryConstants.CHOICEACCOUNT_DEALRESULT_NOTSTART);
+			resetPwdService.addBatchPwdType(resetPwdTypes);
+			BusinessEntityModel updateBusinessEntityModel = getUpdateModel(businessId, businessEntityAndConfigVO.getUserId(), submitBprocNodeConfigAndDefineVO.getNextBpNodeId());
+			businessEntityService.changeFlowNodeAndAddAutitTask(updateBusinessEntityModel, nodeId);
+			businessEntityAndConfigVO.putAll(updateBusinessEntityModel);
+		}
+		//如果是统一跑批,或者
+		else if (DictionaryConstants.BUSINESS_DATA_SUBMITTYPE_PP.equals(businessConfigModel.getDataSubmitType()))
+		{
+			resetPwdTypes = getPwdTypes(true, businessId, DictionaryConstants.CHOICEACCOUNT_DEALRESULT_NOTSTART);
+			resetPwdService.addBatchPwdType(resetPwdTypes);
+			BusinessEntityModel updateBusinessEntityModel = getUpdateModel(businessId, businessEntityAndConfigVO.getUserId(), submitBprocNodeConfigAndDefineVO.getNextBpNodeId());
+			businessEntityService.changeFlowNodeAndAddPpTask(updateBusinessEntityModel, nodeId);
+			businessEntityAndConfigVO.putAll(updateBusinessEntityModel);
+		}
+		//如果是实时提交
+		else if (DictionaryConstants.BUSINESS_DATA_SUBMITTYPE_THIRD.equals(businessConfigModel.getDataSubmitType()))
+		{
+			Map<String, Object> result = resetPwd(businessEntityAndConfigVO.getUserId(), businessId);
+			resetPwdTypes = (List<ResetPwdTypeModel>) result.get("resetPwdTypes");
+			String dealResult = (String) result.get("dealResult");
+			resetPwdService.addBatchPwdType(resetPwdTypes);
+			BusinessEntityModel updateBusinessEntityModel = getUpdateModel(businessId, businessEntityAndConfigVO.getUserId(), submitBprocNodeConfigAndDefineVO.getNextBpNodeId());
+			updateBusinessEntityModel.setIsComplete(DictionaryConstants.BOL_TRUE);
+			updateBusinessEntityModel.setDealResult(dealResult);
+			businessEntityService.changeBusinessFlowNode(updateBusinessEntityModel, nodeId);
+			businessEntityAndConfigVO.putAll(updateBusinessEntityModel);
+		}
+		//如果中登服务时间提交第三方、非服务时间跑批
+		else if (DictionaryConstants.BUSINESS_DATA_SUBMITTYPE_SERVICETIME.equals(businessConfigModel.getDataSubmitType()))
+		{
+			TradeTimeService tradeTimeService = SpringHelper.getBean(BasicServiceBeanIdConstants.SERVICE_ID_TRADETIME, TradeTimeService.class);
+			//如果不是中登时间则跑批
+			if (!tradeTimeService.checkZdTradeTime())
+			{
+				resetPwdTypes = getPwdTypes(true, businessId, DictionaryConstants.CHOICEACCOUNT_DEALRESULT_NOTSTART);
+				resetPwdService.addBatchPwdType(resetPwdTypes);
+				BusinessEntityModel updateBusinessEntityModel = getUpdateModel(businessId, businessEntityAndConfigVO.getUserId(), submitBprocNodeConfigAndDefineVO.getNextBpNodeId());
+				businessEntityService.changeFlowNodeAndAddPpTask(updateBusinessEntityModel, nodeId);
+				businessEntityAndConfigVO.putAll(updateBusinessEntityModel);
+			}
+			else
+			{
+				Map<String, Object> result = resetPwd(businessEntityAndConfigVO.getUserId(), businessId);
+				resetPwdTypes = (List<ResetPwdTypeModel>) result.get("resetPwdTypes");
+				String dealResult = (String) result.get("dealResult");
+				resetPwdService.addBatchPwdType(resetPwdTypes);
+				BusinessEntityModel updateBusinessEntityModel = getUpdateModel(businessId, businessEntityAndConfigVO.getUserId(), submitBprocNodeConfigAndDefineVO.getNextBpNodeId());
+				updateBusinessEntityModel.setIsComplete(DictionaryConstants.BOL_TRUE);
+				updateBusinessEntityModel.setDealResult(dealResult);
+				businessEntityService.changeBusinessFlowNode(updateBusinessEntityModel, nodeId);
+				businessEntityAndConfigVO.putAll(updateBusinessEntityModel);
+			}
+		}
+		ResultVo resultVo = new ResultVo();
+		resultVo.setResult("resetPwdTypes", resetPwdTypes);
+		resultVo.setResult("businessEntityAndConfigVO", businessEntityAndConfigVO);
+		resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+		resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+		return resultVo;
+	}
+	
+	/**
+	 * @描述：获取业务入参
+	 * @作者：刘恺
+	 * @时间：2016年8月23日 下午8:55:24
+	 */
+	private void initVar()
+	{
+		fundAccount = this.getAndCheckBlankStrParam("account", ErrorCodeCheckInput.BLANK_FUNDACCOUNT);
+		opSource = this.getAndCheckBlankStrParam("op_source", ErrorCodeCheckInput.BLANK_OP_SOURCE);
+		businessCode = this.getAndCheckBlankStrParam("businessCode", ErrorCodeCheckInput.BLANK_BUSINESSCODE);
+		nodeId = this.getAndCheckBlankStrParam("nodeId", ErrorCodeCheckInput.BLANK_NODEID);
+		flag = this.getStrParameter("flag","0");//0资金  1交易
+		pwdTypes = this.getAndCheckBlankStrParam("pwdtypes", ErrorCodeCheckInput.BLANK_PWD_TYPE);
+		String[] pwdTypeArray = pwdTypes.split(",");
+		for (String pwdType : pwdTypeArray)
+		{
+			//重置交易密码
+			if (ThirdTBASConstants.PWD_TYPE_BUSINESS.equals(pwdType))
+			{
+				jyPassword = this.getAndCheckBlankStrParam("jypassword", ErrorCodeCheckInput.BALNK_PASSWORD);
+			}
+			//重置资金密码
+			if (ThirdTBASConstants.PWD_TYPE_CAPITAL.equals(pwdType))
+			{
+				
+				zjPassword = this.getAndCheckBlankStrParam("zjpassword", ErrorCodeCheckInput.BLANK_ZJPWD);
+			}
+		}
+	}
+	
+	private List<ResetPwdTypeModel> getPwdTypes(boolean withPwdValue, Long businessId, String state) throws Exception
+	{
+		List<ResetPwdTypeModel> resetPwdTypes = new ArrayList<ResetPwdTypeModel>();
+		String[] pwdTypeArray = pwdTypes.split(",");
+		for (String pwdType : pwdTypeArray)
+		{
+			ResetPwdTypeModel resetPwdTypeModel = new ResetPwdTypeModel();
+			resetPwdTypeModel.setFundAccount(fundAccount);
+			resetPwdTypeModel.setPwdType(pwdType);
+			resetPwdTypeModel.setBusinessId(businessId);
+			resetPwdTypeModel.setNodeId(nodeId);
+			resetPwdTypeModel.setState(state);
+			if (withPwdValue)
+			{
+				if (ThirdTBASConstants.PWD_TYPE_BUSINESS.equals(pwdType))
+				{
+					resetPwdTypeModel.setPwdValue(PwdEncryptUtil.encryptionPsw(jyPassword));
+				}
+				else if (ThirdTBASConstants.PWD_TYPE_CAPITAL.equals(pwdType))
+				{
+					resetPwdTypeModel.setPwdValue(PwdEncryptUtil.encryptionPsw(zjPassword));
+				}
+			}
+			resetPwdTypes.add(resetPwdTypeModel);
+		}
+		return resetPwdTypes;
+	}
+	
+	private Map<String, Object> resetPwd(Long userId, Long businessId) throws Exception
+	{
+		
+		List<ResetPwdTypeModel> resetPwdTypes = new ArrayList<ResetPwdTypeModel>();
+		String dealResult = DictionaryConstants.DEAL_RESULT_SUCCESS;
+		UserInfoService userInfoService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO, UserInfoService.class);
+		DataRow queryUserParams = new DataRow();
+		queryUserParams.set("user_id", userId);
+		UserInfoModel userInfoVo = userInfoService.queryUserInfoByUserId(userId);
+		DataRow thirdInput = DataFormatUtils.packThirdInput(userInfoVo);
+		thirdInput.set("fund_account", fundAccount);
+		
+		ThirdInterface thirdInterface = (ThirdInterface) SpringHelper.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDINTERFACE, ThirdInterface.class);
+		String[] pwdTypeArray = pwdTypes.split(",");
+		for (String pwdType : pwdTypeArray)
+		{
+			//重置交易密码
+			thirdInput.set("password_type", pwdType);
+			if (ThirdTBASConstants.PWD_TYPE_BUSINESS.equals(pwdType))
+			{
+				thirdInput.set("new_password", jyPassword);
+			}
+			//重置资金密码
+			else if (ThirdTBASConstants.PWD_TYPE_CAPITAL.equals(pwdType))
+			{
+				thirdInput.set("new_password", zjPassword);
+			}
+			
+			//调用第三方接口重置密码
+			DataRow resultData = thirdInterface.resetPwd(thirdInput);
+			String dealState = DictionaryConstants.CHOICEACCOUNT_DEALRESULT_SUCCESS;
+			if (!resultData.getBoolean("flag"))
+			{
+				dealState = DictionaryConstants.CHOICEACCOUNT_DEALRESULT_FAIL;
+				dealResult = DictionaryConstants.DEAL_RESULT_REAL_TIME_FAILURE;
+			}
+			
+			ResetPwdTypeModel resetPwdTypeModel = new ResetPwdTypeModel();
+			resetPwdTypeModel.setBusinessId(businessId);
+			resetPwdTypeModel.setNodeId(nodeId);
+			resetPwdTypeModel.setFundAccount(fundAccount);
+			resetPwdTypeModel.setPwdType(pwdType);
+			resetPwdTypeModel.setState(dealState);
+			resetPwdTypes.add(resetPwdTypeModel);
+		}
+		Map<String, Object> result = new HashMap<String, Object>();
+		result.put("resetPwdTypes", resetPwdTypes);
+		result.put("dealResult", dealResult);
+		return result;
+	}
+	
+	private BusinessEntityModel getUpdateModel(Long businessId, Long userId, String nextNodeId)
+	{
+		BusinessEntityModel updateBusinessEntityModel = new BusinessEntityModel();
+		updateBusinessEntityModel.setId(businessId);
+		updateBusinessEntityModel.setUserId(userId);
+		updateBusinessEntityModel.setBusinessCode(businessCode);
+		updateBusinessEntityModel.setNodeId(nextNodeId);
+		updateBusinessEntityModel.setIp(ip);
+		updateBusinessEntityModel.setOpSource(opSource);
+		updateBusinessEntityModel.setOpStation(opStation);
+		return updateBusinessEntityModel;
+	}
+}

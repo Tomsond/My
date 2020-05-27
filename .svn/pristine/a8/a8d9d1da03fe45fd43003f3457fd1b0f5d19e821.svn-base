@@ -1,0 +1,24 @@
+package com.thinkive.fxc.ismp.bus.business.otc.constants;
+
+/**
+ * @描述: 业务服务类BeanId常量类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月22日 下午2:45:37
+ */
+public class OtcConstants
+{
+	
+	/**
+	* otc开通服务类
+	**/
+	public static final String SERVICE_ID_OTCOPEN = "com.thinkive.fxc.ismp.otcOpenService";
+	
+	/**
+	 * OTC信息表
+	 */
+	public static final String T_ISMP_OTCINFO = "t_ismp_otcinfo";
+	
+}

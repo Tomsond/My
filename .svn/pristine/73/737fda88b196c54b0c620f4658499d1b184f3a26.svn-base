@@ -1,0 +1,45 @@
+package com.thinkive.fxc.ismp.bus.business.rzrq.preMarginTrading.dao;
+
+import com.thinkive.fxc.ismp.bus.business.rzrq.preMarginTrading.model.AdditionalInfo;
+
+/**
+ * @描述: 融资融券用户补充信息表数据层服务类（T_ISMP_B_PREMARGIN_ADDITIONAL）
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月31日 上午12:01:21
+ */
+public interface AdditionalInfoDao
+{
+	
+	/**
+	 * 描述：添加融资融券预约补充信息
+	 * 作者：刘恺
+	 * 时间：2016年6月24日 下午2:29:11
+	 * @param userAddiInfo
+	 * @return
+	 */
+	public AdditionalInfo addAdditionalInfo(AdditionalInfo userAddiInfo);
+	
+	/**
+	 * 描述：根据ID更新融资融券补充信息
+	 * 作者：刘恺
+	 * 时间：2016年6月24日 下午2:29:21
+	 * @param userAddiInfo
+	 * @return
+	 */
+	public AdditionalInfo updateAdditionalInfoById(AdditionalInfo userAddiInfo);
+	
+	/**
+	 * 描述：根据业务ID和问题编号查询补充信息
+	 * 作者：刘恺
+	 * 时间：2016年6月24日 下午2:30:24
+	 * @param user_id
+	 * @param question_id
+	 * @return
+	 * @throws Exception
+	 */
+	public AdditionalInfo getIdByBIdAndQueId(Long businessId) throws Exception;
+	
+}

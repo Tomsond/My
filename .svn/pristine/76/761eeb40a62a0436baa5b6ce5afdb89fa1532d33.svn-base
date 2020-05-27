@@ -1,0 +1,189 @@
+package com.thinkive.fxc.ismp.bus.base.business.service.impl;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+
+import com.thinkive.base.exception.BusinessException;
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.model.ImageInformationModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.UserInfoModel;
+import com.thinkive.fxc.ismp.bus.base.business.service.ImageInformationService;
+import com.thinkive.fxc.ismp.bus.base.business.service.ImageRecordService;
+import com.thinkive.fxc.ismp.bus.base.business.service.ImageUploadService;
+import com.thinkive.fxc.ismp.bus.base.business.service.PoliceCheckService;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeSystem;
+
+/**
+ * @描述: 影像资料上传服务实现类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年9月10日 下午1:57:51
+ */
+public class ImageUploadServiceImpl implements ImageUploadService
+{
+    
+    /**
+	 * 描述：
+	 * 作者：刘恺
+	 * 时间：2017年2月20日 下午1:16:09
+	 * @param mediaCodeList
+	 * @param businessId
+	 * @param nodeId
+	 * @param needUploadTotalMedias
+	 * @return
+	 */
+	@Override
+	public boolean checkImgUploadComplete(List<String> mediaCodeList, Long businessId, String nodeId, int needUploadTotalMedias)
+	{
+		//校验影像资料有没有全部上传
+		ImageRecordService imageRecordService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_IMAGERECORD, ImageRecordService.class);
+		long uploadedImgTotal = imageRecordService.queryCountByCodes(mediaCodeList, businessId, nodeId);
+		
+		if (needUploadTotalMedias > uploadedImgTotal)
+		{
+			return false;
+		}
+		return true;
+	}
+	
+	/**
+	 * 描述：
+	 * 作者：刘恺
+	 * 时间：2017年2月20日 下午1:16:09
+	 * @param imgNodePropertyMap
+	 * @param businessId
+	 * @param nodeId
+	 * @param userId
+	 * @param imageInformationModel
+	 * @param businessCode
+	 * @throws Exception
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	public void checkImgNodeUploadData(Map<String, Object> imgNodePropertyMap, Long businessId, String nodeId, Long userId, ImageInformationModel imageInformationModel, String businessCode)
+			throws Exception
+	{
+		String needCheckConfirm = (String) imgNodePropertyMap.get("needCheckConfirm");
+		String needPoliceCheck = (String) imgNodePropertyMap.get("needPoliceCheck");
+		String policeCheckType = (String) imgNodePropertyMap.get("policeCheckType");
+		
+		//如果需要公安校验，检查当前公安校验错误次数
+		if (DictionaryConstants.BOL_TRUE.equals(needPoliceCheck))
+		{
+			PoliceCheckService policeCheckService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_POLICECHECK, PoliceCheckService.class);
+			int currErrorTime = policeCheckService.getPoliceCheckErrorTime(userId, businessCode);
+			int maxErrorTime = Integer.parseInt(policeCheckType);
+			int leaveCount = maxErrorTime - currErrorTime;
+			if (leaveCount <= 0)
+			{
+				throw new BusinessException(ErrorCodeSystem.BUSINESS_POLICECHECKMAX);
+			}
+		}
+		
+		List<String> mediaCodeList = (List<String>) imgNodePropertyMap.get("mediaCodeList");
+		
+		Map<String, DataRow> imageNodePropertyGroup = (Map<String, DataRow>) imgNodePropertyMap.get("imageNodePropertyGroup");
+		
+		int needUploadTotalMedias = imageNodePropertyGroup.size();
+		
+		if (!checkImgUploadComplete(mediaCodeList, businessId, nodeId, needUploadTotalMedias))
+		{
+			throw new BusinessException(ErrorCodeSystem.BUSINESS_UPLOADIMG_NOTALL);
+		}
+		if (DictionaryConstants.BOL_TRUE.equals(needCheckConfirm))
+		{
+			checknformation(userId, imageInformationModel);
+		}
+		//公安校验
+		if (DictionaryConstants.BOL_TRUE.equals(needPoliceCheck))
+		{
+			PoliceCheckService policeCheckService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_POLICECHECK, PoliceCheckService.class);
+			long currErrorTime = policeCheckService.policeCheckAndCacheErrorTime(userId, businessId, businessCode, imageInformationModel.getIdentityNum(), imageInformationModel.getName());
+			//公安校验失败是
+			if (currErrorTime > 0)
+			{
+				//目前公安校验类型只能设置当天错误次数
+				int maxErrorTime = Integer.parseInt(policeCheckType);
+				Long leaveCount = maxErrorTime - currErrorTime;
+				if (leaveCount <= 0)
+				{
+					throw new BusinessException(ErrorCodeSystem.BUSINESS_POLICECHECKMAX);
+				}
+				throw new BusinessException(ErrorCodeSystem.BUSINESS_POLICECHECKFAIL, new String[] { String.valueOf(leaveCount) });
+			}
+		}
+	}
+	
+	/**
+	 * 描述：
+	 * 作者：刘恺
+	 * 时间：2017年2月20日 下午1:16:09
+	 * @param imgNodePropertyMap
+	 * @param businessId
+	 * @param nodeId
+	 * @param userId
+	 * @param imageInformationModel
+	 * @param businessCode
+	 * @throws Exception
+	 */
+	@Override
+	public void checkImgNodeUploadDataAndSave(Map<String, Object> imgNodePropertyMap, Long businessId, String nodeId, Long userId, ImageInformationModel imageInformationModel, String businessCode)
+			throws Exception
+	{
+		checkImgNodeUploadData(imgNodePropertyMap, businessId, nodeId, userId, imageInformationModel, businessCode);
+		//保存影像资料信息确认数据
+		ImageInformationService imageInformationService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_IMAGEINFORMATION, ImageInformationService.class);
+		imageInformationModel.setBusinessId(businessId);
+		imageInformationModel.setNodeId(nodeId);
+		imageInformationService.addOrUpdate(imageInformationModel);
+	}
+	
+	/**
+	 * @描述：校验用户
+	 * @作者：刘恺
+	 * @时间：2016年9月11日 下午6:13:02
+	 * @param businessId
+	 * @param nodeId
+	 * @param userId
+	 * @param imageInformationModel
+	 * @return
+	 */
+	private void checknformation(Long userId, ImageInformationModel imageInformationModel)
+	{
+		//用户信息不能为空
+		if (imageInformationModel.isEmpty())
+		{
+			throw new BusinessException(ErrorCodeCheckInput.BLANK_NOINFORMATION);
+		}
+		//身份证不能为空
+		else if (StringUtils.isBlank(imageInformationModel.getIdentityNum()))
+		{
+			throw new BusinessException(ErrorCodeCheckInput.BLANK_IDNO);
+		}
+		//姓名不能为空
+		else if (StringUtils.isBlank(imageInformationModel.getName()))
+		{
+			throw new BusinessException(ErrorCodeCheckInput.BLANK_USER_NAME);
+		}
+		//校验用户身份证与柜台数据是否一致
+		UserInfoService userInfoService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO, UserInfoService.class);
+		UserInfoModel userInfoModel = userInfoService.queryUserInfoByUserId(userId);
+		if (userInfoModel == null)
+		{
+			throw new BusinessException(ErrorCodeSystem.NOTEXIST_USER);
+		}
+		if (!userInfoModel.getIdentityNum().equals(imageInformationModel.getIdentityNum()) || !userInfoModel.getName().equals(imageInformationModel.getName()))
+		{
+			throw new BusinessException(ErrorCodeSystem.BUSINESS_INFORMATION_ERROR);
+		}
+	}
+}

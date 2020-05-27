@@ -1,0 +1,131 @@
+package com.thinkive.fxc.ismp.bus.base.business.dao.impl;
+
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.jdbc.session.Session;
+import com.thinkive.base.util.StringUtil;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessTableConstants;
+import com.thinkive.fxc.ismp.bus.base.business.dao.ChoiceAccountRecordDao;
+import com.thinkive.fxc.ismp.bus.base.business.model.ChoiceAccountRecordModel;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseDao;
+import com.thinkive.fxc.ismp.bus.base.constants.SystemConstants;
+import com.thinkive.fxc.ismp.bus.base.util.ModelUtil;
+
+/**
+ * @描述: 选择帐号记录表(t_ismp_choice_account_record) 实现类
+ * @版权: Copyright (c) 2016 
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 尹杰民
+ * @版本: 2.0 
+ * @创建时间: 2016年8月16日 下午2:16:24
+ */
+public class ChoiceAccountRecordDaoImpl extends ISMPBaseDao implements ChoiceAccountRecordDao
+{
+	
+	@Override
+	public ChoiceAccountRecordModel add(ChoiceAccountRecordModel choiceAccountRecordModel)
+	{
+		String id = getSeqValue(SystemConstants.DB_ISMP,BusinessTableConstants.T_ISMP_CHOICE_ACCOUNT_RECORD);
+		choiceAccountRecordModel.setId(Long.valueOf(id));
+		choiceAccountRecordModel.setCreateDate(new Date());
+		this.getJdbcTemplate().insert(BusinessTableConstants.T_ISMP_CHOICE_ACCOUNT_RECORD, choiceAccountRecordModel);
+		return choiceAccountRecordModel;
+	}
+	
+	/* @Override
+	 public int update(ChoiceAccountRecordModel choiceAccountRecordModel) 
+	 {
+	     choiceAccountRecordModel.setUpdateDate(new Date());
+	     return this.getJdbcTemplate().update(BussinessTableConstants.T_ISMP_CHOICE_ACCOUNT_RECORD, choiceAccountRecordModel,
+	             "ID", choiceAccountRecordModel.getId());
+	 }
+	 */
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<ChoiceAccountRecordModel> queryByBusinessIdAndNodeId(Long businessId, String nodeId)
+	{
+		StringBuilder sql = new StringBuilder();
+		List<String> paramsList = new ArrayList<String>();
+		sql.append("SELECT ID, BUSINESS_ID, NODE_ID, TRDACCOUNT, STKBD, STATE, DESCRIPTION");
+		sql.append(" ,CREATE_DATE, UPDATE_DATE ");
+		sql.append("  FROM ");
+		sql.append(BusinessTableConstants.T_ISMP_CHOICE_ACCOUNT_RECORD).append(" WHERE 1=1 ");
+		if (null != businessId)
+		{
+			sql.append(" AND BUSINESS_ID = ?");
+			paramsList.add(businessId.toString());
+		}
+		if (StringUtil.isNotEmpty(nodeId))
+		{
+			sql.append(" AND NODE_ID = ?");
+			paramsList.add(nodeId);
+		}
+		List<DataRow> queryResult = this.getJdbcTemplate().query(sql.toString(), paramsList.toArray());
+		return ModelUtil.packList(queryResult, ChoiceAccountRecordModel.class);
+	}
+	
+	@Override
+	public List<ChoiceAccountRecordModel> addBatch(List<ChoiceAccountRecordModel> choiceAccountRecordModels, Session session)
+	{
+		if (choiceAccountRecordModels == null || choiceAccountRecordModels.isEmpty())
+		{
+			return choiceAccountRecordModels;
+		}
+		StringBuilder sql = new StringBuilder("INSERT INTO ");
+		sql.append(BusinessTableConstants.T_ISMP_CHOICE_ACCOUNT_RECORD).append("(ID,BUSINESS_ID,NODE_ID,TRDACCOUNT,STKBD,STATE,DESCRIPTION,CREATE_DATE,UPDATE_DATE) VALUES(?,?,?,?,?,?,?,?,?)");
+		Object[][] params = new Object[choiceAccountRecordModels.size()][9];
+		Date now = new Date();
+		for (int i = 0; i < choiceAccountRecordModels.size(); i++)
+		{
+			ChoiceAccountRecordModel item = choiceAccountRecordModels.get(i);
+			String id = getSeqValue(SystemConstants.DB_ISMP,BusinessTableConstants.T_ISMP_CHOICE_ACCOUNT_RECORD);
+			item.setId(Long.parseLong(id));
+			item.setCreateDate(now);
+			item.setUpdateDate(now);
+			Timestamp timestamp = new Timestamp(now.getTime());
+			params[i] = new Object[] { id, item.getBusinessId(), item.getNodeId(), item.getTrdAccount(), item.getStkbd(), item.getState(), item.getDescription(), timestamp, timestamp };
+		}
+		session.batchUpdate(sql.toString(), params);
+		return choiceAccountRecordModels;
+		
+	}
+	
+	@Override
+	public List<ChoiceAccountRecordModel> addBatch(List<ChoiceAccountRecordModel> choiceAccountRecordModels)
+	{
+		if (choiceAccountRecordModels == null || choiceAccountRecordModels.isEmpty())
+		{
+			return choiceAccountRecordModels;
+		}
+		StringBuilder sql = new StringBuilder("INSERT INTO ");
+		sql.append(BusinessTableConstants.T_ISMP_CHOICE_ACCOUNT_RECORD).append("(ID,BUSINESS_ID,NODE_ID,TRDACCOUNT,STKBD,STATE,DESCRIPTION,CREATE_DATE,UPDATE_DATE) VALUES(?,?,?,?,?,?,?,?,?)");
+		Object[][] params = new Object[choiceAccountRecordModels.size()][9];
+		Date now = new Date();
+		for (int i = 0; i < choiceAccountRecordModels.size(); i++)
+		{
+			ChoiceAccountRecordModel item = choiceAccountRecordModels.get(i);
+			String id = getSeqValue(SystemConstants.DB_ISMP,BusinessTableConstants.T_ISMP_CHOICE_ACCOUNT_RECORD);
+			item.setId(Long.parseLong(id));
+			item.setCreateDate(now);
+			item.setUpdateDate(now);
+			Timestamp timestamp = new Timestamp(now.getTime());
+			params[i] = new Object[] { id, item.getBusinessId(), item.getNodeId(), item.getTrdAccount(), item.getStkbd(), item.getState(), item.getDescription(), timestamp, timestamp };
+		}
+		getJdbcTemplate().batchUpdate(sql.toString(), params);
+		return choiceAccountRecordModels;
+	}
+	
+	@Override
+	public void deleteByBusinessIdAndNodeId(Long businessId, String nodeId, Session session) throws Exception
+	{
+		StringBuilder sql = new StringBuilder("DELETE FROM ");
+		sql.append(BusinessTableConstants.T_ISMP_CHOICE_ACCOUNT_RECORD);
+		sql.append(" WHERE BUSINESS_ID = ? AND NODE_ID = ? ");
+		session.update(sql.toString(), new Object[] { businessId, nodeId });
+	}
+}

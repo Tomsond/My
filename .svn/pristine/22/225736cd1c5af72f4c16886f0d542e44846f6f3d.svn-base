@@ -1,0 +1,145 @@
+package com.thinkive.fxc.ismp.bus.base.business.dao.impl;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.jdbc.session.Session;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessTableConstants;
+import com.thinkive.fxc.ismp.bus.base.business.dao.UserFundAccountDao;
+import com.thinkive.fxc.ismp.bus.base.business.model.UserFundAccountModel;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseDao;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.SystemConstants;
+import com.thinkive.fxc.ismp.bus.base.util.ModelUtil;
+
+/**
+ * @描述: 用户资金帐号表(T_ISMP_USER_FUNDACCOUNT)数据层接口实现类
+ * @版权: Copyright (c) 2016 
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0 
+ * @创建时间: 2016年8月15日 下午4:41:53
+ */
+public class UserFundAccountDaoImpl extends ISMPBaseDao implements UserFundAccountDao
+{
+	
+	@Override
+	public UserFundAccountModel add(UserFundAccountModel userFundAccountModel)
+	{
+		String id = getSeqValue(SystemConstants.DB_ISMP,BusinessTableConstants.T_ISMP_USER_FUNDACCOUNT);
+		userFundAccountModel.setId(Long.valueOf(id));
+		userFundAccountModel.setCreateDate(new Date());
+		this.getJdbcTemplate().insert(BusinessTableConstants.T_ISMP_USER_FUNDACCOUNT, userFundAccountModel);
+		return userFundAccountModel;
+	}
+	
+	@Override
+	public UserFundAccountModel add(UserFundAccountModel userFundAccountModel, Session session) throws Exception
+	{
+		String id = getSeqValue(SystemConstants.DB_ISMP,BusinessTableConstants.T_ISMP_USER_FUNDACCOUNT);
+		userFundAccountModel.setId(Long.valueOf(id));
+		userFundAccountModel.setCreateDate(new Date());
+		session.insert(BusinessTableConstants.T_ISMP_USER_FUNDACCOUNT, userFundAccountModel);
+		return userFundAccountModel;
+	}
+	
+	@Override
+	public int update(UserFundAccountModel userFundAccountModel)
+	{
+		Long id = userFundAccountModel.getId();
+		userFundAccountModel.setUpdateDate(new Date());
+		int total = this.getJdbcTemplate().update(BusinessTableConstants.T_ISMP_USER_FUNDACCOUNT, userFundAccountModel, "ID", id);
+		userFundAccountModel.setId(id);
+		return total;
+	}
+	
+	@Override
+	public int updateByFundAccount(UserFundAccountModel userFundAccountModel, Session session) throws Exception
+	{
+		String fundAccount = userFundAccountModel.getFundAccount();
+		userFundAccountModel.setUpdateDate(new Date());
+		int total = session.update(BusinessTableConstants.T_ISMP_USER_FUNDACCOUNT, userFundAccountModel, "FUND_ACCOUNT", fundAccount);
+		userFundAccountModel.setFundAccount(fundAccount);
+		return total;
+	}
+	
+	@Override
+	public int updateByUserIdAndType(UserFundAccountModel userFundAccountModel, Session session) throws Exception
+	{
+		Long userId = userFundAccountModel.getUserId();
+		String type = userFundAccountModel.getType();
+		userFundAccountModel.setUpdateDate(new Date());
+		int total = session.update(BusinessTableConstants.T_ISMP_USER_FUNDACCOUNT, userFundAccountModel, new String[] { "USER_ID", "TYPE", "IS_MAIN" }, new Object[] { userId, type,
+				DictionaryConstants.BOL_TRUE });
+		userFundAccountModel.setUserId(userId);
+		userFundAccountModel.setType(type);
+		return total;
+	}
+	
+	@Override
+	public int updateByUserIdAndAccount(UserFundAccountModel userFundAccountModel)
+	{
+		Long userId = userFundAccountModel.getUserId();
+		String fundAccount = userFundAccountModel.getFundAccount();
+		if (0 == userId || StringUtils.isBlank(fundAccount))
+		{
+			return 0;
+		}
+		userFundAccountModel.setUpdateDate(new Date());
+		int count = this.getJdbcTemplate().update(BusinessTableConstants.T_ISMP_USER_FUNDACCOUNT, userFundAccountModel, new String[] { "USER_ID", "FUND_ACCOUNT" },
+				new Object[] { userId, fundAccount });
+		userFundAccountModel.setUserId(userId);
+		userFundAccountModel.setFundAccount(fundAccount);
+		return count;
+	}
+	
+	@Override
+	public int updateByUserId(UserFundAccountModel userFundAccountModel)
+	{
+		Long userId = userFundAccountModel.getUserId();
+		if (0 == userId)
+		{
+			return 0;
+		}
+		userFundAccountModel.setUpdateDate(new Date());
+		int count = this.getJdbcTemplate().update(BusinessTableConstants.T_ISMP_USER_FUNDACCOUNT, userFundAccountModel, "USER_ID", userId);
+		userFundAccountModel.setUserId(userId);
+		return count;
+	}
+	
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<UserFundAccountModel> queryByParams(UserFundAccountModel Params)
+	{
+		StringBuilder sql = new StringBuilder();
+		List<String> paramsList = new ArrayList<String>();
+		sql.append("SELECT ID,USER_ID,FUND_ACCOUNT,IS_MAIN,TYPE,PWD,PWDLOGIN_ERRORTIME,CREATE_DATE,UPDATE_DATE,STATE FROM ");
+		sql.append(BusinessTableConstants.T_ISMP_USER_FUNDACCOUNT).append(" WHERE 1=1 ");
+		if (null != Params.getUserId())
+		{
+			sql.append(" AND USER_ID = ?");
+			paramsList.add(Params.getUserId().toString());
+		}
+		if (StringUtils.isNotBlank(Params.getFundAccount()))
+		{
+			sql.append(" AND FUND_ACCOUNT = ?");
+			paramsList.add(Params.getFundAccount());
+		}
+		if (StringUtils.isNotBlank(Params.getType()))
+		{
+			sql.append(" AND TYPE = ?");
+			paramsList.add(Params.getType());
+		}
+		if (StringUtils.isNotBlank(Params.getPwd()))
+		{
+			sql.append(" AND PWD = ?");
+			paramsList.add(Params.getPwd());
+		}
+		List<DataRow> queryResult = getJdbcTemplate().query(sql.toString(), paramsList.toArray());
+		return ModelUtil.packList(queryResult, UserFundAccountModel.class);
+	}
+}

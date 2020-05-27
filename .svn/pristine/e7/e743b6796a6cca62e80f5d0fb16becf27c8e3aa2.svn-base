@@ -1,0 +1,59 @@
+package com.thinkive.fxc.ismp.bus.base.business.dao;
+
+import java.util.List;
+
+import com.thinkive.fxc.ismp.bus.base.business.model.BprocNodeConfigModel;
+import com.thinkive.fxc.ismp.bus.base.business.vo.BprocNodeConfigAndDefineVO;
+
+/**
+ * @描述: 业务流程节点配置表(T_ISMP_BPROCNODE_CONFIG)数据层接口
+ * @版权: Copyright (c) 2016 
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0 
+ * @创建时间: 2016年8月16日 上午10:10:09
+ */
+public interface BprocNodeConfigDao
+{
+	
+	/**
+	 * @描述:根据节点英文标识nodeId查询业务流程节点配置
+	 * @作者: 田源  
+	 * @时间：2016年8月17日 下午3:59:13
+	 * @param nodeId
+	 * @return List<BprocNodeConfigModel>
+	 * @
+	 */
+	public List<BprocNodeConfigModel> queryByNodeId(String nodeId);
+	
+	/**
+	 * @描述：根据业务编号、客户端类型、节点英文标识获取流程节点和节点定义视图
+	 * @作者：刘恺
+	 * @时间：2016年8月22日 下午8:50:41
+	 * @param businessCode
+	 * @param opSource
+	 * @param nodeId
+	 * @return
+	 */
+	public BprocNodeConfigAndDefineVO queryNadVoByBCodeAndOpSouAndNodeId(String businessCode, String opSource, String nodeId);
+	
+	/**
+	 * @描述：根据流程编号、节点英文标识获取流程节点和节点定义视图
+	 * @作者：刘恺
+	 * @时间：2016年8月23日 下午5:06:02
+	 * @param btypeId
+	 * @param nodeId
+	 * @return
+	 */
+	public BprocNodeConfigAndDefineVO queryNadVoByBtypeIdAndNodeId(Long btypeId, String nodeId);
+	
+	/**
+	 * @描述：根据流程编号、上一步节点英文标识获取流程节点和节点定义视图
+	 * @作者：刘恺
+	 * @时间：2016年9月16日 下午1:37:01
+	 * @param btypeId
+	 * @param preNodeId
+	 * @return
+	 */
+	public BprocNodeConfigAndDefineVO queryNadVoByBtypeIdAndPreNodeId(Long btypeId, String preNodeId);
+}

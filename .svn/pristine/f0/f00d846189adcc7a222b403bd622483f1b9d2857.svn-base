@@ -1,0 +1,37 @@
+package com.thinkive.fxc.ismp.bus.base.business.service;
+
+import com.thinkive.fxc.ismp.bus.base.business.model.BusinessEntityModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.UserExtendModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.UserInfoModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.UserRetentionModel;
+import com.thinkive.fxc.ismp.bus.base.business.vo.UserInfoVo;
+
+/**
+ * @描述: 业务办理用户信息快照服务接口
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0.0 
+ * @创建时间: 2016年9月7日 下午7:03:34
+ */
+public interface UserSnapShotService
+{
+    /**
+     * @描述：添加 业务办理用户信息快照(成功:true 失败:false)
+     * @作者：田源
+     * @时间：2016年9月7日 下午7:21:55
+     * @param businessId
+     * @param userInfoVo
+     * @return Boolean
+     */
+    public Boolean addUserSnapShot(Long businessId,UserInfoVo userInfoVo);
+    
+  
+    /**
+ 	 * 作者：MIKE
+ 	 * 公司：深圳市思迪信息技术股份公司
+ 	 * 日期时间：2018年1月10日 下午3:15:47
+ 	 * 说明：添加 客户业务办理时信息记录表
+ 	 */ 
+ 	public boolean InsertRetention(UserInfoModel olduserInfoModel,UserExtendModel oldUserExtendModel,BusinessEntityModel businessEntityModel,UserRetentionModel userretentionmodel) throws Exception;
+}

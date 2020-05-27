@@ -1,0 +1,136 @@
+package com.thinkive.fxc.ismp.bus.business.resetpwd.function;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.model.ImageInformationModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.NodePropertyConfigModel;
+import com.thinkive.fxc.ismp.bus.base.business.service.FlowNodeManageService;
+import com.thinkive.fxc.ismp.bus.base.business.service.ImageUploadService;
+import com.thinkive.fxc.ismp.bus.base.business.utils.ModularNodeUtil;
+import com.thinkive.fxc.ismp.bus.base.business.vo.BprocNodeConfigAndDefineVO;
+import com.thinkive.fxc.ismp.bus.base.business.vo.BusinessEntityAndConfigVO;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.business.resetpwd.constants.ResetPwdConstants;
+import com.thinkive.fxc.ismp.bus.business.resetpwd.service.ResetPwdService;
+import com.thinkive.server.ResultVo;
+
+/**
+ * @描述: 重置密码---身份证上传确认(方式一：不是最后一步，直接提交数据并修改流程)      
+ *       1.执行这个Function之前一定上传过身份证，业务实例肯定不为空
+ *       2.通过节点配置文件判断是否需要信息确认，如果需要，则入参必须包含身份证信息
+ *       使用场景：身份证上传不是最后一步
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年9月10日 上午10:14:43
+ */
+public class Function1004921 extends ISMPBaseFunction
+{
+	
+	private ImageInformationModel imageInformationModel;//身份证信息
+	
+	protected String opSource;//客户端类型
+	
+	protected String businessCode;//业务类型
+	
+	protected String nodeId;//节点英文标识
+	
+	private String fundAccount;//资金帐号
+	
+	private String flag;//区分重置资金与交易密码类型
+	
+	@SuppressWarnings("unchecked")
+	public ResultVo execute() throws Exception
+	{
+		initVar();
+		
+		//step1：节点权限校验，并返回当前业务实例
+		FlowNodeManageService flowNodeManageService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_FLOWNODEMANAGE, FlowNodeManageService.class);
+		BprocNodeConfigAndDefineVO submitBprocNodeConfigAndDefineVO = flowNodeManageService.getBprocNodeConfigService(businessCode, opSource, nodeId, this.getRequest().getFuncNo());
+		ResetPwdService resetPwdService = SpringHelper.getBean(ResetPwdConstants.SERVICE_ID_RESETPWD, ResetPwdService.class);
+		BusinessEntityAndConfigVO businessEntityAndConfigVO = resetPwdService.queryEacVoNotCompleteByFundAccountNew(fundAccount,flag);
+		Map<String, Object> checkResult = flowNodeManageService.checkBusinessEntityCrrNode(submitBprocNodeConfigAndDefineVO, businessEntityAndConfigVO);
+		List<NodePropertyConfigModel> nodePropertyConfigModelList = (List<NodePropertyConfigModel>) checkResult.get("nodePropertyConfigModelList");//节点属性列表
+		
+		//step2：获取节点属性组、节点需要上传的所有影像编号集合、是否需要身份校验
+		Map<String, Object> imgNodePropertyMap = ModularNodeUtil.getImgNodeProAndCodesAndNeedConfirm(nodePropertyConfigModelList);
+		
+		//step3：校验用户上传的数据
+		ImageUploadService imageUploadService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_IMAGEUPLOAD,ImageUploadService.class);
+		imageUploadService.checkImgNodeUploadDataAndSave(imgNodePropertyMap, businessEntityAndConfigVO.getId(), nodeId, businessEntityAndConfigVO.getUserId(), imageInformationModel, businessCode);
+		
+		flowNodeManageService.changeBusinessFlowNode(businessEntityAndConfigVO, submitBprocNodeConfigAndDefineVO, DictionaryConstants.BOL_FALSE, "", opSource, opStation, ip);
+		ResultVo resultVo = new ResultVo();
+		resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+		resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+		return resultVo;
+	}
+	
+	/**
+	 * @描述：获取业务入参
+	 * @作者：刘恺
+	 * @时间：2016年8月23日 下午8:55:24
+	 */
+	private void initVar()
+	{
+		fundAccount = this.getAndCheckBlankStrParam("account", ErrorCodeCheckInput.BLANK_FUNDACCOUNT);
+		opSource = this.getAndCheckBlankStrParam("op_source", ErrorCodeCheckInput.BLANK_OP_SOURCE);
+		businessCode = this.getAndCheckBlankStrParam("businessCode", ErrorCodeCheckInput.BLANK_BUSINESSCODE);
+		nodeId = this.getAndCheckBlankStrParam("nodeId", ErrorCodeCheckInput.BLANK_NODEID);
+		flag = this.getStrParameter("flag","0");//0资金  1交易
+		String name = this.getStrParameter("name");
+		String identityNum = this.getStrParameter("identity_num");
+		String papersAddr = this.getStrParameter("papers_addr");
+		String signOffice = this.getStrParameter("sign_office");
+		String validityBegin = this.getStrParameter("validity_begin");
+		String validityEnd = this.getStrParameter("validity_end");
+		String sex = this.getStrParameter("sex");
+		String birthday = this.getStrParameter("birthday");
+		String ethnicName = this.getStrParameter("ethnicname");
+		imageInformationModel = new ImageInformationModel();
+		if (StringUtils.isNotBlank(name))
+		{
+			imageInformationModel.setName(name);
+		}
+		if (StringUtils.isNotBlank(identityNum))
+		{
+			imageInformationModel.setIdentityNum(identityNum);
+		}
+		if (StringUtils.isNotBlank(sex))
+		{
+			imageInformationModel.setSex(sex);
+		}
+		if (StringUtils.isNotBlank(birthday))
+		{
+			imageInformationModel.setBirthday(birthday);
+		}
+		if (StringUtils.isNotBlank(papersAddr))
+		{
+			imageInformationModel.setPapersAddr(papersAddr);
+		}
+		if (StringUtils.isNotBlank(validityBegin))
+		{
+			imageInformationModel.setValidityBegin(validityBegin);
+		}
+		if (StringUtils.isNotBlank(validityEnd))
+		{
+			imageInformationModel.setValidityEnd(validityEnd);
+		}
+		if (StringUtils.isNotBlank(signOffice))
+		{
+			imageInformationModel.setSignOffice(signOffice);
+		}
+		if (StringUtils.isNotBlank(ethnicName))
+		{
+			imageInformationModel.setEthnicName(ethnicName);
+		}
+	}
+}

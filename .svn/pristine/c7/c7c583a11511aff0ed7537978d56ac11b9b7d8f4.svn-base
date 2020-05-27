@@ -1,0 +1,48 @@
+package com.thinkive.fxc.ismp.bus.base.business.dao;
+
+import com.thinkive.base.jdbc.session.Session;
+import com.thinkive.fxc.ismp.bus.base.business.model.UserRetentionModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.UserSnapShotModel;
+
+/**
+ * @描述: 业务办理用户信息快照表(T_ISMP_USER_SNAPSHOT)数据接口层
+ * @版权: Copyright (c) 2016 
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0 
+ * @创建时间: 2016年8月15日 下午2:29:12
+ */
+public interface UserSnapShotDao
+{
+	
+	/**
+	* @描述: 添加业务办理用户信息快照记录
+	* @作者: 田源
+	* @时间：2016年8月17日 下午3:59:13
+	* @param  UserSnapShotModel
+	* @param @    
+	* @return UserSnapShotModel    
+	 */
+	public UserSnapShotModel add(UserSnapShotModel userSnapShotModel);
+	
+    /**
+    * @描述: 添加业务办理用户信息快照记录(支持事物)
+    * @作者: 田源
+    * @时间：2016年8月17日 下午3:59:13
+    * @param  UserSnapShotModel
+    * @param  Session    
+    * @return UserSnapShotModel    
+     */
+    public UserSnapShotModel add(UserSnapShotModel userSnapShotModel,Session session);
+    
+    
+    /**
+     * @描述: 添加业务办理用户资料流水记录(支持事物)
+     * @作者: MIKE
+     * @时间：2017年2月20日 下午3:59:13
+     * @param  UserRetentionModel
+     * @param  Session    
+     * @return UserRetentionModel    
+      */
+     public boolean addUserLog(UserRetentionModel userRetentionModel,Session session) throws Exception;
+}

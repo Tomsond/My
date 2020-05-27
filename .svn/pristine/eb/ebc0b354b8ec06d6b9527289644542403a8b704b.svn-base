@@ -1,0 +1,202 @@
+package com.thinkive.fxc.ismp.bus.base.basicdata.model;
+
+import java.sql.Timestamp;
+import java.util.Date;
+
+import com.thinkive.base.jdbc.DataRow;
+
+/**
+ * @描述: 公共--协议信息表(T_FXC_AGREEMENT_INFO)模型
+ * @版权: Copyright (c) 2016 
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 尹杰民
+ * @版本: 2.0 
+ * @创建时间: 2016年8月16日 下午3:38:21
+ */
+public class AgreementInfoModel extends DataRow
+{
+	
+	private static final long serialVersionUID = -930467809802079054L;
+	
+	private static final String ID = "id";
+	
+	private static final String AGREE_NAME = "agree_name";
+	
+	private static final String AGREE_ENAME = "agree_ename";
+	
+	private static final String AGREE_FNO = "agree_fno";
+	
+	private static final String AGREE_CODE = "agree_code";//协议编号
+	
+	private static final String AGREE_MARK = "agree_mark";
+	
+	private static final String CREATE_DATE = "create_date";
+	
+	private static final String CREATE_BY = "create_by";
+	
+	private static final String UPDATE_DATE = "update_date";
+	
+	private static final String UPDATE_BY = "update_by";
+	
+	/**
+	 * 获取自增主键
+	 */
+	public Long getId()
+	{
+		return getLong(ID);
+	}
+	
+	/**
+	 * 设置自增主键
+	 */
+	public void setId(Long id)
+	{
+		set(ID, id);
+	}
+	
+	/**
+	 * 获取协议编号
+	 */
+	public String getAgreeCode()
+	{
+		return getString(AGREE_CODE);
+	}
+	
+	/**
+	 * 设置协议编号
+	 */
+	public void setAgreeCode(String agreeCode)
+	{
+		set(AGREE_NAME, agreeCode);
+	}
+	
+	/**
+	 * 获取协议中文名称
+	 */
+	public String getAgreeName()
+	{
+		return getString(AGREE_NAME);
+	}
+	
+	/**
+	 * 设置协议中文名称
+	 */
+	public void setAgreeName(String agreeName)
+	{
+		set(AGREE_NAME, agreeName);
+	}
+	
+	/**
+	 * 获取协议英文名称
+	 */
+	public String getAgreeEname()
+	{
+		return getString(AGREE_ENAME);
+	}
+	
+	/**
+	 * 设置协议英文名称
+	 */
+	public void setAgreeEname(String agreeEname)
+	{
+		set(AGREE_ENAME, agreeEname);
+	}
+	
+	/**
+	 * 获取协议外部编号
+	 */
+	public String getAgreeFno()
+	{
+		return getString(AGREE_FNO);
+	}
+	
+	/**
+	 * 设置协议外部编号
+	 */
+	public void setAgreeFno(String agreeFno)
+	{
+		set(AGREE_FNO, agreeFno);
+	}
+	
+	/**
+	 * 获取协议外部编号
+	 */
+	public String getAgreeMark()
+	{
+		return getString(AGREE_MARK);
+	}
+	
+	/**
+	 * 设置协议外部编号
+	 */
+	public void setAgreeMark(String agreeMark)
+	{
+		set(AGREE_MARK, agreeMark);
+	}
+	
+	/**
+	 * 获取创建人
+	 */
+	public Long getCreateBy()
+	{
+		return getLong(CREATE_BY);
+	}
+	
+	/**
+	 * 设置创建人
+	 */
+	public void setCreateBy(Long createBy)
+	{
+		set(CREATE_BY, createBy);
+	}
+	
+	/**
+	 * 获取修改人
+	 */
+	public Long getUpdateBy()
+	{
+		return getLong(UPDATE_BY);
+	}
+	
+	/**
+	 * 设置修改人
+	 */
+	public void setUpdateBy(Long updateBy)
+	{
+		set(UPDATE_BY, updateBy);
+	}
+	
+	/**
+	 * 获取创建时间
+	 */
+	public Date getCreateDate()
+	{
+		return (Date) get(CREATE_DATE);
+	}
+	
+	/**
+	 * 设置创建时间
+	 */
+	public void setCreateDate(Date createDate)
+	{
+		Timestamp timestamp = new Timestamp(createDate.getTime());
+		set(CREATE_DATE, timestamp);
+	}
+	
+	/**
+	 * 获取更新时间
+	 */
+	public Date getUpdateDate()
+	{
+		return (Date) get(UPDATE_DATE);
+	}
+	
+	/**
+	 * 设置更新时间
+	 */
+	public void setUpdateDate(Date updateDate)
+	{
+		Timestamp timestamp = new Timestamp(updateDate.getTime());
+		set(UPDATE_DATE, timestamp);
+	}
+}

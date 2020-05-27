@@ -1,0 +1,26 @@
+package com.thinkive.fxc.ismp.bus.business.khzzhf.dao;
+
+import java.util.List;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.fxc.ismp.bus.base.business.model.BusinessEntityModel;
+import com.thinkive.fxc.ismp.bus.business.otc.model.OtcInfo;
+
+/**
+ * 描述: 券商配置的OTC信息DAO类
+ * 版权: Copyright (c) 2010
+ * 公司: 思迪科技 
+ * 作者: 刘恺
+ * 版本: 1.0 
+ * 创建日期: 2016年1月13日 
+ * 创建时间: 下午5:50:17
+ */
+public interface KhzzhfDao
+{
+
+    public List<DataRow> queryAllBySubjectNo(String subjectNo) throws Exception;
+
+    public DataRow querySubjectBySubjectNo(String subjectNo) throws Exception;
+
+    public BusinessEntityModel queryCompleteByUserIdAndBusinessCode(long userId, String businessCode) throws Exception;
+} 

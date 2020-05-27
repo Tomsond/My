@@ -1,0 +1,28 @@
+package com.thinkive.fxc.ismp.bus.business.ggt.test;
+
+import com.thinkive.fxc.ismp.bus.BaseTest;
+import com.thinkive.fxc.ismp.bus.business.ggt.function.Function1004211;
+import com.thinkive.server.Function;
+
+/**
+ * @描述: 三方存管-根据资金账户获取绑定的银行卡-测试
+ * @版权: Copyright (c) 2014 
+ * @公司: 思迪科技 
+ * @作者: 吴江波
+ * @版本: 1.0 
+ * @创建日期: 2014-8-29 
+ * @创建时间: 上午10:05:46
+ */
+public class Function1004211Test extends BaseTest
+{
+    
+    public void testInvoke()
+    {
+        getRequest().addFieldValue("question_source", "1");
+        getRequest().addFieldValue("user_id", "59");
+        getRequest().addFieldValue("answerStr", "116_3_0|117_4_0|118_2_0|119_1_0|120_1_0|121_1_0|122_4_0|123_3_0|124_4_0|125_2_0|126_2_0|127_2_0|128_2_0|129_2_0|130_1_0|131_1_0|132_1_0|133_1_0|134_1_0|135_1_0");
+        Function function = new Function1004211();
+        function.invoke(getContext());
+        System.out.println("结果数据为：" + getResponse().getData());
+    }
+}

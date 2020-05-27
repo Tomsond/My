@@ -1,0 +1,25 @@
+package com.thinkive.fxc.ismp.bus.base.business.service;
+
+import java.util.List;
+
+import com.thinkive.fxc.ismp.bus.base.business.model.ProcNodeDefineModel;
+
+/**
+ * @描述: 业务流程节点定义服务接口
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0.0 
+ * @创建时间: 2016年9月19日 下午3:21:35
+ */
+public interface ProcNodeDefineService
+{
+    /**
+     * @描述: 根据业务类型编号businessType来查询业务流程节点
+     * @作者: 田源  
+     * @时间：2016年8月17日 下午3:59:13
+     * @param businessType
+     * @return List<ProcNodeDefineModel>
+     */
+    public List<ProcNodeDefineModel> queryByBusinessType(String businessType);
+}

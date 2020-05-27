@@ -1,0 +1,51 @@
+package com.thinkive.fxc.ismp.bus.third.service;
+
+import com.thinkive.base.jdbc.DataRow;
+
+/**
+ * @描述: 第三方数据服务类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月26日 上午10:24:16
+ */
+public interface ThirdDataService
+{
+	
+	/**
+	 * 描述：检测用户是否在黑名单中
+	 * 作者：刘恺
+	 * 时间：2015年12月23日 下午2:32:38
+	 * @return
+	 */
+	public boolean checkBlacklist(DataRow checkInput);
+	
+	/**
+	 * 描述：检查用户是否是“持有5%以上公司股票的股东或者关联人”
+	 * 作者：刘恺
+	 * 时间：2015年12月23日 下午3:02:36
+	 * @param checkInput
+	 * @return
+	 */
+	public boolean checkShareholder(DataRow checkInput);
+	
+	/**
+	 * 描述：获取融资融券额度限制
+	 * 作者：刘恺
+	 * 时间：2015年12月25日 下午2:15:33
+	 * @param input
+	 * @return
+	 */
+	public DataRow getAmountLimit(DataRow input);
+	
+	/**
+	 * 描述：获取综合评分
+	 * 作者：刘恺
+	 * 时间：2015年12月25日 下午2:19:01
+	 * @param input
+	 * @return
+	 */
+	public Double getCompositeScore(DataRow input);
+	
+}

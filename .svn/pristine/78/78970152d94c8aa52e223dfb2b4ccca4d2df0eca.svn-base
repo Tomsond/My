@@ -1,0 +1,117 @@
+package com.thinkive.fxc.ismp.bus.business.user.function;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessConstants;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.model.BusinessEntityModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.UserExtendModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.UserInfoModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.UserRetentionModel;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserSnapShotService;
+import com.thinkive.fxc.ismp.bus.base.business.vo.UserInfoVo;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.business.user.contants.UserErrorCodeContants;
+import com.thinkive.fxc.ismp.bus.business.util.DataFormatUtils;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdDictionaryConstants;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdInterface;
+import com.thinkive.server.InvokeException;
+import com.thinkive.server.ResultVo;
+
+/**
+ * @描述: 修改资金密码
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0.0 
+ * @创建时间: 2016年9月8日 下午2:34:10
+ */
+public class Function1004162 extends ISMPBaseFunction
+{
+    private Long                userId;             //用户ID
+                                                     
+    private String              fundAccount;        //资金账号
+                                                     
+    private String              oldPassword;        //旧资金密码
+                                                     
+    private String              newPassword;        //新资金密码
+                                                     
+    private ThirdInterface      thirdInterface;
+    
+    private UserInfoService     userInfoService;
+    
+    private UserSnapShotService userSnapShotService;
+    
+    
+    @Override
+    public ResultVo execute() throws Exception
+    {
+        
+        //step1:获取入参并校验
+        checkInput();
+        
+        //step2:查询用户基本信息和用户账号信息
+        userInfoService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO, UserInfoService.class);
+        UserInfoVo userInfoVo = userInfoService.queryAndCheckUserByUserIdAndAccount(userId, fundAccount);
+        
+        //step3:调用第三方接口修改资金密码
+        DataRow input = DataFormatUtils.packThirdInput(userInfoVo);
+        input.set("oldpwd", oldPassword);
+        input.set("newpwd", newPassword);
+        thirdInterface = SpringHelper.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDINTERFACE, ThirdInterface.class);
+        thirdInterface.updateZjPassword(input);
+        
+        //step4:添加短信通知
+        //TODO 调用短信接口通知用户修改资金密码成功(项目中实现)
+        
+        //step5:添加业务办理记录
+        BusinessEntityModel businessEntityModel = new BusinessEntityModel(userId,
+                BusinessConstants.BUSINESS_UPDATEZJPWD, DictionaryConstants.FLOW_LASTSTEP_NEXT,
+                DictionaryConstants.BOL_TRUE, DictionaryConstants.DEAL_RESULT_SUCCESS, opSource, opStation, ip);
+        BusinessEntityModel businessId = userInfoService.addBusinessInfo(businessEntityModel);
+        
+        //step6：添加业务办理快照
+        userSnapShotService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERSNAPSHOT,
+                UserSnapShotService.class);
+        userSnapShotService.addUserSnapShot(businessId.getId(), userInfoVo);
+        
+            //获取用户信息和用户拓展信息办理业务时数据
+      		UserInfoModel olduserInfoModel = userInfoService.queryUserInfoByUserId(userInfoVo.getUserId());
+      		UserExtendModel oldUserExtendModel = userInfoService.queryUserExtendByUserId(userInfoVo.getUserId());
+      	
+      		UserRetentionModel userretentionmodel = new UserRetentionModel();
+      		userretentionmodel.setEntrustway(entrust_way);
+       		userretentionmodel.setStockaccount(stock_account);
+       		userretentionmodel.setRiskvalue(riskvalue);
+       		userretentionmodel.setRisklevel(risklevel);
+       		userretentionmodel.setSubitemname(subitemname);
+       		userretentionmodel.setSurveysn(survey_sn);
+       		userretentionmodel.setBankname(bank_name);
+       		userretentionmodel.setBankCardNumber(bank_card_number);
+       		userretentionmodel.setOperationtype(operation_type);
+       		userretentionmodel.setAmountOfMoney(amount_of_money);
+       		userretentionmodel.setMarket(market);
+      		
+       		userSnapShotService.InsertRetention(olduserInfoModel, oldUserExtendModel, businessEntityModel, userretentionmodel);//添加 客户业务办理时信息记录表
+      		
+        
+        //step7：出参
+        ResultVo resultVo = new ResultVo();
+        resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+        resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+        resultVo.setResult(businessEntityModel);
+        return resultVo;
+    }
+    
+    
+    private void checkInput() throws InvokeException
+    {
+        userId = Long.valueOf(this.getAndCheckBlankStrParam("user_id", ErrorCodeCheckInput.BLANK_USERID));
+        fundAccount = this.getAndCheckBlankStrParam("zj_account", ErrorCodeCheckInput.BLANK_FUNDACCOUNT);
+        oldPassword = this.getAndCheckBlankStrParam("oldPassword", UserErrorCodeContants.BLANK_OLD_ZJPASSWORD);
+        newPassword = this.getAndCheckBlankStrParam("zj_password", UserErrorCodeContants.BLANK_NEW_ZJPASSWORD);
+    }
+}

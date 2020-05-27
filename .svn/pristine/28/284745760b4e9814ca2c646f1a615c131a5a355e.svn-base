@@ -1,0 +1,71 @@
+package com.thinkive.fxc.ismp.bus.business.assets.zhth.model;
+
+import com.thinkive.base.jdbc.DataRow;
+
+/**
+ * @描述: 变更主辅资金帐号扩展信息表（T_ISMP_B_CHANGEMAINFUND）
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2017年3月15日 下午1:40:30
+ */
+public class ChangeMainFundExtendModel extends DataRow
+{
+	
+	private static final long serialVersionUID = -731544693784816386L;
+	
+	private static final String BUSINESS_ID = "business_id";
+	
+	private static final String OLD_ACCOUNT = "old_account";//旧的主资金帐号
+	
+	private static final String NEW_ACCOUNT = "new_account";//新的主资金帐号
+	
+	/**
+	 *获取业务实例ID
+	 */
+	public Long getBusinessId()
+	{
+		return getLong(BUSINESS_ID);
+	}
+	
+	/**
+	 *设置业务实例ID
+	 */
+	public void setBusinessId(Long businessId)
+	{
+		set(BUSINESS_ID, businessId);
+	}
+	
+	/**
+	 *获取旧的主资金帐号
+	 */
+	public String getOldAccount()
+	{
+		return getString(OLD_ACCOUNT);
+	}
+	
+	/**
+	 *设置旧的主资金帐号
+	 */
+	public void setOldAccount(String oldAccount)
+	{
+		set(OLD_ACCOUNT, oldAccount);
+	}
+	
+	/**
+	 *获取新的主资金帐号
+	 */
+	public String getNewAccount()
+	{
+		return getString(NEW_ACCOUNT);
+	}
+	
+	/**
+	 *设置新的主资金帐号
+	 */
+	public void setNewAccount(String newAccount)
+	{
+		set(NEW_ACCOUNT, newAccount);
+	}
+}

@@ -1,0 +1,119 @@
+package com.thinkive.fxc.ismp.bus.business.smjj.dao.impl;
+
+import java.util.ArrayList;
+
+import java.util.Date;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
+
+import com.thinkive.fxc.ismp.bus.business.smjj.constants.SmjjConstants;
+import com.thinkive.fxc.ismp.bus.business.smjj.dao.SmjjImageRecordDao;
+import com.thinkive.fxc.ismp.bus.business.smjj.model.SmjjImageRecordModel;
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseDao;
+import com.thinkive.fxc.ismp.bus.base.util.ModelUtil;
+
+/**
+ * @描述: 私募基金资产记录表<p>t_ismp_sm_assets</p> 数据层接口实现类
+ * @版权: Copyright (c) 2016 
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 尹杰民
+ * @版本: 2.0 
+ * @创建时间: 2016年8月15日 下午4:50:41
+ */
+public class SmjjImageRecordDaoImpl extends ISMPBaseDao implements SmjjImageRecordDao
+{
+	
+	@Override
+	public SmjjImageRecordModel add(SmjjImageRecordModel imageRecordModel)
+	{
+		String id = getSeqValue(SmjjConstants.T_ISMP_SM_IMAGE_RECORD);
+		imageRecordModel.setId(Long.valueOf(id));
+		imageRecordModel.setCreateDate(new Date());
+		this.getJdbcTemplate().insert(SmjjConstants.T_ISMP_SM_IMAGE_RECORD, imageRecordModel);
+		return imageRecordModel;
+	}
+	
+	@Override
+	public int update(SmjjImageRecordModel imageRecordModel)
+	{
+		imageRecordModel.setUpdateDate(new Date());
+		return this.getJdbcTemplate().update(SmjjConstants.T_ISMP_SM_IMAGE_RECORD, imageRecordModel, "ID", imageRecordModel.getId());
+	}
+	
+	@Override
+	public int updateByBIdAndNIdAndCode(SmjjImageRecordModel imageRecordModel)
+	{
+		Long businessId = imageRecordModel.getBusinessId();
+		String nodeId = imageRecordModel.getNodeId();
+		String mediaCode = imageRecordModel.getMediaCode();
+		if (businessId == 0 || StringUtils.isBlank(nodeId) || StringUtils.isBlank(mediaCode))
+		{
+			return 0;
+		}
+		imageRecordModel.setUpdateDate(new Date());
+		return this.getJdbcTemplate().update(SmjjConstants.T_ISMP_SM_IMAGE_RECORD, imageRecordModel, new String[] { "BUSINESS_ID", "NODE_ID", "MEDIA_CODE" },
+				new Object[] { businessId, nodeId, mediaCode });
+	}
+	
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<SmjjImageRecordModel> queryByParams(SmjjImageRecordModel imageRecordModel)
+	{
+		StringBuilder sql = new StringBuilder();
+		List<String> paramsList = new ArrayList<String>();
+		sql.append("SELECT ID, BUSINESS_ID, NODE_ID, MEDIA_CODE, IMAGE_PATH");
+		sql.append(", SECRET_KEY, CREATE_DATE, UPDATE_DATE  FROM ");
+		sql.append(SmjjConstants.T_ISMP_SM_IMAGE_RECORD).append(" WHERE 1 = 1 ");
+		Long businessId = imageRecordModel.getBusinessId();
+		if (0 != businessId)
+		{
+			sql.append(" AND BUSINESS_ID = ?");
+			paramsList.add(businessId.toString());
+		}
+		String nodeId = imageRecordModel.getNodeId();
+		if (StringUtils.isNotBlank(nodeId))
+		{
+			sql.append(" AND NODE_ID = ?");
+			paramsList.add(nodeId);
+		}
+		String mediaCode = imageRecordModel.getMediaCode();
+		if (StringUtils.isNotBlank(mediaCode))
+		{
+			sql.append(" AND MEDIA_CODE = ?");
+			paramsList.add(mediaCode);
+		}
+		List<DataRow> queryResult = this.getJdbcTemplate().query(sql.toString(), paramsList.toArray());
+		return ModelUtil.packList(queryResult, SmjjImageRecordModel.class);
+	}
+	
+	@Override
+	public Long queryCountByCodes(List<String> mediaCodes, Long businessId, String nodeId)
+	{
+		StringBuilder sql = new StringBuilder("SELECT COUNT(ID) FROM ");
+		sql.append(SmjjConstants.T_ISMP_SM_IMAGE_RECORD).append(" WHERE BUSINESS_ID = ? AND NODE_ID = ? ");
+		List<String> params = new ArrayList<String>();
+		params.add(String.valueOf(businessId));
+		params.add(nodeId);
+		if (mediaCodes != null && !mediaCodes.isEmpty())
+		{
+			sql.append("AND MEDIA_CODE IN ( ");
+			for (int i = 0; i < mediaCodes.size(); i++)
+			{
+				String item = mediaCodes.get(i);
+				if (i == (mediaCodes.size() - 1))
+				{
+					sql.append("?");
+					params.add(item);
+					break;
+				}
+				sql.append("?,");
+				params.add(item);
+				
+			}
+			sql.append(" ) ");
+		}
+		return getJdbcTemplate().queryLong(sql.toString(), params.toArray());
+	}
+}

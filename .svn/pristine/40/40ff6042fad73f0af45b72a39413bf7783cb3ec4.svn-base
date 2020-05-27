@@ -1,0 +1,27 @@
+package com.thinkive.fxc.ismp.bus.business.entrust.dao;
+
+import com.thinkive.base.jdbc.session.Session;
+import com.thinkive.fxc.ismp.bus.business.entrust.model.UserEntrustBusinessModel;
+
+/**
+ * @描述: 委托方式业务办理拓展表(T_ISMP_USERENTRUST_BUSINESS)模型
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0.0 
+ * @创建时间: 2016年9月6日 下午4:17:46
+ */
+public interface UserEntrustBusinessDao
+{
+ 
+    /**
+     * @描述：添加委托方式业务办理拓展信息
+     * @作者：田源
+     * @时间：2016年9月6日 下午4:50:42
+     * @param userEntrustBusinessModel
+     * @param session
+     * @return UserEntrustBusinessModel
+     */
+    public UserEntrustBusinessModel add(UserEntrustBusinessModel userEntrustBusinessModel,Session session);
+    
+}

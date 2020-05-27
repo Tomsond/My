@@ -1,0 +1,15 @@
+package com.thinkive.fxc.ismp.bus.business.resetpwd.constants;
+
+public class ResetPwdConstants
+{
+	
+	public static final String T_ISMP_RESETPWD_EXTEND = "t_ismp_resetpwd_extend";
+	
+	public static final String T_ISMP_RESETPWD_TYPE = "t_ismp_resetpwd_type";
+	
+	public static final String SERVICE_ID_RESETPWD = "com.thinkive.fxc.ismp.resetPwdService";
+	
+	public static final String PWD_TYPE_JY = "jy";
+	
+	public static final String PWD_TYPE_ZJ = "zj";
+}

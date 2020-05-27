@@ -1,0 +1,70 @@
+package com.thinkive.fxc.ismp.bus.business.fundaccount.service;
+
+import java.util.List;
+import java.util.Map;
+
+import com.thinkive.fxc.ismp.bus.base.business.model.BusinessEntityModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.ChoiceAccountRecordModel;
+import com.thinkive.fxc.ismp.bus.business.fundaccount.model.FundInfo;
+import com.thinkive.fxc.ismp.bus.business.fundaccount.model.JjExtendModel;
+
+/**
+ * 
+ * @描述: 基金开户业务办理接口
+ * @版权: Copyright (c) 2013
+ * @公司: 思迪科技 
+ * @作者: 刘恺
+ * @版本: 1.0
+ * @创建时间: 2014-8-1  11:10
+ */
+public interface JjBusinessService
+{
+	
+	/**
+	 * 描述：查询所有基金信息
+	 * 作者：刘恺
+	 * 时间：2016年2月22日 下午2:28:21
+	 * @return
+	 */
+	public List<FundInfo> queryAllFundInfo();
+	
+	/**
+	 * @描述：添加业务实例，并同事添加协议、帐号和审核任务、业务扩展信息
+	 * @作者：刘恺
+	 * @时间：2016年9月13日 下午7:10:43
+	 * @param businessEntityModel
+	 * @param currNodeId
+	 * @param allSignList
+	 * @param choiceAccountRecordModels
+	 * @throws Exception
+	 */
+	public void addEntityAndExtendAndAgreeAndAccountAndAuditTask(BusinessEntityModel businessEntityModel, JjExtendModel jjExtendModel, String currNodeId, List<Map<String, String>> allSignList,
+			List<ChoiceAccountRecordModel> choiceAccountRecordModels) throws Exception;
+	
+	/**
+	 * @描述：添加业务实例，并同事添加协议、帐号和跑批任务、业务扩展信息
+	 * @作者：刘恺
+	 * @时间：2016年9月14日 上午11:37:15
+	 * @param businessEntityModel
+	 * @param currNodeId
+	 * @param allSignList
+	 * @param choiceAccountRecordModels
+	 * @throws Exception
+	 */
+	public void addEntityAndExtendAndAgreeAndAccountAndPpTask(BusinessEntityModel businessEntityModel, JjExtendModel jjExtendModel, String currNodeId, List<Map<String, String>> allSignList,
+			List<ChoiceAccountRecordModel> choiceAccountRecordModels) throws Exception;
+	
+	/**
+	 * @描述：添加业务实例、协议、选择帐号、业务扩展信息
+	 * @作者：刘恺
+	 * @时间：2016年9月20日 下午4:01:20
+	 * @param businessEntityModel
+	 * @param jjExtendModel
+	 * @param currNodeId
+	 * @param allSignList
+	 * @param choiceAccountRecordModels
+	 * @throws Exception
+	 */
+	public void addEntityAndExtendAndAgreeAndAccount(BusinessEntityModel businessEntityModel, JjExtendModel jjExtendModel, String currNodeId, List<Map<String, String>> allSignList,
+			List<ChoiceAccountRecordModel> choiceAccountRecordModels) throws Exception;
+}

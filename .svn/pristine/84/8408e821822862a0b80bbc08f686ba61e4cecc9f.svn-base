@@ -1,0 +1,198 @@
+package com.thinkive.fxc.ismp.bus.business.zq.function;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.DateHelper;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.base.util.StringHelper;
+import com.thinkive.fxc.ismp.bus.base.basicdata.contants.BasicServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.basicdata.service.TradeTimeService;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.business.vo.UserInfoVo;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.business.util.DataFormatUtils;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdDictionaryConstants;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdInterfaceConstant;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdTBASConstants;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdAssetService;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdFirstTransactionService;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdInterface;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdTrdAccountService;
+import com.thinkive.server.InvokeException;
+import com.thinkive.server.ResultVo;
+import com.thinkive.server.util.SpringUtil;
+
+
+/**
+ * @描述: 债券合格投资者-账户条件和内部条件检测
+ * @版权: Copyright (c) 2019 
+ * @公司: 思迪科技 
+ * @作者: 江昶
+ * @版本: 1.0 
+ * @创建日期: 2019年12月2日 
+ * @创建时间: 下午8:02:57
+ */
+public class Function1004236 extends ISMPBaseFunction
+{
+	
+	private Long userId;//用户ID
+	
+	private ThirdInterface thirdInterface;
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public ResultVo execute() throws Exception
+	{
+		checkInput();
+		
+		UserInfoService userInfoService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO, UserInfoService.class);
+		UserInfoVo userInfoVo = userInfoService.queryAndCheckUserByUserIdAndType(userId, ThirdInterfaceConstant.USER_ACCOUNT_TYPE_ZQ);
+		
+		DataRow thirdInput = DataFormatUtils.packThirdInput(userInfoVo);
+		thirdInput.set("branch_no", thirdInput.getString("branchno"));//营业部
+	    thirdInput.set("money_type", ThirdInterfaceConstant.MONEY_TYPE_RMB);//币种
+		
+	    thirdInterface = SpringUtil.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDINTERFACE, ThirdInterface.class);
+		
+	    String asset_flag = DictionaryConstants.BOL_FALSE;//0 满足20日日均资产大于500万  1不满足
+	    String trdtime_flag = DictionaryConstants.BOL_FALSE;//0满足两年  1不满足
+	    //1.前20日日均资产大于500万（暂无接口）
+		
+		
+		//2.经验审核，判断客户交易经验大于2 年
+        DataRow trdtimeCheckResult = checkTrdTime(thirdInput);
+        trdtime_flag = trdtimeCheckResult.getString("flag"); //0不满足 1满足  2获取首次交易时间失败
+        if ( ("0").equals(trdtime_flag) )
+        {
+            trdtime_flag = DictionaryConstants.BOL_TRUE;
+        }else if ( ("1").equals(trdtime_flag) )
+        {
+            trdtime_flag = DictionaryConstants.BOL_FALSE;
+        }
+        String firsTransactionDate = trdtimeCheckResult.getString("firsTransactionDate");
+		logger.info("客户号【"+thirdInput.getString("client_id")+"】首次交易日："+firsTransactionDate);
+        
+        //3.展示所有深A,沪A的状态和开通情况
+        List<DataRow> accountList = null;
+        ThirdTrdAccountService thirdTrdAccountService = SpringHelper.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDTRDACCOUNT, ThirdTrdAccountService.class);
+        accountList = thirdTrdAccountService.queryThirdTraAccount(userInfoVo, ThirdTBASConstants.THIRDINTERFACE_QUERYTYPE_GT);
+		
+        if(accountList != null && accountList.size() > 0)
+        {
+            //查询债券合格投资者权限
+            List<DataRow> rightList = thirdInterface.queryBondRigths(thirdInput);
+            
+            Iterator<DataRow> iterator = accountList.iterator();
+            while (iterator.hasNext())
+            {
+                DataRow accountData = iterator.next();
+                String open_flag = DictionaryConstants.BOL_FALSE;
+                String trdacct = accountData.getString("trdacct");
+                if(rightList != null && rightList.size() > 0)
+                {
+                    for(DataRow rigdata : rightList)
+                    {
+                        if(rigdata.getString("trdacct").equals(trdacct))
+                        {
+                            open_flag = DictionaryConstants.BOL_TRUE;
+                        }
+                    }
+                }
+                accountData.set("open_flag", open_flag);//是否开通权限 0未开通   1已开通
+               
+                //过滤不是深A沪A的账户 trdacct_type=11或21
+                if(!("11").equals(accountData.getString("trdacct_type")) && !("21").equals(accountData.getString("trdacct_type"))){
+                    iterator.remove();
+                }
+                
+            }
+            
+        }
+        
+        
+		DataRow checkFlagData = new DataRow();//资料检测结果
+		checkFlagData.set("asset_flag", asset_flag);//资产条件
+		checkFlagData.set("trdtime_flag", trdtime_flag); //交易经验
+		checkFlagData.set("firsTransactionDate", firsTransactionDate); //首次交易日
+		
+		ResultVo resultVo = new ResultVo();
+		resultVo.setResult("checkFlagData", checkFlagData);//判断条件
+		resultVo.setResult("accountList", accountList);//交易帐号及其权限状态
+		resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+		resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+		return resultVo;
+	}
+	
+	
+	private void checkInput() throws InvokeException
+	{
+		userId = Long.valueOf(this.getAndCheckBlankStrParam("user_id", ErrorCodeCheckInput.BLANK_USERID));
+	}
+	
+	
+	private DataRow checkTrdTime(DataRow thirdInput)
+    {
+        DataRow result = new DataRow();
+        result.set("flag", DictionaryConstants.BOL_TRUE);
+        DataRow firsTransactionResult = thirdInterface.getFirsTransactionData(thirdInput);
+        String firsTransactionDate = firsTransactionResult.getString("firsTransactionData");
+        if (StringHelper.isBlank(firsTransactionDate) || "0".equals(firsTransactionDate))
+        {
+            String isTrade = firsTransactionResult.getString("isTrade");
+            if (DictionaryConstants.BOL_TRUE.equals(isTrade))
+            {
+                result.set("flag", DictionaryConstants.BOL_FALSE);
+                result.set("error_no", "95");
+                result.set("error_msg", "交易时间不足两年");
+                return result;
+            }
+            else
+            {
+                result.set("flag", "2");
+                result.set("error_no", "96");
+                result.set("error_msg", "获取用户首次交易时间失败");
+                return result;
+            }
+        }
+        if (!checkFirstTradeTime(firsTransactionDate, 24))
+        {
+            result.set("flag", DictionaryConstants.BOL_FALSE);
+            result.set("error_no", "95");
+            result.set("error_msg", "交易时间不足两年");
+        }
+        result.set("firsTransactionDate", firsTransactionDate);
+        return result;
+    }
+    
+    private boolean checkFirstTradeTime(String firsTransactionData, int month)
+    {
+        DataRow firstTradeTimeResult = new DataRow();
+        firstTradeTimeResult.set("flag", DictionaryConstants.BOL_TRUE);
+        boolean flag = true;
+        Date firstDate = DateHelper.parseString(firsTransactionData, "yyyyMMdd");
+        Calendar limitCalendar = Calendar.getInstance();
+        limitCalendar.setTime(firstDate);
+        limitCalendar.add(Calendar.MONTH, month);
+        Calendar now = Calendar.getInstance();
+        now.set(Calendar.HOUR_OF_DAY, 0);
+        now.set(Calendar.MINUTE, 0);
+        now.set(Calendar.SECOND, 0);
+        int compareResult = now.compareTo(limitCalendar);
+        if (-1 == compareResult)
+        { //未满N月
+            flag = false;
+        }
+        return flag;
+    }
+
+	
+}

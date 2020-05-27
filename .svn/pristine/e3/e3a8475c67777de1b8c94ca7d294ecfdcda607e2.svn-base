@@ -1,0 +1,176 @@
+package com.thinkive.fxc.ismp.bus.business.kc.service.impl;
+
+import java.util.List;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.jdbc.session.Session;
+import com.thinkive.base.jdbc.session.SessionFactory;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessConstants;
+import com.thinkive.fxc.ismp.bus.base.business.dao.AgreeRecordDao;
+import com.thinkive.fxc.ismp.bus.base.business.dao.ChoiceAccountRecordDao;
+import com.thinkive.fxc.ismp.bus.base.business.dao.PpTaskDao;
+import com.thinkive.fxc.ismp.bus.base.business.dao.ProcNodeDefineDao;
+import com.thinkive.fxc.ismp.bus.base.business.model.BusinessEntityModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.ProcNodeDefineModel;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.SystemConstants;
+import com.thinkive.fxc.ismp.bus.business.kc.dao.KCEditionReservationDao;
+import com.thinkive.fxc.ismp.bus.business.kc.model.KCEditionReservationModel;
+import com.thinkive.fxc.ismp.bus.business.kc.service.KCEditionReservationService;
+import com.thinkive.fxc.ismp.bus.business.service.impl.BusinessCommonServiceImpl;
+
+public class KCEditionReservationServiceImpl extends BusinessCommonServiceImpl implements KCEditionReservationService{
+    
+	    private KCEditionReservationDao kcEditionReservationDao;
+	    
+		private ProcNodeDefineDao procNodeDefineDao;
+		
+		public void setProcNodeDefineDao(ProcNodeDefineDao procNodeDefineDao)
+		{
+			this.procNodeDefineDao = procNodeDefineDao;
+		}	
+		
+	    public void setKcEditionReservationDao(KCEditionReservationDao kceditionreservationdao)
+	    {
+	        this.kcEditionReservationDao = kceditionreservationdao;
+	    }
+	    
+	    public void InsertKCEditionReservation(KCEditionReservationModel model)throws Exception{
+	    	Session session = null;
+			try
+			{
+				//创建session，开启事务
+				session = SessionFactory.getSession(SystemConstants.DB_ISMP);
+				session.beginTrans();
+				kcEditionReservationDao.InsertKCEditionReservation(model,session);
+				//提交事务
+				session.commitTrans();
+			}catch (Exception e)
+				{
+					if (session != null)
+					{
+						session.rollbackTrans();
+					}
+					throw e;
+				}
+				finally
+				{
+					if (session != null)
+					{
+						session.close();
+					}
+			  }
+		}
+	    
+	    public DataRow queryKCEditionReservation(KCEditionReservationModel model) throws Exception{
+	    	return kcEditionReservationDao.queryKCEditionReservation(model);
+	    }
+	    
+	    
+	    @Override
+		public BusinessEntityModel queryOrAddBusinessInfo(Long userId, String nodeId, String opSource, String opStation, String ip) throws Exception
+		{
+			String businessCode = BusinessConstants.BUSINESS_KCB;
+			
+			//查询用户当前有没有正在办理的港股通业务
+			BusinessEntityModel businessEntityModel = businessEntityDao.querNotCompleteByUserIdAndBusinessCode(userId, businessCode);
+			
+			//如果没有正在办理的业务，就新增一个业务实例
+			if (null == businessEntityModel)
+			{
+				Session session = null;
+				try
+				{
+					//创建session，开启事务
+					session = SessionFactory.getSession(SystemConstants.DB_ISMP);
+					session.beginTrans();
+					
+					businessEntityModel = new BusinessEntityModel(userId, businessCode, nodeId, DictionaryConstants.BOL_FALSE, null, opSource, opStation, ip);
+					
+					//新增科创板业务实例
+					businessEntityModel = this.addBusinessEntityModel(businessEntityModel, session);
+					Long businessId = businessEntityModel.getId();
+					
+					// 查询用户是否是第一次办理科创板 业务，如果用户之前做过科创板业务，则默认用户所有流程都通过
+					List<BusinessEntityModel> list = businessEntityDao.queryByParams(userId, businessCode, DictionaryConstants.BOL_TRUE);
+					if (null != list && list.size() > 0)
+					{
+						//查询到港股通业务流程节点，然后循环向业务办理流程节点记录表和业务办理节点操作记录表中循环插入记录
+						List<ProcNodeDefineModel> procNodeDefineModels = procNodeDefineDao.queryByBusinessType(businessCode);//获取科创板业务流程节点
+						if (null != procNodeDefineModels)
+						{
+							for (ProcNodeDefineModel procNodeDefineModel : procNodeDefineModels)
+							{
+								String nodeid = procNodeDefineModel.getNodeId();
+								//新增业务办理流程节点记录
+								this.addFlowNodeModel(businessId, nodeid, ip, opSource, opStation, session);
+								
+								//新增业务办理节点操作记录
+								this.addNodeLogModel(businessId, nodeid, ip, opSource, opStation, session);
+								
+							}
+							
+						}
+					}
+					session.commitTrans();
+				}
+				catch (Exception e)
+				{
+					if (session != null)
+					{
+						session.rollbackTrans();
+					}
+					throw e;
+				}
+				finally
+				{
+					if (session != null)
+					{
+						session.close();
+					}
+				}
+			}
+			return businessEntityModel;
+		}
+	    
+	    @Override
+		public void UpdateKCBNode(Long businessId, String nodeId, String opSource, String opStation, String ip) throws Exception
+		{
+			Session session = null;
+			try
+			{
+				//创建session，开启事务
+				session = SessionFactory.getSession(SystemConstants.DB_ISMP);
+				session.beginTrans();
+				
+				//更新业务实例当前节点
+				BusinessEntityModel businessEntityModel = new BusinessEntityModel();
+				businessEntityModel.setId(businessId);
+				businessEntityModel.setNodeId(nodeId);
+				this.updateBusinessEntityModel(businessEntityModel, session);
+				
+				//更新节点记录
+				this.addOrUpdateFlowNodeModel(businessId, nodeId, ip, opSource, opStation, session);
+				
+				//添加节点记录操作日志
+				this.addNodeLogModel(businessId, nodeId, ip, opSource, opStation, session);
+				
+				session.commitTrans();
+			}
+			catch (Exception e)
+			{
+				if (session != null)
+				{
+					session.rollbackTrans();
+				}
+				throw e;
+			}
+			finally
+			{
+				if (session != null)
+				{
+					session.close();
+				}
+			}
+		}
+}

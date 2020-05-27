@@ -1,0 +1,80 @@
+package com.thinkive.fxc.ismp.bus.base.business.dao.impl;
+
+import java.util.List;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessTableConstants;
+import com.thinkive.fxc.ismp.bus.base.business.dao.BprocNodeConfigDao;
+import com.thinkive.fxc.ismp.bus.base.business.model.BprocNodeConfigModel;
+import com.thinkive.fxc.ismp.bus.base.business.vo.BprocNodeConfigAndDefineVO;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseDao;
+import com.thinkive.fxc.ismp.bus.base.util.ModelUtil;
+
+/**
+ * @描述: 业务流程节点配置表(T_ISMP_BPROCNODE_CONFIG)数据层接口实现类
+ * @版权: Copyright (c) 2016 
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0 
+ * @创建时间: 2016年8月16日 上午10:14:35
+ */
+public class BprocNodeConfigDaoImpl extends ISMPBaseDao implements BprocNodeConfigDao
+{
+	
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<BprocNodeConfigModel> queryByNodeId(String nodeId)
+	{
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT ID,BTYPE_ID,NODE_ID,BPNODE_POSITION,PRE_BPNODE_ID,NEXT_BPNODE_ID,NEED_COMPLETE_NODE,IS_CONFIRM_ALL FROM ");
+		sql.append(BusinessTableConstants.T_ISMP_BPROCNODE_CONFIG);
+		sql.append(" WHERE NODE_ID = ?");
+		List<DataRow> queryResult = this.getJdbcTemplate().query(sql.toString(), new Object[] { nodeId });
+		return ModelUtil.packList(queryResult, BprocNodeConfigModel.class);
+	}
+	
+	@Override
+	public BprocNodeConfigAndDefineVO queryNadVoByBCodeAndOpSouAndNodeId(String businessCode, String opSource, String nodeId)
+	{
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT BNC.ID,BNC.BTYPE_ID,BNC.NODE_ID,BNC.BPNODE_POSITION,BNC.PRE_BPNODE_ID,BNC.NEXT_BPNODE_ID,BNC.NEED_COMPLETE_NODE,BNC.IS_CONFIRM_ALL,ND.PAGE_ID,ND.FUNC_NO,ND.NODE_TYPE FROM ");
+		sql.append(BusinessTableConstants.T_ISMP_BPROCNODE_CONFIG);
+		sql.append(" BNC LEFT JOIN ");
+		sql.append(BusinessTableConstants.T_ISMP_BUSINESS_CONFIG);
+		sql.append(" BC ON BC.BTYPE_ID = BNC.BTYPE_ID ");
+		sql.append(" LEFT JOIN ");
+		sql.append(BusinessTableConstants.T_ISMP_PROCNODE_DEFINE);
+		sql.append(" ND ON ND.NODE_ID = BNC.NODE_ID ");
+		sql.append(" WHERE BC.BUSINESS_CODE = ? AND BC.OP_SOURCE = ? AND BNC.NODE_ID = ? ");
+		DataRow queryResult = this.getJdbcTemplate().queryMap(sql.toString(), new Object[] { businessCode, opSource, nodeId });
+		return ModelUtil.packInfo(queryResult, BprocNodeConfigAndDefineVO.class);
+	}
+	
+	@Override
+	public BprocNodeConfigAndDefineVO queryNadVoByBtypeIdAndNodeId(Long btypeId, String nodeId)
+	{
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT BNC.ID,BNC.BTYPE_ID,BNC.NODE_ID,BNC.BPNODE_POSITION,BNC.PRE_BPNODE_ID,BNC.NEXT_BPNODE_ID,BNC.NEED_COMPLETE_NODE,BNC.IS_CONFIRM_ALL,ND.PAGE_ID,ND.FUNC_NO,ND.NODE_TYPE FROM ");
+		sql.append(BusinessTableConstants.T_ISMP_BPROCNODE_CONFIG);
+		sql.append(" BNC LEFT JOIN ");
+		sql.append(BusinessTableConstants.T_ISMP_PROCNODE_DEFINE);
+		sql.append(" ND ON ND.NODE_ID = BNC.NODE_ID ");
+		sql.append(" WHERE BNC.BTYPE_ID = ? AND BNC.NODE_ID = ? ");
+		DataRow queryResult = this.getJdbcTemplate().queryMap(sql.toString(), new Object[] { btypeId, nodeId });
+		return ModelUtil.packInfo(queryResult, BprocNodeConfigAndDefineVO.class);
+	}
+	
+	@Override
+	public BprocNodeConfigAndDefineVO queryNadVoByBtypeIdAndPreNodeId(Long btypeId, String preNodeId)
+	{
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT BNC.ID,BNC.BTYPE_ID,BNC.NODE_ID,BNC.BPNODE_POSITION,BNC.PRE_BPNODE_ID,BNC.NEXT_BPNODE_ID,BNC.NEED_COMPLETE_NODE,BNC.IS_CONFIRM_ALL,ND.PAGE_ID,ND.FUNC_NO,ND.NODE_TYPE FROM ");
+		sql.append(BusinessTableConstants.T_ISMP_BPROCNODE_CONFIG);
+		sql.append(" BNC LEFT JOIN ");
+		sql.append(BusinessTableConstants.T_ISMP_PROCNODE_DEFINE);
+		sql.append(" ND ON ND.NODE_ID = BNC.NODE_ID ");
+		sql.append(" WHERE BNC.BTYPE_ID = ? AND BNC.PRE_BPNODE_ID = ? ");
+		DataRow queryResult = this.getJdbcTemplate().queryMap(sql.toString(), new Object[] { btypeId, preNodeId });
+		return ModelUtil.packInfo(queryResult, BprocNodeConfigAndDefineVO.class);
+	}
+}

@@ -1,0 +1,117 @@
+package com.thinkive.fxc.ismp.bus.business.certificate.business;
+
+import org.apache.log4j.Logger;
+
+import com.thinkive.base.exception.BusinessException;
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.service.CertManageService;
+import com.thinkive.fxc.ismp.bus.base.business.service.CertTBASService;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.business.vo.CertUserInfoVo;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.CertConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeSystem;
+import com.thinkive.fxc.ismp.bus.business.util.DataFormatUtils;
+import com.thinkive.gateway.v2.result.Result;
+import com.thinkive.server.ResultVo;
+
+/**
+ * @描述: 获取中登证书(申请或更新证书)----通用
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年11月9日 上午10:42:22
+ */
+public class Function1004186 extends ISMPBaseFunction
+{
+	
+	private Long userId;//用户编号
+	
+	private String pkcs10;//证书请求串
+	
+	private Logger logger = Logger.getLogger(Function1004186.class);
+	
+	@Override
+	public ResultVo execute() throws Exception
+	{
+		ResultVo resultVo = new ResultVo();
+		
+		initVar();
+		
+		UserInfoService userInfoService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO, UserInfoService.class);
+		CertUserInfoVo userInfo = userInfoService.queryCertUser(userId);
+		if (userInfo == null || userInfo.isEmpty())
+		{
+			throw new BusinessException(ErrorCodeSystem.NOTEXIST_USER);
+		}
+		
+		// 中登CA是否已经存在用户证书
+		CertTBASService certTBASService = (CertTBASService) SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_CERTTBAS);
+		CertManageService certManageService = (CertManageService) SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_CERTMANAGE);
+		certManageService.checkUserInfo(userInfo);
+		
+		String nationality = userInfo.getNationality();
+		String custName = userInfo.getName();
+		String idType = userInfo.getIdentityType();
+		String idNo = userInfo.getIdentityNum();
+		String certuid = userInfo.getCertuid();
+		pkcs10 = DataFormatUtils.formatPk10(pkcs10);
+		String csdcIdType = DataFormatUtils.convertIdType(idType);// 转换中登证件类型
+		
+		// 根据客户四项唯一标识信息校验是否申请过中登证书
+		Result certRs = certTBASService.chkIsExistCert(custName, nationality, csdcIdType, idNo, CertConstants.CERTSOURCE_ZD);
+		
+		int errNo = certRs.getErr_no();
+		DataRow csdcCertInfo = certRs.getData();
+		String cert_id = "";
+		String cert_status = "";
+		if (csdcCertInfo != null)
+		{
+			cert_id = csdcCertInfo.getString("cert_id");
+			cert_status = csdcCertInfo.getString("cert_status");
+		}
+		else
+		{
+			logger.error("证书接口无data数据返回");
+		}
+		
+		if (errNo == CertConstants.CERT_ERROR_CERTNOTEXIST || CertConstants.CERT_STATE_CANCEL.equals(cert_status))// 不存在或者已经注销
+		{
+			resultVo.setResult(certManageService.applyZDCert(certuid, pkcs10, ip, mac));
+		}
+		else if (errNo == 0)// 存在
+		{
+			if (CertConstants.CERT_STATE_NOTDOWNLOAD.equals(cert_status) || CertConstants.CERT_STATE_EFFECTIVE.equals(cert_status))
+			{
+				resultVo.setResult(certManageService.updateZDCert(cert_id, pkcs10, ip, mac));
+			}
+			else
+			{
+				throw new BusinessException(ErrorCodeSystem.CERT_STATUS_FROZEN);
+			}
+		}
+		else
+		{
+			throw new BusinessException(ErrorCodeSystem.CERT_QUERY_FAIL);
+		}
+		resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+		resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+		return resultVo;
+	}
+	
+	/**
+	 * @描述：获取业务入参
+	 * @作者：刘恺
+	 * @时间：2016年8月23日 下午8:55:24
+	 */
+	private void initVar()
+	{
+		userId = this.formatLongParam(this.getAndCheckBlankStrParam("user_id", ErrorCodeCheckInput.BLANK_USERID), ErrorCodeCheckInput.LONG_FORMAT_ERROR);
+		pkcs10 = this.getAndCheckBlankStrParam("pkcs10", ErrorCodeCheckInput.BLANK_PKCS10);
+	}
+}

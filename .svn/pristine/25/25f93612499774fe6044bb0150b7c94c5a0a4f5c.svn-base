@@ -1,0 +1,109 @@
+package com.thinkive.fxc.ismp.bus.base.constants;
+
+/**
+ * @描述: 数字证书常量
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月29日 下午9:29:55
+ */
+public class CertConstants
+{
+	
+	/**
+	 * 证书状态
+	 */
+	public static final String CERT_STATE_NOTDOWNLOAD = "1"; //证书未下载
+	
+	public static final String CERT_STATE_EFFECTIVE = "2"; //正常有效
+	
+	public static final String CERT_STATE_FREEZE = "3"; //证书已冻结
+	
+	public static final String CERT_STATE_CANCEL = "4"; //证书已作废
+	
+	/**
+	 * 证书申请方式
+	 */
+	public static final String CERT_REQUEST_TYPE_CABINET = "01"; //离柜申请
+	
+	public static final String CERT_REQUEST_TYPE_WITNESS = "02"; //见证申请
+	
+	public static final String CERT_REQUEST_TYPE_VIDEO = "03"; //视频申请
+	
+	public static final String CERT_REQUEST_TYPE_OTHER = "99"; //其他申请
+	
+	/**
+	 * 证书来源
+	 */
+	public static final String CERTSOURCE_ZD = "1"; //中登证书
+	
+	public static final String CERTSOURCE_TW = "2"; //天威自建证书
+	
+	public static final String CERTSOURCE_XINAN = "3"; //信安自建证书
+	
+	public static final String CERTSOURCE_TDX = "4"; //通达信自建证书
+	
+	public static final String CERTSOURCE_BJ = "5"; //北京自建证书
+	
+	/**
+	 * 证书类型
+	 */
+	public static final String CERT_TYPE_ZD = "0"; //中等证书
+	
+	public static final String CERT_TYPE_ZJ = "1"; //自建证书
+	
+	public static final String CERT_TYPE_ALL = "all"; //全部证书类型
+	
+	/**
+	 * 证书类型
+	 */
+	public static final String CERT_TYPE_SOFT = "1"; //软证书
+	
+	/**
+	 * 证书错误编码
+	 */
+	public static final int CERT_ERROR_CERTNOTEXIST = 65000403; //证书已存在
+	
+	/**
+	 * 证书权限类型
+	 */
+	public static final String PERMISSION_TYPE_ZJ = "0"; //可以下载自建证书
+	
+	public static final String PERMISSION_TYPE_ZD = "1"; //可以下载中登和自建证书
+	
+	/**
+	 * 协议签署原文类型
+	 */
+	public static final String SIGN_SOURCE_FLAG_TEXT = "0"; //原文
+	
+	public static final String SIGN_SOURCE_FLAG_MD5 = "1"; //MD5值
+	
+	public static final String SIGN_SOURCE_FLAG_OTHER = "2"; //其他文文本
+	
+	/**
+	 * 协议签署方式
+	 */
+	public static final String SIGN_TYPE_NOCERT = "2"; //不使用证书
+	
+	public static final String SIGN_TYPE_ZD = CERT_TYPE_ZD; //中登证书
+	
+	public static final String SIGN_TYPE_ZJ = CERT_TYPE_ZJ; //自建证书
+	
+	/**
+	 * 协议提交方式
+	 */
+	public static final String SUBMIT_TYPE_LOCAL = "0"; //本地数据库
+	
+	public static final String SUBMIT_TYPE_THIRD = "1"; //第三方接口
+	
+	/**
+	 * 数字证书30095接口调用错误号---没有证书用户
+	 */
+	public static final String CERTBUS_NOCERTUSER_ERRORCODE = "-3009505";
+	
+	/**
+	 * 自建证书类型---配置文件key
+	 */
+	public static final String CONFIG_KEY_ZJCERTTYPE = "cert.certSourceZJ";
+}

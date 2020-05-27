@@ -1,0 +1,151 @@
+package com.thinkive.fxc.ismp.bus.business.kc.function;
+
+
+import java.util.Map;
+
+import com.thinkive.base.exception.BusinessException;
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.basicdata.contants.BasicServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.basicdata.model.SurveySubjectModel;
+import com.thinkive.fxc.ismp.bus.base.basicdata.service.SurveyService;
+import com.thinkive.fxc.ismp.bus.base.basicdata.vo.QuestionInfoVo;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.model.BusinessEntityModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.NodePropertyConfigModel;
+import com.thinkive.fxc.ismp.bus.base.business.service.BusinessEntityService;
+import com.thinkive.fxc.ismp.bus.base.business.service.NodePropertyConfigService;
+import com.thinkive.fxc.ismp.bus.base.business.service.SurveyAnswerRecordService;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.business.vo.UserInfoVo;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput; 
+import com.thinkive.fxc.ismp.bus.business.kc.contants.KcbContants;
+import com.thinkive.fxc.ismp.bus.business.kc.contants.KcbErrorCodeContants;
+import com.thinkive.fxc.ismp.bus.business.kc.service.KCEditionReservationService;
+import com.thinkive.fxc.ismp.bus.business.util.DataFormatUtils;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdDictionaryConstants;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdInterfaceConstant;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdTBASConstants;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdInterface;
+import com.thinkive.server.InvokeException;
+import com.thinkive.server.ResultVo;
+
+/**
+ * 作者：MIKE
+ * 公司：深圳市思迪信息技术股份公司
+ * 日期时间：2019年3月10日 下午1:13:26
+ * 说明：科创板-提交业务知识测评
+ */
+public class Function1004580 extends ISMPBaseFunction
+{
+	
+    private Long userId;//用户编号
+	
+	private String answerStr;//答案信息
+	
+	private String question_source; 
+	
+	private UserInfoService userInfoService;
+	   
+    private NodePropertyConfigService nodePropertyConfigService;
+    
+    private SurveyAnswerRecordService surveyAnswerRecordService;
+    
+    private SurveyService surveyService;
+	
+	@SuppressWarnings("unchecked")
+    public ResultVo execute() throws Exception
+	{
+		
+		checkInput();
+		
+		userInfoService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO, UserInfoService.class);
+		UserInfoVo userInfo = userInfoService.queryAndCheckUserByUserIdAndType(userId, ThirdInterfaceConstant.USER_ACCOUNT_TYPE_ZQ);
+	        
+        //查询正在办理的科创板业务数据
+		KCEditionReservationService service = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_KCEDITIONRESERVATION, KCEditionReservationService.class);
+        BusinessEntityModel businessEntityModel=service.queryOrAddBusinessInfo(userId, KcbContants.KCB_START, opSource, opStation, ip);
+        //更新为知识测评节点
+        BusinessEntityService businessEntityService  = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_BUSINESSENTITY, BusinessEntityService.class);
+        businessEntityModel.setNodeId(KcbContants.KCB_KNOWLEDGE); 
+        businessEntityService.update(businessEntityModel);
+		
+        //查询科创板风险测评节点提交到本地数据库问卷编号
+        nodePropertyConfigService=SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_NODEPROPERTYCONFIG, NodePropertyConfigService.class);
+        NodePropertyConfigModel nodePropertyConfigModel=nodePropertyConfigService.queryByNodeIdAndStateAndPropertyKey(KcbContants.KCB_KNOWLEDGE, KcbContants.KCB_KNOWLEDGE_LOCAL_CODE, DictionaryConstants.BOL_TRUE);
+        if(null == nodePropertyConfigModel){
+            throw new BusinessException( KcbErrorCodeContants.KCB_KNOWLEDGE_NODEPROPERTY_ERROR, "科创板业务知识测评节点属性配置错误");
+        }
+        String subjectCode=nodePropertyConfigModel.getPropertyValue();//要提交的本地问卷编号
+        surveyService = SpringHelper.getBean(BasicServiceBeanIdConstants.SERVICE_ID_SURVEY, SurveyService.class); 
+        SurveySubjectModel surveySubjectModel=surveyService.queryBySubject(subjectCode);
+        if(null == surveySubjectModel){
+            throw new BusinessException(KcbErrorCodeContants.BLANK_ZSCP_SURVEY, "未找到对应主题的业务知识测评问卷");
+        }
+        
+        //提交答案到数据库
+        surveyAnswerRecordService=SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_SURVEYANSWERRECORD, SurveyAnswerRecordService.class);
+        surveyAnswerRecordService.addOrUpdateAnswer(answerStr, businessEntityModel.getId(), surveySubjectModel.getId(), KcbContants.KCB_KNOWLEDGE);
+        DataRow riskRow=surveyAnswerRecordService.querySourceAndDefine(businessEntityModel.getId(), KcbContants.KCB_KNOWLEDGE);
+		
+        //将问卷数据提交到第三方接口
+        ThirdInterface thirdInterface = SpringHelper.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDINTERFACE,
+                ThirdInterface.class);
+        DataRow input = DataFormatUtils.packThirdInput(userInfo);
+        input.set("riskValue", riskRow.getString("score"));
+        input.set("riskName", riskRow.getString("define"));
+        input.set("riskLevel", riskRow.getString("define_value"));
+        input.set("answer", answerStr);
+        input.set("survey_sn", ThirdTBASConstants.SNO_KCBSDXCP);
+        if ( DictionaryConstants.QUESTION_COMMIT_TYPE_LOCAL.equals(question_source) )
+        {//问卷来源 0：本地数据库  1：第三方接口
+            
+            Map<String, Object> result = surveyService.countUserAnswersByLocalSource(answerStr, subjectCode);
+            Map<String, QuestionInfoVo> standardAnsersMap = (Map<String, QuestionInfoVo>) result.get("standardQuestionAndAnsersMap");
+            input.set("answer", DataFormatUtils.formatDDAnswer(answerStr, standardAnsersMap));
+        }
+        DataRow thirdRow = thirdInterface.addOrUpdateQuestionnaire(input);
+        
+        //获取科创板业务知识测评可通过等级
+        NodePropertyConfigModel propertyConfigModel=nodePropertyConfigService.queryByNodeIdAndStateAndPropertyKey(KcbContants.KCB_KNOWLEDGE, KcbContants.KCB_KNOWLEDGE_PASS_VALUE, DictionaryConstants.BOL_TRUE);
+        if(null == propertyConfigModel){
+            throw new BusinessException( KcbErrorCodeContants.KCB_KNOWLEDGE_NODEPROPERTY_ERROR, "科创板业务知识测评节点属性配置错误");
+        }
+        String passValue=propertyConfigModel.getPropertyValue();
+        String[] passValues=passValue.split(",");
+        
+        String score=thirdRow.getString("riskvalue");
+        if(null == score){
+            score=riskRow.getString("score");
+        }
+		String check_flag = DictionaryConstants.BOL_FALSE;//默认业务知识测评不通过
+		//分数满足要求，更新业务办理流程数据
+		if (Double.valueOf(score) >= Integer.valueOf(passValues[0])&&Double.valueOf(score)  <= Integer.valueOf(passValues[1]))
+		{
+			service.UpdateKCBNode(businessEntityModel.getId(), KcbContants.KCB_CHOOSE_ACCOUNT, opSource, opStation, ip);
+		    check_flag = DictionaryConstants.BOL_TRUE;
+		}
+		
+		//返回结果集
+		DataRow resultData = new DataRow();
+		resultData.set("check_flag", check_flag);
+		resultData.set("score", score);
+		resultData.set("businessEntityModel", businessEntityModel);
+		ResultVo resultVo = new ResultVo();
+		resultVo.setResult(resultData);
+		resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+		resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+		return resultVo;
+	}
+	
+	private void checkInput() throws InvokeException
+	{
+	    question_source = this.getStrParameter("question_source", "0"); //问卷来源 0：本地数据库  1：第三方接口
+	    userId = Long.valueOf(this.getAndCheckBlankStrParam("user_id", ErrorCodeCheckInput.BLANK_USERID));
+        answerStr = this.getAndCheckBlankStrParam("answerStr", ErrorCodeCheckInput.BLANK_ANSWERSTR);
+	}
+	
+}
+                                                                                

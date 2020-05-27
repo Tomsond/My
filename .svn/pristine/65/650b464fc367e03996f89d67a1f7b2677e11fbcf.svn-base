@@ -1,0 +1,102 @@
+package com.thinkive.fxc.ismp.bus.business.certificate.business;
+
+import com.thinkive.base.exception.BusinessException;
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.model.UserExtendModel;
+import com.thinkive.fxc.ismp.bus.base.business.service.CertTBASService;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.CertConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeSystem;
+import com.thinkive.gateway.v2.result.Result;
+import com.thinkive.server.InvokeException;
+import com.thinkive.server.ResultVo;
+
+/**
+ * @描述: 获取数据库中的证书信息
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月29日 下午8:50:07
+ */
+public class Function1004184 extends ISMPBaseFunction
+{
+	
+	private Long userId;//用户编号
+	
+	private String certType;//证书类型
+	
+	@Override
+	public ResultVo execute() throws InvokeException
+	{
+		initVar();
+		ResultVo resultVo = new ResultVo();
+		UserInfoService userInfoService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO, UserInfoService.class);
+		UserExtendModel userExtendModel = userInfoService.queryUserExtendByUserId(userId);
+		if (userExtendModel == null)
+		{
+			throw new BusinessException(ErrorCodeSystem.NOTEXIST_USER);
+		}
+		
+		Long certuid = userExtendModel.getCertuId();
+		if (certuid == 0)
+		{
+			throw new BusinessException(ErrorCodeSystem.ACCONT_ERROR_NOCERTUID);
+		}
+		
+		CertTBASService certTBASService = (CertTBASService) SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_CERTTBAS);
+		Result certRs = null;
+		if (CertConstants.CERT_TYPE_ZD.equals(certType))
+		{
+			certRs = certTBASService.getCsdcCert(certuid.toString());
+		}
+		else
+		{
+			certRs = certTBASService.getTianWeiCert(certuid.toString());
+		}
+		if (certRs.getErr_no() != 0)
+		{
+			throw new BusinessException(ErrorCodeSystem.CERT_QUERY_FAIL);
+		}
+		DataRow certRow = certRs.getData();
+		DataRow result = packResult(certRow);
+		resultVo.setResult(result);
+		resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+		resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+		return resultVo;
+	}
+	
+	private DataRow packResult(DataRow certRow)
+	{
+		DataRow result = new DataRow();
+		result.set("cert_id", certRow.get("cert_id"));//证书ID
+		result.set("cert_type", certRow.get("cert_type"));//证书类型
+		result.set("usb_key_id", certRow.get("usb_key_id"));
+		result.set("cert_dn", certRow.get("cert_dn"));//证书DN值
+		result.set("cert_dn_cn", certRow.get("cert_dn_cn"));
+		result.set("pkcs10", certRow.get("pkcs10"));//证书请求
+		result.set("cert_status", certRow.get("cert_status"));//证书状态
+		result.set("cert_sn", certRow.get("cert_sn"));//证书sn值
+		result.set("cert_start_time", certRow.get("cert_start_time"));//证书有效期开始时间
+		result.set("cert_end_time", certRow.get("cert_end_time"));//证书有效期结束时间
+		result.set("p7cert", certRow.get("p7cert"));//证书链
+		result.set("x509cert", certRow.get("x509cert"));//X509用户证书
+		return result;
+	}
+	
+	/**
+	 * @描述：获取业务入参
+	 * @作者：刘恺
+	 * @时间：2016年8月23日 下午8:55:24
+	 */
+	private void initVar()
+	{
+		userId = this.formatLongParam(this.getAndCheckBlankStrParam("user_id", ErrorCodeCheckInput.BLANK_USERID), ErrorCodeCheckInput.LONG_FORMAT_ERROR);
+		certType = this.getAndCheckBlankStrParam("cert_type", ErrorCodeCheckInput.BLANK_CERTTYPE);
+	}
+}

@@ -1,0 +1,67 @@
+package com.thinkive.fxc.ismp.bus.base.business.dao.impl;
+
+import java.util.Date;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessTableConstants;
+import com.thinkive.fxc.ismp.bus.base.business.dao.CitizenInfoDao;
+import com.thinkive.fxc.ismp.bus.base.business.model.CitizenInfo;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseDao;
+import com.thinkive.fxc.ismp.bus.base.constants.SystemConstants;
+import com.thinkive.fxc.ismp.bus.base.util.ModelUtil;
+
+/**
+ * @描述: 公安信息DAO实现类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年11月7日 上午10:28:34
+ */
+public class CitizenInfoDaoImpl extends ISMPBaseDao implements CitizenInfoDao
+{
+	
+	public int saveCitizenInfo(CitizenInfo citizen)
+	{
+		citizen.setCreateDate(new Date());
+		citizen.setUpdateDate(new Date());
+		String id = getSeqValue(SystemConstants.DB_ISMP,BusinessTableConstants.T_FXC_IDNO_INFO);
+		citizen.setId(id);
+		return this.getJdbcTemplate().insert(BusinessTableConstants.T_FXC_IDNO_INFO, citizen);
+	}
+	
+	public CitizenInfo getCitizenInfoByidNo(String idno)
+	{
+		StringBuilder sql = new StringBuilder(" SELECT ID, BIRTH_DATE, CITIZEN_ID_NUMBER, NAME, PHOTOS, SEXCODE, PHOTO_PATH, SOURCE, SECRET_KEY FROM ");
+		sql.append(BusinessTableConstants.T_FXC_IDNO_INFO);
+		sql.append(" WHERE CITIZEN_ID_NUMBER = ? ");
+		DataRow dataRow = this.getJdbcTemplate().queryMap(sql.toString(), new Object[] { idno });
+		if (dataRow == null || dataRow.size() == 0)
+		{
+			return null;
+		}
+		return ModelUtil.packInfo(dataRow, CitizenInfo.class);
+	}
+	
+	public CitizenInfo getCitizenInfoByUserId(String user_id)
+	{
+		StringBuilder sql = new StringBuilder(" SELECT T1.ID, T1.BIRTH_DATE, T1.CITIZEN_ID_NUMBER, T1.NAME, T1.PHOTOS, T1.SEXCODE, T1.PHOTO_PATH, T1.SOURCE, T1.SECRET_KEY FROM ");
+		sql.append(BusinessTableConstants.T_FXC_IDNO_INFO);
+		sql.append(" T1 INNER JOIN ");
+		sql.append(BusinessTableConstants.T_ISMP_USER_INFO);
+		sql.append(" T2 ON T1.CITIZEN_ID_NUMBER =  T2.IDENTITY_NUM AND T2.USER_ID = ?");
+		
+		DataRow dataRow = this.getJdbcTemplate().queryMap(sql.toString(), new Object[] { user_id });
+		if (dataRow == null || dataRow.size() == 0)
+		{
+			return null;
+		}
+		return ModelUtil.packInfo(dataRow, CitizenInfo.class);
+	}
+	
+	public int updateCitizenInfo(CitizenInfo citizen)
+	{
+		return this.getJdbcTemplate().update(BusinessTableConstants.T_FXC_IDNO_INFO, citizen, "citizen_id_number", citizen.getCitizenidnumber());
+	}
+	
+}

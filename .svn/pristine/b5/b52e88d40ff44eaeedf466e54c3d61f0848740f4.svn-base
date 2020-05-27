@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="GBK"?>
+<!--
+##################################################################
+##                                                              ##
+##         用于配置服务器需要动态加载的功能模块                 ##
+##                                                              ##
+##                                                              ##
+##         id     :  业务功能编号                               ##
+##         class  :  业务功能的具体实现类                       ##
+##         desc   :  功能描述信息                                ##
+##                                                              ##
+##################################################################
+-->
+<functions>
+	<function id="1057001">
+		<class>com.thinkive.fxc.ismp.plat.business.ygt.function.Function1057001</class>
+		<desc>添加IFS柜台账户信息</desc>
+	</function>
+	<function id="1057002">
+		<class>com.thinkive.fxc.ismp.plat.business.ygt.function.Function1057002</class>
+		<desc>修改IFS柜台账户信息</desc>
+	</function>
+	<function id="1057003">
+		<class>com.thinkive.fxc.ismp.plat.business.ygt.function.Function1057003</class>
+		<desc>删除IFS柜台账户信息</desc>
+	</function>
+	
+	
+	<function id="1055001">
+		<class>com.thinkive.fxc.ismp.plat.business.ygt.function.Function1055001</class>
+		<desc>添加协议</desc>
+	</function>
+	<function id="1055002">
+		<class>com.thinkive.fxc.ismp.plat.business.ygt.function.Function1055002</class>
+		<desc>修改协议</desc>
+	</function>
+	<function id="1055003">
+		<class>com.thinkive.fxc.ismp.plat.business.ygt.function.Function1055003</class>
+		<desc>删除协议</desc>
+	</function>
+	<function id="1055004">
+		<class>com.thinkive.fxc.ismp.plat.business.ygt.function.Function1055004</class>
+		<desc>根据业务code查询相应节点名称</desc>
+	</function>
+	<function id="1050505">
+		<class>com.thinkive.fxc.ismp.plat.business.ygt.function.Function1050505</class>
+		<desc>查询风险测评结果</desc>
+	</function>
+	<function id="1050506">
+		<class>com.thinkive.fxc.ismp.plat.business.ygt.function.Function1050506</class>
+		<desc>查询选择账户列表</desc>
+	</function>
+	<function id="1050808">
+		<class>com.thinkive.fxc.ismp.plat.business.ygt.function.Function1050808</class>
+		<desc>重新处理跑批</desc>
+	</function>
+	<function id="1050809">
+		<class>com.thinkive.fxc.ismp.plat.business.ygt.function.Function1050809</class>
+		<desc>查询帐号选择记录-----通用</desc>
+	</function>
+	<function id="1050810">
+		<class>com.thinkive.fxc.ismp.plat.business.ygt.function.Function1050810</class>
+		<desc>查询影像资料-----通用</desc>
+	</function>
+	<function id="1050811">
+		<class>com.thinkive.fxc.ismp.plat.business.ygt.function.Function1050811</class>
+		<desc>查询业务表状态-----通用</desc>
+	</function>
+	<function id="1050812">
+		<class>com.thinkive.fxc.ismp.plat.business.ygt.function.Function1050812</class>
+		<desc>审核-----通用</desc>
+	</function>
+	<function id="1050813">
+		<class>com.thinkive.fxc.ismp.plat.business.ygt.function.Function1050813</class>
+		<desc>查询用户变更信息-----通用</desc>
+	</function>
+	<function id="1050814">
+		<class>com.thinkive.fxc.ismp.plat.business.ygt.function.Function1050814</class>
+		<desc>查询公安校验-----通用</desc>
+	</function>
+	<function id="1050815">
+		<class>com.thinkive.fxc.ismp.plat.business.ygt.function.Function1050815</class>
+		<desc>调用公安校验-----通用</desc>
+	</function>
+	<function id="1050816">
+		<class>com.thinkive.fxc.ismp.plat.business.ygt.function.Function1050816</class>
+		<desc>调用视频通过-----通用</desc>
+	</function>
+	<function id="1050817">
+		<class>com.thinkive.fxc.ismp.plat.business.ygt.function.Function1050817</class>
+		<desc>查看手机号变更信息-----通用</desc>
+	</function>
+	<function id="1053801">
+		<class>com.thinkive.fxc.ismp.plat.business.ygt.function.Function1053801</class>
+		<desc>三方业务办理</desc>
+	</function>
+	<function id="1050818">
+		<class>com.thinkive.fxc.ismp.plat.business.ygt.function.Function1050818</class>
+		<desc>查询业务办理状态以及流水</desc>
+	</function>
+	<function id="1050819">
+		<class>com.thinkive.fxc.ismp.plat.business.ygt.function.Function1050819</class>
+		<desc>查询办理该业务办理的用户基本信息</desc>
+	</function>
+	<function id="1050820">
+		<class>com.thinkive.fxc.ismp.plat.business.ygt.function.Function1050820</class>
+		<desc>查询业务节点满足跑批条件的数据</desc>
+	</function>
+	<function id="1050821">
+		<class>com.thinkive.fxc.ismp.plat.business.ygt.function.Function1050821</class>
+		<desc>跑批流水查询</desc>
+	</function>
+	<function id="1050822">
+		<class>com.thinkive.fxc.ismp.plat.business.ygt.function.Function1050822</class>
+		<desc>跑批历史流水查询</desc>
+	</function>
+	<function id="1050823">
+		<class>com.thinkive.fxc.ismp.plat.business.ygt.function.Function1050823</class>
+		<desc>查询用户签署协议</desc>
+	</function>
+	<function id="1050824">
+		<class>com.thinkive.fxc.ismp.plat.business.ygt.function.Function1050824</class>
+		<desc>查询用户签署协议内容</desc>
+	</function>
+	<function id="1050825">
+		<class>com.thinkive.fxc.ismp.plat.business.ygt.function.Function1050825</class>
+		<desc>平台公安验证接口</desc>
+	</function>
+	<function id="1050826">
+		<class>com.thinkive.fxc.ismp.plat.business.ygt.function.Function1050826</class>
+		<desc>业务流水查询-基于数据权限控制</desc>
+	</function>
+	<function id="1050827">
+		<class>com.thinkive.fxc.ismp.plat.business.ygt.function.Function1050827</class>
+		<desc>期权全真模拟查询-基于数据权限控制</desc>
+	</function>
+	<function id="1051404">
+		<class>com.thinkive.fxc.ismp.plat.business.ygt.function.Function1051404</class>
+		<desc>查询用户委托方式 --基于数据权限控制</desc>
+	</function>
+	<function id="1056001">
+		<class>com.thinkive.fxc.ismp.plat.business.ygt.function.Function1056001</class>
+		<desc>后台用户从任务池领取任务 </desc>
+	</function>
+	<function id="1056002">
+		<class>com.thinkive.fxc.ismp.plat.business.ygt.function.Function1056002</class>
+		<desc>查询任务池中的任务 </desc>
+	</function>
+	<function id="1056003">
+		<class>com.thinkive.fxc.ismp.plat.business.ygt.function.Function1056003</class>
+		<desc>将当前任务退回到任务池 </desc>
+	</function>
+	<function id="1056004">
+		<class>com.thinkive.fxc.ismp.plat.business.ygt.function.Function1056004</class>
+		<desc>查询用户营业部权限 </desc>
+	</function>
+	<function id="1056005">
+		<class>com.thinkive.fxc.ismp.plat.business.ygt.function.Function1056005</class>
+		<desc>查询我的审核任务</desc>
+	</function>
+	<function id="1058001">
+		<class>com.thinkive.fxc.ismp.plat.business.ygt.function.Function1058001</class>
+		<desc>查询用户问卷回访</desc>
+	</function>
+	<function id="1058002">
+		<class>com.thinkive.fxc.ismp.plat.business.ygt.function.Function1058002</class>
+		<desc>查询用户问卷回访-自助回访视频流水</desc>
+	</function>
+</functions>

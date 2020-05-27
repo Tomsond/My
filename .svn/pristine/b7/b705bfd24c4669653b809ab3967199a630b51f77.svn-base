@@ -1,0 +1,249 @@
+package com.thinkive.fxc.ismp.bus.business.assets.thirdbank.model;
+
+import java.sql.Timestamp;
+import java.util.Date;
+
+import com.thinkive.base.jdbc.DataRow;
+/**
+ * @描述: 用户三方存管同步数据表(T_ISMP_USER_BANK_BIND)模型
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月24日 上午10:28:32
+ */
+public class UserBankBindModel extends DataRow
+{
+
+    private static final long serialVersionUID = 5297611863404055721L;
+    
+    private static final String ID = "id" ;
+    
+    private static final String USER_ID = "user_id";
+    
+    private static final String BANK_CODE = "bank_code";
+    
+    private static final String ACCOUNT = "account";
+    
+    private static final String ISTRADE = "istrade";
+    
+    private static final String STATUS = "status";
+    
+    private static final String FUND_ACCOUNT = "fund_account";
+    
+    private static final String CREATE_TIME = "create_time";
+    
+    private static final String UPDATE_TIME = "update_time";
+    
+    private static final String IS_MAIN_CARD = "is_main_card";
+    
+    private static final String CONTRACT_STATUS = "contract_status";
+    
+    private static final String BANKTOSECURITY_FLAG = "banktosecurity_flag";
+    
+    private static final String SECURITYTOBANK_FLAG = "securitytobank_flag";
+    
+    private static final String MONEY_TYPE = "money_type";
+    
+    /**
+     * 获取ID
+     */
+    public Long getId() {
+        return getLong(ID);
+    }
+
+    /**
+     * 设置ID
+     */
+    public void setId(Long id) {
+        set(ID, id);
+    }
+    
+    /**
+     * 获取用户ID
+     */
+    public Long getUserId() {
+        return getLong(USER_ID);
+    }
+    
+    /**
+     * 设置用户ID
+     */
+    public void setUserId(Long userId) {
+        set(USER_ID, userId);
+    }
+    
+    /**
+     * 获取银行机构代码
+     */
+    public String getBankCode() {
+        return getString(BANK_CODE);
+    }
+    
+    /**
+     * 设置银行机构代码
+     */
+    public void setBankCode(String bankCode) {
+        set(BANK_CODE, bankCode);
+    }
+    
+    /**
+     * 获取银行账号
+     */
+    public String getAccount() {
+        return getString(ACCOUNT);
+    }
+    
+    /**
+     * 设置银行账号
+     */
+    public void setAccount(String account) {
+        set(ACCOUNT, account);
+    }
+    
+    /**
+     * 获取是否是交易账户 (0：否，1：是)
+     */
+    public String getIsTrade() {
+        return getString(ISTRADE);
+    }
+    
+    /**
+     * 设置是否是交易账户 (0：否，1：是)
+     */
+    public void setIsTrade(String isTrade) {
+        set(ISTRADE, isTrade);
+    }
+    
+    /**
+     * 获取状态(1：正常 0：已取消)
+     */
+    public String getStatus() {
+        return getString(STATUS);
+    }
+    
+    /**
+     * 设置状态(1：正常 0：已取消)
+     */
+    public void setStatus(String status) {
+        set(STATUS, status);
+    }
+    
+    /**
+     * 获取资金账号
+     */
+    public String getFundAccount() {
+        return getString(FUND_ACCOUNT);
+    }
+    
+    /**
+     * 设置资金账号
+     */
+    public void setFundAccount(String fundAccount) {
+        set(FUND_ACCOUNT, fundAccount);
+    }
+    
+    /**
+     * 获取创建时间
+     */
+    public Date getCreateTime()
+    {
+        return (Date) get(CREATE_TIME);
+    }
+    
+    /**
+     * 设置创建时间
+     */
+    public void setCreateTime(Date createTime)
+    {
+        Timestamp timestamp = new Timestamp(createTime.getTime());
+        set(CREATE_TIME, timestamp);
+    }
+    
+    /**
+     * 获取更新时间
+     */
+    public Date getUpdateTime()
+    {
+        return (Date) get(UPDATE_TIME);
+    }
+    
+    /**
+     * 设置更新时间
+     */
+    public void setUpdateTime(Date updateTime)
+    {
+        Timestamp timestamp = new Timestamp(updateTime.getTime());
+        set(UPDATE_TIME, timestamp);
+    }
+    
+    /**
+     * 获取是否主卡(1：主卡  0：辅导卡)
+     */
+    public String getIsMainCard() {
+        return getString(IS_MAIN_CARD);
+    }
+    
+    /**
+     * 设置是否主卡(1：主卡  0：辅导卡)
+     */
+    public void setIsMainCard(String isMainCard) {
+        set(IS_MAIN_CARD, isMainCard);
+    }
+    
+    /**
+     * 获取签约状态 0：正常,1:待签约,2:冻结,3:挂失,9:销户
+     */
+    public String getContractStatus() {
+        return getString(CONTRACT_STATUS);
+    }
+    
+    /**
+     * 设置签约状态 0：正常,1:待签约,2:冻结,3:挂失,9:销户
+     */
+    public void setContractStatus(String contractStatus) {
+        set(CONTRACT_STATUS, contractStatus);
+    }
+    
+    /**
+     * 获取银行转证券密码标示 0-不需认证,1-资金密码,2-交易密码,3-外部机构账号密码
+     */
+    public String getBankToSecurityFlag() {
+        return getString(BANKTOSECURITY_FLAG);
+    }
+    
+    /**
+     * 设置银行转证券密码标示 0-不需认证,1-资金密码,2-交易密码,3-外部机构账号密码
+     */
+    public void setBankToSecurityFlag(String bankToSecurityFlag) {
+        set(BANKTOSECURITY_FLAG, bankToSecurityFlag);
+    }
+    
+    /**
+     * 获取银行转证券密码标示 0-不需认证,1-资金密码,2-交易密码,3-外部机构账号密码
+     */
+    public String getSecuritytToBankFlag() {
+        return getString(SECURITYTOBANK_FLAG);
+    }
+    
+    /**
+     * 设置银行转证券密码标示 0-不需认证,1-资金密码,2-交易密码,3-外部机构账号密码
+     */
+    public void setSecuritytToBankFlag(String securitytToBankFlag) {
+        set(SECURITYTOBANK_FLAG, securitytToBankFlag);
+    }
+    
+    /**
+     * 获取货币类型 (0  人民币   1港币   2-美元)
+     */
+    public String getMoneyType() {
+        return getString(MONEY_TYPE);
+    }
+    
+    /**
+     * 设置(货币类型 0  人民币   1港币   2-美元)
+     */
+    public void setMoneyType(String moneyType) {
+        set(MONEY_TYPE, moneyType);
+    }
+}

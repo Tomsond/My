@@ -1,0 +1,49 @@
+/**
+ * 
+ */
+package com.thinkive.fxc.ismp.bus.base.business.dao;
+
+import com.thinkive.fxc.ismp.bus.base.business.model.PpTaskFlowModel;
+
+/**
+ * @描述: 跑批任务流程表  (T_ISMP_PP_TASK_FLOW)数据层接口
+ * @版权: Copyright (c) 2016 
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 尹杰民
+ * @版本: 2.0 
+ * @创建时间: 2016年8月16日 上午9:40:28
+ */
+public interface PpTaskFlowDao
+{
+	
+	/**
+	 * @描述: 新增跑批流程
+	 * @作者: 尹杰民
+	 * @时间：2016年8月17日 下午3:59:13
+	 * @param ppTaskFlowModel
+	 * @
+	 * @return PpTaskFlowModel
+	 */
+	public PpTaskFlowModel add(PpTaskFlowModel ppTaskFlowModel);
+	
+	/**
+	 * @描述: 更新跑批流程
+	 * @作者: 尹杰民
+	 * @时间：2016年8月17日 下午3:59:13
+	 * @param ppTaskFlowModel
+	 * @
+	 * @return int
+	 */
+	public int update(PpTaskFlowModel ppTaskFlowModel);
+	
+	/**
+	 * @描述: 根据任务id查询流程
+	 * @作者: 尹杰民
+	 * @时间：2016年8月17日 下午3:59:13
+	 * @param taskId
+	 * @
+	 * @return PpTaskFlowModel
+	 */
+	public PpTaskFlowModel queryByTaskId(Long taskId);
+	
+}

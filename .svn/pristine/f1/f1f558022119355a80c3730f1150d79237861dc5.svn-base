@@ -1,0 +1,27 @@
+package com.thinkive.fxc.ismp.bus.business.assets.zhth.dao.impl;
+
+import com.thinkive.base.jdbc.session.Session;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseDao;
+import com.thinkive.fxc.ismp.bus.business.assets.zhth.constants.ZhthConstatans;
+import com.thinkive.fxc.ismp.bus.business.assets.zhth.dao.ChangeMainFundExtendDao;
+import com.thinkive.fxc.ismp.bus.business.assets.zhth.model.ChangeMainFundExtendModel;
+
+/**
+ * @描述: 变更主辅资金帐号扩展信息DAO实现类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2017年3月15日 下午1:56:48
+ */
+public class ChangeMainFundExtendDaoImpl extends ISMPBaseDao implements ChangeMainFundExtendDao
+{
+	
+	@Override
+	public ChangeMainFundExtendModel add(ChangeMainFundExtendModel changeMainFundExtendModel, Session session)
+	{
+		session.insert(ZhthConstatans.T_ISMP_B_CHANGEMAINFUND, changeMainFundExtendModel);
+		return changeMainFundExtendModel;
+	}
+	
+}

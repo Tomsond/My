@@ -1,0 +1,84 @@
+package com.thinkive.fxc.ismp.bus.base.business.dao.impl;
+
+import java.sql.Timestamp;
+import java.util.Date;
+
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.jdbc.session.Session;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessTableConstants;
+import com.thinkive.fxc.ismp.bus.base.business.dao.UserExtendDao;
+import com.thinkive.fxc.ismp.bus.base.business.model.BillingContactNameModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.UserExtendModel;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseDao;
+import com.thinkive.fxc.ismp.bus.base.constants.SystemConstants;
+import com.thinkive.fxc.ismp.bus.base.util.ModelUtil;
+
+public class UserExtendDaoImpl extends ISMPBaseDao implements UserExtendDao
+{
+	
+	@Override
+	public UserExtendModel add(UserExtendModel userExtendModel)
+	{
+		String id = getSeqValue(SystemConstants.DB_ISMP,BusinessTableConstants.T_ISMP_USER_EXTEND);
+		userExtendModel.setUserId(Long.valueOf(id));
+		userExtendModel.setCreateDate(new Date());
+		this.getJdbcTemplate().insert(BusinessTableConstants.T_ISMP_USER_EXTEND, userExtendModel);
+		return userExtendModel;
+	}
+	
+	@Override
+	public UserExtendModel add(UserExtendModel userExtendModel, Session session) throws Exception
+	{
+		String id = getSeqValue(SystemConstants.DB_ISMP,BusinessTableConstants.T_ISMP_USER_EXTEND);
+		userExtendModel.setId(Long.valueOf(id));
+		userExtendModel.setCreateDate(new Date());
+		session.insert(BusinessTableConstants.T_ISMP_USER_EXTEND, userExtendModel);
+		return userExtendModel;
+	}
+	@Override
+	public BillingContactNameModel addBillingContact(BillingContactNameModel billingcontact, Session session) throws Exception
+	{
+		String id = getSeqValue(SystemConstants.DB_ISMP,BusinessTableConstants.T_ISMP_BILLING_CONTACT_NAME);
+		billingcontact.setId(Long.valueOf(id));
+		billingcontact.setCreateDate(new Date());
+		session.insert(BusinessTableConstants.T_ISMP_BILLING_CONTACT_NAME, billingcontact);
+		return billingcontact;
+	}
+	
+	@Override
+	public int update(UserExtendModel userExtendModel)
+	{
+		Long userId = userExtendModel.getUserId();
+		userExtendModel.setUpdateDate(new Date());
+		int total = this.getJdbcTemplate().update(BusinessTableConstants.T_ISMP_USER_EXTEND, userExtendModel, "USER_ID", userId);
+		return total;
+	}
+	
+	@Override
+	public int update(UserExtendModel userExtendModel, Session session) throws Exception
+	{
+		Long userId = userExtendModel.getUserId();
+		userExtendModel.setUpdateDate(new Date());
+		int total = session.update(BusinessTableConstants.T_ISMP_USER_EXTEND, userExtendModel, "USER_ID", userId);
+		return total;
+	}
+	
+	public int updateBillingContact(BillingContactNameModel billingcontact, Session session) throws Exception
+	{
+		Long Id = billingcontact.getId();
+		billingcontact.setUpdateDate(new Date());
+		int total = session.update(BusinessTableConstants.T_ISMP_BILLING_CONTACT_NAME, billingcontact, "ID", Id);
+		return total;
+	}
+	
+	@Override
+	public UserExtendModel queryByUserId(Long userId)
+	{
+		StringBuilder sql = new StringBuilder("SELECT ID,USER_ID,CERTUID,FIRSTTRADINGDAY,TELEPHONE,ADDRESS,POSTCODE,OCCUPATION,EDUCATION,ETHNICNAME,");
+		sql.append("EMAIL,CREATE_DATE,UPDATE_DATE FROM ").append(BusinessTableConstants.T_ISMP_USER_EXTEND);
+		sql.append(" WHERE USER_ID = ?");
+		DataRow queryResult = getJdbcTemplate().queryMap(sql.toString(), new Object[] { userId });
+		return ModelUtil.packInfo(queryResult, UserExtendModel.class);
+	}
+	
+}

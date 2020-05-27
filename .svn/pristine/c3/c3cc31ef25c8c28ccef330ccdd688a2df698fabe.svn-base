@@ -1,0 +1,20 @@
+package com.thinkive.fxc.ismp.bus.business.ggtCancel.constants;
+
+public class GgtCancelConstants {
+	
+	public static final String SERVER_ID_GGT_CANCEL = "com.thinkive.fxc.ismp.bus.business.ggtCancel.service.GgtCancelService";
+	
+	/**
+     * 港股通取消业务类型
+     */
+	public static final String BUSINESS_GGTCANCEL = "ggtcancel";
+	/**
+     * 深港通取消业务类型
+     */
+    public static final String BUSINESS_SGTCANCEL = "sgtcancel";
+    
+    /**
+     * 沪港通取消业务类型
+     */
+    public static final String BUSINESS_HGTCANCEL = "hgtcancel";
+}

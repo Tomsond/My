@@ -1,0 +1,31 @@
+package com.thinkive.fxc.ismp.bus.base.business.service.impl;
+
+import com.thinkive.fxc.ismp.bus.base.business.dao.SmsSendLogDao;
+import com.thinkive.fxc.ismp.bus.base.business.model.SmsSendLogModel;
+import com.thinkive.fxc.ismp.bus.base.business.service.SmsSendLogService;
+
+/**
+ * 描述: 短信发送记录日志接口实现类
+ * 版权: Copyright (c) 2010
+ * 公司: 思迪科技 
+ * 作者: 刘恺
+ * 版本: 1.0 
+ * 创建日期: 2015年11月6日 
+ * 创建时间: 上午11:00:16
+ */
+public class SmsSendLogServiceImpl implements SmsSendLogService
+{
+	
+	private SmsSendLogDao smsSendLogDao;
+	
+	public void setSmsSendLogDao(SmsSendLogDao smsSendLogDao)
+	{
+		this.smsSendLogDao = smsSendLogDao;
+	}
+	
+	@Override
+	public SmsSendLogModel addSmsSendLog(SmsSendLogModel smsSendLogModel)
+	{
+		return smsSendLogDao.addSmsSendLog(smsSendLogModel);
+	}
+}

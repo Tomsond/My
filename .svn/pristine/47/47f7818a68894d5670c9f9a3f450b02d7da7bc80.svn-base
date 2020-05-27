@@ -1,0 +1,300 @@
+package com.thinkive.fxc.ismp.bus.business.kc.model;
+
+import java.sql.Timestamp;
+import java.util.Date;
+
+import com.thinkive.base.jdbc.DataRow;
+
+
+/**
+ * 作者：MIKE
+ * 公司：深圳市思迪信息技术股份公司
+ * 日期时间：2019年3月6日 下午3:35:05
+ * 说明：科创版权限开通预约表（T_ISMP_KC_EDITION_RESERVATION）
+ */
+public class KCEditionReservationModel extends DataRow{
+	
+    private static final long serialVersionUID = 3985431685997224755L;
+    
+    private static final String ID="id";
+    
+    private static final String NAME="name";
+    
+    private static final String CLIENT_ID="client_id";
+    
+    private static final String FUND_ACCOUNT="fund_account";
+    
+    private static final String STOCK_ACCOUNT="stock_account";
+    
+    private static final String PHONE_NUMBER="phone_number";
+    
+    private static final String IDNO="idno";
+    
+    private static final String IDTYPE="idtype";
+    
+    private static final String BRANCH_NO="branch_no";
+    
+    private static final String BRANCH_NAME="branch_name";
+    
+    private static final String CREATE_DATE="create_date";
+    
+    private static final String UPDATE_DATE="update_date";
+    
+    private static final String RESERVED1="reserved1";
+    
+    private static final String RESERVED2="reserved2";
+    
+    private static final String RESERVED3="reserved3";
+    
+    
+    /**
+     * 获取主键ID
+     */
+    public long getId()
+    {
+        return getLong(ID);
+    }
+    
+    /**
+     * 设置主键ID
+     */
+    public void setId(Long id)
+    {
+        set(ID, id);
+    }
+    
+    
+    /**
+     * 获取用户名称
+     */
+    public String getName()
+    {
+        return getString(NAME);
+    }
+    
+    /**
+     * 设置用户名称
+     */
+    public void setName(String name)
+    {
+        set(NAME, name);
+    }
+    
+    /**
+     * 获取客户号
+     */
+    public String getClientId()
+    {
+        return getString(CLIENT_ID);
+    }
+    
+    /**
+     * 设置客户号
+     */
+    public void setClientId(String client_id)
+    {
+        set(CLIENT_ID, client_id);
+    }
+    
+    
+    /**
+     * 获取客户资金帐号
+     */
+    public String getFundAccount()
+    {
+        return getString(FUND_ACCOUNT);
+    }
+    
+    /**
+     * 设置客户资金帐号
+     */
+    public void setFundAccount(String fund_account)
+    {
+        set(FUND_ACCOUNT, fund_account);
+    }
+    
+   
+    
+    /**
+     * 获取客户沪A证券帐号
+     */
+    public String getStockAccount()
+    {
+        return getString(STOCK_ACCOUNT);
+    }
+    
+    /**
+     * 设置客户沪A证券帐号
+     */
+    public void setStockAccount(String stock_account)
+    {
+        set(STOCK_ACCOUNT, stock_account);
+    }
+    
+    /**
+     * 获取客户手机号码
+     */
+    public String getPhoneNumber()
+    {
+        return getString(PHONE_NUMBER);
+    }
+    
+    /**
+     * 设置客户手机号码
+     */
+    public void setPhoneNumber(String phone_number)
+    {
+        set(PHONE_NUMBER, phone_number);
+    }
+    
+    /**
+     * 获取客户证件号码
+     */
+    public String getIdNo()
+    {
+        return getString(IDNO);
+    }
+    
+    /**
+     * 设置客户证件号码
+     */
+    public void setIdNo(String idno)
+    {
+        set(IDNO, idno);
+    }
+    
+    /**
+     * 获取客户证件类型
+     */
+    public String getIdType()
+    {
+        return getString(IDTYPE);
+    }
+    
+    /**
+     * 设置客户证件类型
+     */
+    public void setIdType(String idtype)
+    {
+        set(IDTYPE, idtype);
+    }
+    
+    /**
+     * 获取营业部编号
+     */
+    public String getBranchNo()
+    {
+        return getString(BRANCH_NO);
+    }
+    
+    /**
+     * 设置营业部编号
+     */
+    public void setBranchNo(String branch_no)
+    {
+        set(BRANCH_NO, branch_no);
+    }
+    
+    /**
+     * 获取营业部名称
+     */
+    public String getBranchName()
+    {
+        return getString(BRANCH_NAME);
+    }
+    
+    /**
+     * 设置营业部名称
+     */
+    public void setBranchName(String branch_name)
+    {
+        set(BRANCH_NAME, branch_name);
+    }
+    
+    /**
+     * 获取创建时间
+     */
+    public Date getCreateDate()
+    {
+        return (Date) get(CREATE_DATE);
+    }
+    
+    /**
+     * 设置创建时间
+     */
+    public void setCreateDate(Date createDate)
+    {
+        Timestamp timestamp = new Timestamp(createDate.getTime());
+        set(CREATE_DATE, timestamp);
+    }
+    
+    
+    /**
+     * 获取创建时间
+     */
+    public Date getUpdateDate()
+    {
+        return (Date) get(UPDATE_DATE);
+    }
+    
+    /**
+     * 设置创建时间
+     */
+    public void setUpdateDate(Date update_date)
+    {
+        Timestamp timestamp = new Timestamp(update_date.getTime());
+        set(UPDATE_DATE, timestamp);
+    }
+    
+    
+    /**
+     * 获取预留字段1
+     */
+    public String getReserve1()
+    {
+        return getString(RESERVED1);
+    }
+    
+    /**
+     * 设置预留字段1
+     */
+    public void setReserve1(String reserved1)
+    {
+        set(RESERVED1, reserved1);
+    }
+    
+    /**
+     * 获取预留字段2
+     */
+    public String getReserve2()
+    {
+        return getString(RESERVED1);
+    }
+    
+    /**
+     * 设置预留字段2
+     */
+    public void setReserve2(String reserved2)
+    {
+        set(RESERVED2, reserved2);
+    }
+    
+    
+    /**
+     * 获取预留字段3
+     */
+    public String getReserve3()
+    {
+        return getString(RESERVED3);
+    }
+    
+    /**
+     * 设置预留字段3
+     */
+    public void setReserve3(String reserved3)
+    {
+        set(RESERVED3, reserved3);
+    }
+    
+    
+}

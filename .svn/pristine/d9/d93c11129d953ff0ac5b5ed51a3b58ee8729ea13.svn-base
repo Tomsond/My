@@ -1,0 +1,17 @@
+package com.thinkive.fxc.ismp.bus.business.fxjs.constants;
+
+/**
+ * @描述: 风险警示常量类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年9月16日 上午11:55:49
+ */
+public class FxjsConstants
+{
+	/**
+	 * 【选择帐号并签署协议】节点英文标识
+	 */
+	public static final String NODE_ID_CHOECEACCOUNTANDSIGN = "fxjs_choose_account";
+}

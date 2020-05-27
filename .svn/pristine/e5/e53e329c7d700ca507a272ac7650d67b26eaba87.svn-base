@@ -1,0 +1,27 @@
+package com.thinkive.fxc.ismp.bus.business.gddj;
+
+import com.thinkive.fxc.ismp.bus.BaseTest;
+import com.thinkive.fxc.ismp.bus.business.jg.function.Function1004469;
+import com.thinkive.server.Function;
+
+/**
+ * @描述: 加挂业务数据获取测试
+ * @版权: Copyright (c) 2016 
+ * @公司: 思迪科技 
+ * @作者: 刘为
+ * @版本: 2.0 
+ * @创建日期: 2016年11月7日 
+ * @创建时间: 上午10:41:43
+ */
+public class Function1004469Test extends BaseTest
+{
+    public void testInvoke()
+    { 
+        getRequest().addFieldValue("user_id", "1203");
+        getRequest().addFieldValue("op_source", "4");
+        Function function = new Function1004469();
+        function.invoke(getContext());
+        System.out.println("结果数据为：" + getResponse().getData());
+    }
+   
+}

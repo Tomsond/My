@@ -1,0 +1,179 @@
+package com.thinkive.fxc.ismp.bus.base.basicdata.model;
+
+import java.sql.Timestamp;
+import java.util.Date;
+
+import com.thinkive.base.jdbc.DataRow;
+/**
+ * @描述: 公共--公安校验日志表(T_FXC_CHKIDNO_LOG)模型
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月18日 上午10:52:19
+ */
+public class ChkidnoLogModel extends DataRow
+{
+
+    private static final long serialVersionUID = 1415447189005941475L;
+    
+    private static final String ID = "id";
+    
+    private static final String BUSINESS_CODE = "business_code";
+    
+    private static final String BUSINESS_ID = "business_id";
+    
+    private static final String USER_ID = "user_id";
+    
+    private static final String CHK_STATUS = "chk_status";
+    
+    private static final String CREATE_DATE = "create_date";
+    
+    private static final String ID_NO = "id_no";
+    
+    private static final String NAME = "name";
+    
+    private static final String SOURCE = "source";
+    
+    /**
+     * 获取自增主键
+     */
+    public Long getId()
+    {
+        return getLong(ID);
+    }
+    
+    /**
+     * 设置自增主键
+     */
+    public void setId(Long id)
+    {
+        set(ID, id);
+    }
+    
+    /**
+     * 获取业务编号
+     */
+    public String getBusinessCode()
+    {
+        return getString(BUSINESS_CODE);
+    }
+    
+    /**
+     * 设置业务编号
+     */
+    public void setBusinessCode(String businessCode)
+    {
+        set(BUSINESS_CODE, businessCode);
+    }
+    
+    /**
+     * 获取业务实例编号
+     */
+    public Long getBusinessId()
+    {
+        return getLong(BUSINESS_ID);
+    }
+    
+    /**
+     * 设置业务实例编号
+     */
+    public void setBusinessId(Long businessId)
+    {
+        set(BUSINESS_ID, businessId);
+    }
+    
+    /**
+     * 获取用户编号
+     */
+    public Long GetUserId()
+    {
+        return getLong(USER_ID);
+    }
+    
+    /**
+     * 设置用户编号
+     */
+    public void setUserId(Long userId)
+    {
+        set(USER_ID, userId);
+    }
+    /**
+     * 获取公安验证状态
+     */
+    public String getChkStatus()
+    {
+        return getString(CHK_STATUS);
+    }
+    
+    /**
+     * 设置公安验证状态
+     */
+    public void setChkStatus(String chkStatus)
+    {
+        set(CHK_STATUS, chkStatus);
+    }
+    
+    /**
+     * 获取创建时间
+     */
+    public Date getCreateDate() {
+        return (Date) get(CREATE_DATE);
+    }
+
+    /**
+     * 设置创建时间
+     */
+    public void setCreateDate(Date createDate) {
+        Timestamp timestamp=new Timestamp(createDate.getTime());
+        set(CREATE_DATE, timestamp);
+    }
+    
+    /**
+     * 获取客户身份证号
+     */
+    public String GetIdNo()
+    {
+        return getString(ID_NO);
+    }
+    
+    /**
+     * 设置客户身份证号
+     */
+    public void setIdNo(String idNo)
+    {
+        set(ID_NO, idNo);
+    }
+    
+    /**
+     * 获取客户姓名
+     */
+    public String getName()
+    {
+        return getString(NAME);
+    }
+    
+    /**
+     * 设置客户姓名
+     */
+    public void setName(String name)
+    {
+        set(NAME, name);
+    }
+    
+    /**
+     * 获取公安校验渠道类型
+     */
+    public String getSource()
+    {
+        return getString(SOURCE);
+    }
+    
+    /**
+     * 设置公安校验渠道类型
+     */
+    public void setSource(String source)
+    {
+        set(SOURCE, source);
+    }
+}

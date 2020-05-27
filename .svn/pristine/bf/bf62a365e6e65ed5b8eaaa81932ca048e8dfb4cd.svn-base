@@ -1,0 +1,150 @@
+package com.thinkive.fxc.ismp.bus.base.business.function;
+
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+
+import com.thinkive.base.exception.BusinessException;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.model.BusinessEntityModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.ImageInformationModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.UserExtendModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.UserInfoModel;
+import com.thinkive.fxc.ismp.bus.base.business.service.BusinessEntityService;
+import com.thinkive.fxc.ismp.bus.base.business.service.ImageUploadService;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.business.utils.ModularNodeUtil;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeSystem;
+import com.thinkive.server.ResultVo;
+import com.thinkive.server.util.SpringUtil;
+
+/**
+ * @描述: 通用---身份证上传确认(方式一：不是最后一步，直接提交数据并修改流程)      
+ *       1.执行这个Function之前一定上传过身份证，业务实例肯定不为空
+ *       2.通过节点配置文件判断是否需要信息确认，如果需要，则入参必须包含身份证信息
+ *       使用场景：身份证上传不是最后一步
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年9月10日 上午10:14:43
+ */
+public class Function1004906 extends IsmpFlowBaseFunction
+{
+	
+	private ImageInformationModel imageInformationModel;//身份证信息
+	
+	public ResultVo execute() throws Exception
+	{
+		initVar();
+		//step1：没有业务办理实例
+		if (businessEntityAndConfigVO == null)
+		{
+			throw new BusinessException(ErrorCodeSystem.FLOW_OPERATION_SEQUENCE_ERROR);
+		}
+		
+		//step2：获取节点属性组、节点需要上传的所有影像编号集合、是否需要身份校验
+		Map<String, Object> imgNodePropertyMap = ModularNodeUtil.getImgNodeProAndCodesAndNeedConfirm(nodePropertyConfigModelList);
+		
+		//step3：校验用户上传的数据
+		ImageUploadService imageUploadService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_IMAGEUPLOAD,ImageUploadService.class);
+		imageUploadService.checkImgNodeUploadDataAndSave(imgNodePropertyMap, businessEntityAndConfigVO.getId(), nodeId, userId, imageInformationModel,businessCode);
+		
+		//针对增开新增字段校验
+		if ( ("zk").equals(businessCode) )
+        {
+		    String needCheckConfirm = (String) imgNodePropertyMap.get("needCheckConfirm");
+		    if (DictionaryConstants.BOL_TRUE.equals(needCheckConfirm))
+	        {
+	            checknformation(userId, imageInformationModel);
+	        }
+        }
+
+		ResultVo resultVo = new ResultVo();
+		resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+		resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+		return resultVo;
+	}
+	
+	private void checknformation(Long userId, ImageInformationModel imageInformationModel)
+    {
+        //校验用户身份证与柜台数据是否一致
+        UserInfoService userInfoService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO, UserInfoService.class);
+        UserInfoModel userInfoModel = userInfoService.queryUserInfoByUserId(userId);
+        if (userInfoModel == null)
+        {
+            throw new BusinessException(ErrorCodeSystem.NOTEXIST_USER);
+        }
+        UserExtendModel oldUserExtendModel = userInfoService.queryUserExtendByUserId(userId);
+        logger.info("扩展表民族："+oldUserExtendModel.getEthnicName());
+        logger.info("身份证信息民族："+imageInformationModel.getEthnicName());
+        if (!userInfoModel.getSex().equals(imageInformationModel.getSex()) ||
+                !oldUserExtendModel.getEthnicName().equals(imageInformationModel.getEthnicName()) ||
+                !userInfoModel.getSignOffice().equals(imageInformationModel.getSignOffice()) ||
+                !userInfoModel.getPapersAddr().equals(imageInformationModel.getPapersAddr()) ||
+                !userInfoModel.getValidityBegin().equals(imageInformationModel.getValidityBegin()) ||
+                !userInfoModel.getValidityEnd().equals(imageInformationModel.getValidityEnd())
+                )
+        {
+            throw new BusinessException(ErrorCodeSystem.BUSINESS_INFORMATION_EXTEND_ERROR);
+        }
+    }
+	
+	/**
+	 * @描述：获取业务入参
+	 * @作者：刘恺
+	 * @时间：2016年8月23日 下午8:55:24
+	 */
+	private void initVar()
+	{
+		String name = this.getStrParameter("name");
+		String identityNum = this.getStrParameter("identity_num");
+		String papersAddr = this.getStrParameter("papers_addr");
+		String signOffice = this.getStrParameter("sign_office");
+		String validityBegin = this.getStrParameter("validity_begin");
+		String validityEnd = this.getStrParameter("validity_end");
+		String sex = this.getStrParameter("sex");
+		String birthday = this.getStrParameter("birthday");
+		String ethnicName = this.getStrParameter("ethnicname");
+		imageInformationModel = new ImageInformationModel();
+		if (StringUtils.isNotBlank(name))
+		{
+			imageInformationModel.setName(name);
+		}
+		if (StringUtils.isNotBlank(identityNum))
+		{
+			imageInformationModel.setIdentityNum(identityNum);
+		}
+		if (StringUtils.isNotBlank(sex))
+		{
+			imageInformationModel.setSex(sex);
+		}
+		if (StringUtils.isNotBlank(birthday))
+		{
+			imageInformationModel.setBirthday(birthday);
+		}
+		if (StringUtils.isNotBlank(papersAddr))
+		{
+			imageInformationModel.setPapersAddr(papersAddr);
+		}
+		if (StringUtils.isNotBlank(validityBegin))
+		{
+			imageInformationModel.setValidityBegin(validityBegin.replaceAll("-", ""));
+		}
+		if (StringUtils.isNotBlank(validityEnd))
+		{
+			imageInformationModel.setValidityEnd(validityEnd.replaceAll("-", ""));
+		}
+		if (StringUtils.isNotBlank(signOffice))
+		{
+			imageInformationModel.setSignOffice(signOffice);
+		}
+		if (StringUtils.isNotBlank(ethnicName))
+		{
+			imageInformationModel.setEthnicName(ethnicName);
+		}
+	}
+}

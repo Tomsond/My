@@ -1,0 +1,1148 @@
+package com.thinkive.fxc.ismp.bus.base.business.service.impl;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.log4j.Logger;
+
+import com.thinkive.base.jdbc.DBPage;
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.jdbc.session.Session;
+import com.thinkive.base.jdbc.session.SessionFactory;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.dao.AgreeRecordDao;
+import com.thinkive.fxc.ismp.bus.base.business.dao.AuditTaskInfoDao;
+import com.thinkive.fxc.ismp.bus.base.business.dao.ChoiceAccountRecordDao;
+import com.thinkive.fxc.ismp.bus.base.business.dao.PpTaskDao;
+import com.thinkive.fxc.ismp.bus.base.business.model.AgreeRecordModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.AuditTaskInfoModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.BusinessEntityModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.ChoiceAccountRecordModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.PpTaskModel;
+import com.thinkive.fxc.ismp.bus.base.business.service.BusinessEntityService;
+import com.thinkive.fxc.ismp.bus.base.business.service.SignAndVerifyService;
+import com.thinkive.fxc.ismp.bus.base.business.vo.BusinessEntityAndConfigVO;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.SystemConstants;
+import com.thinkive.fxc.ismp.bus.business.service.impl.BusinessCommonServiceImpl;
+
+/**
+ * @描述: 业务实例服务实现类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月22日 下午2:37:16
+ */
+public class BusinessEntityServiceImpl extends BusinessCommonServiceImpl implements BusinessEntityService
+{
+	private static  Logger  logger = Logger.getLogger(BusinessEntityServiceImpl.class);
+	private AuditTaskInfoDao auditTaskInfoDao;
+	
+	public void setAuditTaskInfoDao(AuditTaskInfoDao auditTaskInfoDao)
+	{
+		this.auditTaskInfoDao = auditTaskInfoDao;
+	}
+	
+	private AgreeRecordDao agreeRecordDao;
+	
+	public void setAgreeRecordDao(AgreeRecordDao agreeRecordDao)
+	{
+		this.agreeRecordDao = agreeRecordDao;
+	}
+	
+	private ChoiceAccountRecordDao choiceAccountRecordDao;
+	
+	public void setChoiceAccountRecordDao(ChoiceAccountRecordDao choiceAccountRecordDao)
+	{
+		this.choiceAccountRecordDao = choiceAccountRecordDao;
+	}
+	
+	private PpTaskDao ppTaskDao;
+	
+	public void setPpTaskDao(PpTaskDao ppTaskDao)
+	{
+		this.ppTaskDao = ppTaskDao;
+	}
+	
+	@Override
+	public BusinessEntityAndConfigVO queryEacVoNotCompleteByUserIdAndBusinessCode(long userId, String businessCode)
+	{
+		return businessEntityDao.queryEacVoNotCompleteByUserIdAndBusinessCode(userId, businessCode);
+	}
+	
+	@Override
+	public BusinessEntityModel queryNotCompleteByUserIdAndBusinessCode(long userId, String businessCode)
+	{
+		return businessEntityDao.querNotCompleteByUserIdAndBusinessCode(userId, businessCode);
+	}
+	
+	@Override
+	public void changeBusinessFlowNode(BusinessEntityModel updateBusinessEntityModel, String currNodeId) throws Exception
+	{
+		Session session = null;
+		try
+		{
+			//创建session，开启事务
+			session = SessionFactory.getSession(SystemConstants.DB_ISMP);
+			session.beginTrans();
+			
+			//入参
+			Long businessId = updateBusinessEntityModel.getId();
+			String ip = updateBusinessEntityModel.getIp();
+			String opSource = updateBusinessEntityModel.getOpSource();
+			String opStation = updateBusinessEntityModel.getOpStation();
+			
+			//step1：修改业务实例
+			this.updateBusinessEntityModel(updateBusinessEntityModel, session);
+			
+			//step2：根据业务实例编号和当前节点查询流程节点记录,新增或更新记录
+			this.addOrUpdateFlowNodeModel(businessId, currNodeId, ip, opSource, opStation, session);
+			
+			//step3：添加节点操作记录
+			this.addNodeLogModel(businessId, currNodeId, ip, opSource, opStation, session);
+			
+			//提交事务
+			session.commitTrans();
+		}
+		catch (Exception e)
+		{
+			if (session != null)
+			{
+				session.rollbackTrans();
+			}
+			throw e;
+		}
+		finally
+		{
+			if (session != null)
+			{
+				session.close();
+			}
+		}
+	}
+	
+	@Override
+	public void changeFlowNodeAndAddAutitTask(BusinessEntityModel updateBusinessEntityModel, String currNodeId) throws Exception
+	{
+		Session session = null;
+		try
+		{
+			//创建session，开启事务
+			session = SessionFactory.getSession(SystemConstants.DB_ISMP);
+			session.beginTrans();
+			
+			//入参
+			Long businessId = updateBusinessEntityModel.getId();
+			String ip = updateBusinessEntityModel.getIp();
+			String opSource = updateBusinessEntityModel.getOpSource();
+			String opStation = updateBusinessEntityModel.getOpStation();
+			updateBusinessEntityModel.setDealResult(DictionaryConstants.DEAL_RESULT_NEEDAUTIT);
+			logger.info("businessId数据："+businessId);
+			//step1：修改业务实例
+			this.updateBusinessEntityModel(updateBusinessEntityModel, session);
+			
+			//step2：根据业务实例编号和当前节点查询流程节点记录,新增或更新记录
+			this.addOrUpdateFlowNodeModel(businessId, currNodeId, ip, opSource, opStation, session);
+			
+			//step3：添加节点操作记录
+			this.addNodeLogModel(businessId, currNodeId, ip, opSource, opStation, session);
+			
+			//step4：添加审核任务
+			AuditTaskInfoModel auditTaskInfoModel = new AuditTaskInfoModel();
+			auditTaskInfoModel.setBusinessId(updateBusinessEntityModel.getId());
+			auditTaskInfoModel.setUserId(updateBusinessEntityModel.getUserId());
+			auditTaskInfoModel.setBusinessType(updateBusinessEntityModel.getBusinessCode());
+			auditTaskInfoModel.setState(DictionaryConstants.BUSINESS_AUDIT_STATE_NODEAL);
+			logger.info("添加审核任务数据："+auditTaskInfoModel);
+			auditTaskInfoDao.addTask(auditTaskInfoModel, session);
+			
+			//提交事务
+			session.commitTrans();
+		}
+		catch (Exception e)
+		{
+			if (session != null)
+			{
+				session.rollbackTrans();
+			}
+			throw e;
+		}
+		finally
+		{
+			if (session != null)
+			{
+				session.close();
+			}
+		}
+	}
+	
+	@Override
+	public BusinessEntityModel add(BusinessEntityModel businessEntityModel, String currNodeId) throws Exception
+	{
+		
+		Session session = null;
+		try
+		{
+			//创建session，开启事务
+			session = SessionFactory.getSession(SystemConstants.DB_ISMP);
+			session.beginTrans();
+			
+			//入参
+			//			Long businessId = businessEntityModel.getId();
+			//			String ip = businessEntityModel.getIp();
+			//			String opSource = businessEntityModel.getOpSource();
+			//			String opStation = businessEntityModel.getOpStation();
+			
+			//step1：新增业务办理实例
+			businessEntityModel = this.addBusinessEntityModel(businessEntityModel, session);
+			
+			Long businessId = businessEntityModel.getId();
+			String ip = businessEntityModel.getIp();
+			String opSource = businessEntityModel.getOpSource();
+			String opStation = businessEntityModel.getOpStation();
+			
+			//step2：新增业务节点记录
+			this.addFlowNodeModel(businessId, currNodeId, ip, opSource, opStation, session);
+			
+			//step3：添加节点操作记录
+			this.addNodeLogModel(businessId, currNodeId, ip, opSource, opStation, session);
+			
+			//提交事务
+			session.commitTrans();
+		}
+		catch (Exception e)
+		{
+			if (session != null)
+			{
+				session.rollbackTrans();
+			}
+			throw e;
+		}
+		finally
+		{
+			if (session != null)
+			{
+				session.close();
+			}
+		}
+		return businessEntityModel;
+	}
+	
+	@Override
+	public int update(BusinessEntityModel businessEntityModel)
+	{
+		return businessEntityDao.update(businessEntityModel);
+	}
+	
+	@Override
+	public BusinessEntityModel add(BusinessEntityModel businessEntityModel)
+	{
+		return businessEntityDao.add(businessEntityModel);
+	}
+	
+	@Override
+	public List<DataRow> queryBusinessDetail(Long businessId, String businessCode, Long userId)
+	{
+		return businessEntityDao.queryBusinessDetail(businessId, businessCode, userId);
+	}
+	
+	@Override
+	public void addEntityAndAgreeAndAccountAndAuditTask(BusinessEntityModel businessEntityModel, String currNodeId, List<Map<String, String>> allSignList,
+			List<ChoiceAccountRecordModel> choiceAccountRecordModels,String checksign) throws Exception
+	{
+		Session session = null;
+		try
+		{
+			//创建session，开启事务
+			session = SessionFactory.getSession(SystemConstants.DB_ISMP);
+			session.beginTrans();
+			
+			//step1：新增业务办理实例
+			businessEntityModel.setDealResult(DictionaryConstants.DEAL_RESULT_NEEDAUTIT);
+			this.addBusinessEntityModel(businessEntityModel, session);
+			
+			Long businessId = businessEntityModel.getId();
+			String ip = businessEntityModel.getIp();
+			String opSource = businessEntityModel.getOpSource();
+			String opStation = businessEntityModel.getOpStation();
+			
+			//step2：新增业务节点记录
+			this.addFlowNodeModel(businessId, currNodeId, ip, opSource, opStation, session);
+			
+			//step3：添加节点操作记录
+			this.addNodeLogModel(businessId, currNodeId, ip, opSource, opStation, session);
+			
+			//step4：添加审核任务
+			AuditTaskInfoModel auditTaskInfoModel = new AuditTaskInfoModel();
+			auditTaskInfoModel.setBusinessId(businessId);
+			auditTaskInfoModel.setUserId(businessEntityModel.getUserId());
+			auditTaskInfoModel.setBusinessType(businessEntityModel.getBusinessCode());
+			auditTaskInfoModel.setState(DictionaryConstants.BUSINESS_AUDIT_STATE_NODEAL);
+			auditTaskInfoDao.addTask(auditTaskInfoModel, session);
+			
+			//step5：添加协议
+			//根据用户提交的协议获取协议对象
+			SignAndVerifyService signAndVerifyService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_SIGNANDVERIFY, SignAndVerifyService.class);
+			List<AgreeRecordModel> agreeRecordModels = signAndVerifyService.getAgreeRecordModels(businessEntityModel.getUserId(), allSignList, businessId, currNodeId,checksign);
+			agreeRecordDao.addBatch(agreeRecordModels, session);
+			
+			//step6：添加帐号
+			for (ChoiceAccountRecordModel item : choiceAccountRecordModels)
+			{
+				item.setBusinessId(businessId);
+				item.setNodeId(currNodeId);
+			}
+			choiceAccountRecordDao.addBatch(choiceAccountRecordModels, session);
+			//提交事务
+			session.commitTrans();
+		}
+		catch (Exception e)
+		{
+			if (session != null)
+			{
+				session.rollbackTrans();
+			}
+			throw e;
+		}
+		finally
+		{
+			if (session != null)
+			{
+				session.close();
+			}
+		}
+	}
+	
+	@Override
+	public void addEntityAndAgreeAndAccountAndPpTask(BusinessEntityModel businessEntityModel, String currNodeId, List<Map<String, String>> allSignList,
+			List<ChoiceAccountRecordModel> choiceAccountRecordModels,String checksign) throws Exception
+	{
+		Session session = null;
+		try
+		{
+			//创建session，开启事务
+			session = SessionFactory.getSession(SystemConstants.DB_ISMP);
+			session.beginTrans();
+			
+			//step1：新增业务办理实例
+			businessEntityModel.setDealResult(DictionaryConstants.DEAL_RESULT_NEEDPP);
+			this.addBusinessEntityModel(businessEntityModel, session);
+			
+			Long businessId = businessEntityModel.getId();
+			String ip = businessEntityModel.getIp();
+			String opSource = businessEntityModel.getOpSource();
+			String opStation = businessEntityModel.getOpStation();
+			
+			//step2：新增业务节点记录
+			this.addFlowNodeModel(businessId, currNodeId, ip, opSource, opStation, session);
+			
+			//step3：添加节点操作记录
+			this.addNodeLogModel(businessId, currNodeId, ip, opSource, opStation, session);
+			
+			//step4：添加跑批任务、
+			PpTaskModel ppTaskModel = new PpTaskModel();
+			ppTaskModel.setBusinessId(businessId);
+			ppTaskModel.setIsLoop(DictionaryConstants.BOL_FALSE);
+			ppTaskModel.setTaskName(businessEntityModel.getBusinessCode());
+			ppTaskModel.setTaskStatus(DictionaryConstants.PP_TASK_STATUS_EFFECTIVE);
+			ppTaskModel.setExecStatus(DictionaryConstants.PP_TASK_EXEC_STATUS_NODEAL);
+			ppTaskDao.add(ppTaskModel, session);
+			
+			//step5：添加协议
+			//根据用户提交的协议获取协议对象
+			SignAndVerifyService signAndVerifyService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_SIGNANDVERIFY, SignAndVerifyService.class);
+			List<AgreeRecordModel> agreeRecordModels = signAndVerifyService.getAgreeRecordModels(businessEntityModel.getUserId(), allSignList, businessId, currNodeId,checksign);
+			agreeRecordDao.addBatch(agreeRecordModels, session);
+			
+			//step6：添加帐号
+			for (ChoiceAccountRecordModel item : choiceAccountRecordModels)
+			{
+				item.setBusinessId(businessId);
+				item.setNodeId(currNodeId);
+			}
+			choiceAccountRecordDao.addBatch(choiceAccountRecordModels, session);
+			//提交事务
+			session.commitTrans();
+		}
+		catch (Exception e)
+		{
+			if (session != null)
+			{
+				session.rollbackTrans();
+			}
+			throw e;
+		}
+		finally
+		{
+			if (session != null)
+			{
+				session.close();
+			}
+		}
+	}
+	
+	@Override
+	public void addEntityAndAgreeAndAccount(BusinessEntityModel businessEntityModel, String currNodeId, List<Map<String, String>> allSignList, List<ChoiceAccountRecordModel> choiceAccountRecordModels,String checksign)
+			throws Exception
+	{
+		Session session = null;
+		try
+		{
+			//创建session，开启事务
+			session = SessionFactory.getSession(SystemConstants.DB_ISMP);
+			session.beginTrans();
+			
+			//step1：新增业务办理实例
+			this.addBusinessEntityModel(businessEntityModel, session);
+			
+			Long businessId = businessEntityModel.getId();
+			String ip = businessEntityModel.getIp();
+			String opSource = businessEntityModel.getOpSource();
+			String opStation = businessEntityModel.getOpStation();
+			
+			//step2：新增业务节点记录
+			this.addFlowNodeModel(businessId, currNodeId, ip, opSource, opStation, session);
+			
+			//step3：添加节点操作记录
+			this.addNodeLogModel(businessId, currNodeId, ip, opSource, opStation, session);
+			
+			//step5：添加协议
+			//根据用户提交的协议获取协议对象
+			SignAndVerifyService signAndVerifyService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_SIGNANDVERIFY, SignAndVerifyService.class);
+			List<AgreeRecordModel> agreeRecordModels = signAndVerifyService.getAgreeRecordModels(businessEntityModel.getUserId(), allSignList, businessId, currNodeId,checksign);
+			agreeRecordDao.addBatch(agreeRecordModels, session);
+			
+			//step6：添加帐号
+			for (ChoiceAccountRecordModel item : choiceAccountRecordModels)
+			{
+				item.setBusinessId(businessId);
+				item.setNodeId(currNodeId);
+			}
+			choiceAccountRecordDao.addBatch(choiceAccountRecordModels, session);
+			//提交事务
+			session.commitTrans();
+		}
+		catch (Exception e)
+		{
+			if (session != null)
+			{
+				session.rollbackTrans();
+			}
+			throw e;
+		}
+		finally
+		{
+			if (session != null)
+			{
+				session.close();
+			}
+		}
+	}
+	
+	@Override
+	public void changeFlowNodeAndAddPpTask(BusinessEntityModel updateBusinessEntityModel, String currNodeId) throws Exception
+	{
+		Session session = null;
+		try
+		{
+			//创建session，开启事务
+			session = SessionFactory.getSession(SystemConstants.DB_ISMP);
+			session.beginTrans();
+			
+			//入参
+			Long businessId = updateBusinessEntityModel.getId();
+			String ip = updateBusinessEntityModel.getIp();
+			String opSource = updateBusinessEntityModel.getOpSource();
+			String opStation = updateBusinessEntityModel.getOpStation();
+			updateBusinessEntityModel.setDealResult(DictionaryConstants.DEAL_RESULT_NEEDPP);
+			
+			//step1：修改业务实例
+			this.updateBusinessEntityModel(updateBusinessEntityModel, session);
+			
+			//step2：根据业务实例编号和当前节点查询流程节点记录,新增或更新记录
+			this.addOrUpdateFlowNodeModel(businessId, currNodeId, ip, opSource, opStation, session);
+			
+			//step3：添加节点操作记录
+			this.addNodeLogModel(businessId, currNodeId, ip, opSource, opStation, session);
+			
+			//step4：添加跑批任务、
+			PpTaskModel ppTaskModel = new PpTaskModel();
+			ppTaskModel.setBusinessId(businessId);
+			ppTaskModel.setIsLoop(DictionaryConstants.BOL_FALSE);
+			ppTaskModel.setTaskName(updateBusinessEntityModel.getBusinessCode());
+			ppTaskModel.setTaskStatus(DictionaryConstants.PP_TASK_STATUS_EFFECTIVE);
+			ppTaskModel.setExecStatus(DictionaryConstants.PP_TASK_EXEC_STATUS_NODEAL);
+			ppTaskDao.add(ppTaskModel, session);
+			
+			//提交事务
+			session.commitTrans();
+		}
+		catch (Exception e)
+		{
+			if (session != null)
+			{
+				session.rollbackTrans();
+			}
+			throw e;
+		}
+		finally
+		{
+			if (session != null)
+			{
+				session.close();
+			}
+		}
+	}
+	
+	@Override
+	public long countCompleteBusinessEntity(Long userId, String businessCode)
+	{
+		List<BusinessEntityModel> businessEntityModels = businessEntityDao.queryByParams(userId, businessCode, DictionaryConstants.BOL_TRUE);
+		if (null != businessEntityModels)
+		{
+			return businessEntityModels.size();
+		}
+		else
+		{
+			return 0;
+		}
+	}
+	
+	@Override
+	public DBPage queryPageByParams(DataRow queryParam, int curPage, int numPerPage)
+	{
+		return businessEntityDao.queryPageByParams(queryParam, curPage, numPerPage);
+	}
+	
+	@Override
+	public void updateEntityAndAgreeAndAccountAndAuditTask(BusinessEntityModel businessEntityModel, String currNodeId, List<Map<String, String>> allSignList,
+			List<ChoiceAccountRecordModel> choiceAccountRecordModels,String checksign) throws Exception
+	{
+		Session session = null;
+		try
+		{
+			//创建session，开启事务
+			session = SessionFactory.getSession(SystemConstants.DB_ISMP);
+			session.beginTrans();
+			
+			//step1：更新业务办理实例
+			businessEntityModel.setDealResult(DictionaryConstants.DEAL_RESULT_NEEDAUTIT);
+			this.updateBusinessEntityModel(businessEntityModel, session);
+			
+			Long businessId = businessEntityModel.getId();
+			String ip = businessEntityModel.getIp();
+			String opSource = businessEntityModel.getOpSource();
+			String opStation = businessEntityModel.getOpStation();
+			
+			//step2：新增业务节点记录
+			this.addFlowNodeModel(businessId, currNodeId, ip, opSource, opStation, session);
+			
+			//step3：添加节点操作记录
+			this.addNodeLogModel(businessId, currNodeId, ip, opSource, opStation, session);
+			
+			//step4：添加审核任务
+			AuditTaskInfoModel auditTaskInfoModel = new AuditTaskInfoModel();
+			auditTaskInfoModel.setBusinessId(businessId);
+			auditTaskInfoModel.setUserId(businessEntityModel.getUserId());
+			auditTaskInfoModel.setBusinessType(businessEntityModel.getBusinessCode());
+			auditTaskInfoModel.setState(DictionaryConstants.BUSINESS_AUDIT_STATE_NODEAL);
+			auditTaskInfoDao.addTask(auditTaskInfoModel, session);
+			
+			//step5：添加协议
+			//根据用户提交的协议获取协议对象
+			SignAndVerifyService signAndVerifyService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_SIGNANDVERIFY, SignAndVerifyService.class);
+			List<AgreeRecordModel> agreeRecordModels = signAndVerifyService.getAgreeRecordModels(businessEntityModel.getUserId(), allSignList, businessId, currNodeId,checksign);
+			agreeRecordDao.addBatch(agreeRecordModels, session);
+			
+			//step6：添加帐号
+			for (ChoiceAccountRecordModel item : choiceAccountRecordModels)
+			{
+				item.setBusinessId(businessId);
+				item.setNodeId(currNodeId);
+			}
+			choiceAccountRecordDao.addBatch(choiceAccountRecordModels, session);
+			//提交事务
+			session.commitTrans();
+		}
+		catch (Exception e)
+		{
+			if (session != null)
+			{
+				session.rollbackTrans();
+			}
+			throw e;
+		}
+		finally
+		{
+			if (session != null)
+			{
+				session.close();
+			}
+		}
+	}
+	
+	@Override
+	public void updateEntityAndAgreeAndAccountAndPpTask(BusinessEntityModel businessEntityModel, String currNodeId, List<Map<String, String>> allSignList,
+			List<ChoiceAccountRecordModel> choiceAccountRecordModels,String checksign) throws Exception
+	{
+		Session session = null;
+		try
+		{
+			//创建session，开启事务
+			session = SessionFactory.getSession(SystemConstants.DB_ISMP);
+			session.beginTrans();
+			
+			//step1：新增业务办理实例
+			businessEntityModel.setDealResult(DictionaryConstants.DEAL_RESULT_NEEDPP);
+			this.updateBusinessEntityModel(businessEntityModel, session);
+			
+			Long businessId = businessEntityModel.getId();
+			String ip = businessEntityModel.getIp();
+			String opSource = businessEntityModel.getOpSource();
+			String opStation = businessEntityModel.getOpStation();
+			
+			//step2：新增业务节点记录
+			this.addFlowNodeModel(businessId, currNodeId, ip, opSource, opStation, session);
+			
+			//step3：添加节点操作记录
+			this.addNodeLogModel(businessId, currNodeId, ip, opSource, opStation, session);
+			
+			//step4：添加审核任务
+            AuditTaskInfoModel auditTaskInfoModel = new AuditTaskInfoModel();
+            auditTaskInfoModel.setBusinessId(businessId);
+            auditTaskInfoModel.setUserId(businessEntityModel.getUserId());
+            auditTaskInfoModel.setBusinessType(businessEntityModel.getBusinessCode());
+            auditTaskInfoModel.setState(DictionaryConstants.BUSINESS_AUDIT_STATE_NODEAL);
+            auditTaskInfoDao.addTask(auditTaskInfoModel, session);
+			
+			//step4：添加跑批任务、
+			PpTaskModel ppTaskModel = new PpTaskModel();
+			ppTaskModel.setBusinessId(businessId);
+			ppTaskModel.setIsLoop(DictionaryConstants.BOL_FALSE);
+			ppTaskModel.setTaskName(businessEntityModel.getBusinessCode());
+			ppTaskModel.setTaskStatus(DictionaryConstants.PP_TASK_STATUS_EFFECTIVE);
+			ppTaskModel.setExecStatus(DictionaryConstants.PP_TASK_EXEC_STATUS_NODEAL);
+			ppTaskDao.add(ppTaskModel, session);
+			
+			//step5：添加协议
+			//根据用户提交的协议获取协议对象
+			SignAndVerifyService signAndVerifyService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_SIGNANDVERIFY, SignAndVerifyService.class);
+			List<AgreeRecordModel> agreeRecordModels = signAndVerifyService.getAgreeRecordModels(businessEntityModel.getUserId(), allSignList, businessId, currNodeId,checksign);
+			agreeRecordDao.addBatch(agreeRecordModels, session);
+			
+			//step6：添加帐号
+			for (ChoiceAccountRecordModel item : choiceAccountRecordModels)
+			{
+				item.setBusinessId(businessId);
+				item.setNodeId(currNodeId);
+			}
+			choiceAccountRecordDao.addBatch(choiceAccountRecordModels, session);
+			//提交事务
+			session.commitTrans();
+		}
+		catch (Exception e)
+		{
+			if (session != null)
+			{
+				session.rollbackTrans();
+			}
+			throw e;
+		}
+		finally
+		{
+			if (session != null)
+			{
+				session.close();
+			}
+		}
+	}
+	
+	@Override
+	public void updateEntityAndAgreeAndAccount(BusinessEntityModel businessEntityModel, String currNodeId, List<Map<String, String>> allSignList,
+			List<ChoiceAccountRecordModel> choiceAccountRecordModels,String checksign) throws Exception
+	{
+		Session session = null;
+		try
+		{
+			//创建session，开启事务
+			session = SessionFactory.getSession(SystemConstants.DB_ISMP);
+			session.beginTrans();
+			
+			//step1：修改业务办理实例
+			this.updateBusinessEntityModel(businessEntityModel, session);
+			
+			Long businessId = businessEntityModel.getId();
+			String ip = businessEntityModel.getIp();
+			String opSource = businessEntityModel.getOpSource();
+			String opStation = businessEntityModel.getOpStation();
+			
+			//step2：新增业务节点记录
+			this.addFlowNodeModel(businessId, currNodeId, ip, opSource, opStation, session);
+			
+			//step3：添加节点操作记录
+			this.addNodeLogModel(businessId, currNodeId, ip, opSource, opStation, session);
+			
+			//step5：添加协议
+			//根据用户提交的协议获取协议对象
+			SignAndVerifyService signAndVerifyService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_SIGNANDVERIFY, SignAndVerifyService.class);
+			List<AgreeRecordModel> agreeRecordModels = signAndVerifyService.getAgreeRecordModels(businessEntityModel.getUserId(), allSignList, businessId, currNodeId,checksign);
+			agreeRecordDao.addBatch(agreeRecordModels, session);
+			
+			//step6：添加帐号
+			for (ChoiceAccountRecordModel item : choiceAccountRecordModels)
+			{
+				item.setBusinessId(businessId);
+				item.setNodeId(currNodeId);
+			}
+			choiceAccountRecordDao.addBatch(choiceAccountRecordModels, session);
+			//提交事务
+			session.commitTrans();
+		}
+		catch (Exception e)
+		{
+			if (session != null)
+			{
+				session.rollbackTrans();
+			}
+			throw e;
+		}
+		finally
+		{
+			if (session != null)
+			{
+				session.close();
+			}
+		}
+	}
+	
+	@Override
+	public BusinessEntityModel queryByUserIdAndBusinessId(Long userId, Long businessId)
+	{
+		return businessEntityDao.queryByUserIdAndBusinessId(userId, businessId);
+	}
+	
+	@Override
+	public void addEntityAndAgreeAndAuditTask(BusinessEntityModel businessEntityModel, String currNodeId, List<Map<String, String>> allSignList,String checksign) throws Exception
+	{
+		Session session = null;
+		try
+		{
+			//创建session，开启事务
+			session = SessionFactory.getSession(SystemConstants.DB_ISMP);
+			session.beginTrans();
+			
+			//step1：新增业务办理实例
+			businessEntityModel.setDealResult(DictionaryConstants.DEAL_RESULT_NEEDAUTIT);
+			this.addBusinessEntityModel(businessEntityModel, session);
+			
+			Long businessId = businessEntityModel.getId();
+			String ip = businessEntityModel.getIp();
+			String opSource = businessEntityModel.getOpSource();
+			String opStation = businessEntityModel.getOpStation();
+			
+			//step2：新增业务节点记录
+			this.addFlowNodeModel(businessId, currNodeId, ip, opSource, opStation, session);
+			
+			//step3：添加节点操作记录
+			this.addNodeLogModel(businessId, currNodeId, ip, opSource, opStation, session);
+			
+			//step4：添加审核任务
+			AuditTaskInfoModel auditTaskInfoModel = new AuditTaskInfoModel();
+			auditTaskInfoModel.setBusinessId(businessId);
+			auditTaskInfoModel.setUserId(businessEntityModel.getUserId());
+			auditTaskInfoModel.setBusinessType(businessEntityModel.getBusinessCode());
+			auditTaskInfoModel.setState(DictionaryConstants.BUSINESS_AUDIT_STATE_NODEAL);
+			auditTaskInfoDao.addTask(auditTaskInfoModel, session);
+			
+			//step5：添加协议
+			//根据用户提交的协议获取协议对象
+			SignAndVerifyService signAndVerifyService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_SIGNANDVERIFY, SignAndVerifyService.class);
+			List<AgreeRecordModel> agreeRecordModels = signAndVerifyService.getAgreeRecordModels(businessEntityModel.getUserId(), allSignList, businessId, currNodeId,checksign);
+			agreeRecordDao.addBatch(agreeRecordModels, session);
+			
+			//提交事务
+			session.commitTrans();
+		}
+		catch (Exception e)
+		{
+			if (session != null)
+			{
+				session.rollbackTrans();
+			}
+			throw e;
+		}
+		finally
+		{
+			if (session != null)
+			{
+				session.close();
+			}
+		}
+	}
+	
+	@Override
+	public void addEntityAndAgreeAndPpTask(BusinessEntityModel businessEntityModel, String currNodeId, List<Map<String, String>> allSignList,String checksign) throws Exception
+	{
+		Session session = null;
+		try
+		{
+			//创建session，开启事务
+			session = SessionFactory.getSession(SystemConstants.DB_ISMP);
+			session.beginTrans();
+			
+			//step1：新增业务办理实例
+			businessEntityModel.setDealResult(DictionaryConstants.DEAL_RESULT_NEEDPP);
+			this.addBusinessEntityModel(businessEntityModel, session);
+			
+			Long businessId = businessEntityModel.getId();
+			String ip = businessEntityModel.getIp();
+			String opSource = businessEntityModel.getOpSource();
+			String opStation = businessEntityModel.getOpStation();
+			
+			//step2：新增业务节点记录
+			this.addFlowNodeModel(businessId, currNodeId, ip, opSource, opStation, session);
+			
+			//step3：添加节点操作记录
+			this.addNodeLogModel(businessId, currNodeId, ip, opSource, opStation, session);
+			
+			//step4：添加跑批任务、
+			PpTaskModel ppTaskModel = new PpTaskModel();
+			ppTaskModel.setBusinessId(businessId);
+			ppTaskModel.setIsLoop(DictionaryConstants.BOL_FALSE);
+			ppTaskModel.setTaskName(businessEntityModel.getBusinessCode());
+			ppTaskModel.setTaskStatus(DictionaryConstants.PP_TASK_STATUS_EFFECTIVE);
+			ppTaskModel.setExecStatus(DictionaryConstants.PP_TASK_EXEC_STATUS_NODEAL);
+			ppTaskDao.add(ppTaskModel, session);
+			
+			//step5：添加协议
+			//根据用户提交的协议获取协议对象
+			SignAndVerifyService signAndVerifyService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_SIGNANDVERIFY, SignAndVerifyService.class);
+			List<AgreeRecordModel> agreeRecordModels = signAndVerifyService.getAgreeRecordModels(businessEntityModel.getUserId(), allSignList, businessId, currNodeId,checksign);
+			agreeRecordDao.addBatch(agreeRecordModels, session);
+			
+			//提交事务
+			session.commitTrans();
+		}
+		catch (Exception e)
+		{
+			if (session != null)
+			{
+				session.rollbackTrans();
+			}
+			throw e;
+		}
+		finally
+		{
+			if (session != null)
+			{
+				session.close();
+			}
+		}
+	}
+	
+	@Override
+	public void addEntityAndAgree(BusinessEntityModel businessEntityModel, String currNodeId, List<Map<String, String>> allSignList,String checksign) throws Exception
+	{
+		Session session = null;
+		try
+		{
+			//创建session，开启事务
+			session = SessionFactory.getSession(SystemConstants.DB_ISMP);
+			session.beginTrans();
+			
+			//step1：新增业务办理实例
+			this.addBusinessEntityModel(businessEntityModel, session);
+			
+			Long businessId = businessEntityModel.getId();
+			String ip = businessEntityModel.getIp();
+			String opSource = businessEntityModel.getOpSource();
+			String opStation = businessEntityModel.getOpStation();
+			
+			//step2：新增业务节点记录
+			this.addFlowNodeModel(businessId, currNodeId, ip, opSource, opStation, session);
+			
+			//step3：添加节点操作记录
+			this.addNodeLogModel(businessId, currNodeId, ip, opSource, opStation, session);
+			
+			//step5：添加协议
+			//根据用户提交的协议获取协议对象
+			SignAndVerifyService signAndVerifyService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_SIGNANDVERIFY, SignAndVerifyService.class);
+			List<AgreeRecordModel> agreeRecordModels = signAndVerifyService.getAgreeRecordModels(businessEntityModel.getUserId(), allSignList, businessId, currNodeId,checksign);
+			agreeRecordDao.addBatch(agreeRecordModels, session);
+			
+			//提交事务
+			session.commitTrans();
+		}
+		catch (Exception e)
+		{
+			if (session != null)
+			{
+				session.rollbackTrans();
+			}
+			throw e;
+		}
+		finally
+		{
+			if (session != null)
+			{
+				session.close();
+			}
+		}
+	}
+	
+	@Override
+    public BusinessEntityModel queryNotCompleteByUserIdAndBusinessCodeOrFlag(long userId, String businessCode,String flag)
+    {
+        return businessEntityDao.querNotCompleteByUserIdAndBusinessCodeOrFlag(userId, businessCode, flag);
+    }
+
+    @Override
+    public void updateEntityAndAccountAndAuditTask(BusinessEntityModel businessEntityModel, String currNodeId, List<Map<String, String>> allSignList,
+            List<ChoiceAccountRecordModel> choiceAccountRecordModels,String checksign) throws Exception
+    {
+        Session session = null;
+        try
+        {
+            //创建session，开启事务
+            session = SessionFactory.getSession(SystemConstants.DB_ISMP);
+            session.beginTrans();
+            
+            //step1：更新业务办理实例
+            businessEntityModel.setDealResult(DictionaryConstants.DEAL_RESULT_NEEDAUTIT);
+            this.updateBusinessEntityModel(businessEntityModel, session);
+            
+            Long businessId = businessEntityModel.getId();
+            String ip = businessEntityModel.getIp();
+            String opSource = businessEntityModel.getOpSource();
+            String opStation = businessEntityModel.getOpStation();
+            
+            //step2：新增业务节点记录
+            this.addFlowNodeModel(businessId, currNodeId, ip, opSource, opStation, session);
+            
+            //step3：添加节点操作记录
+            this.addNodeLogModel(businessId, currNodeId, ip, opSource, opStation, session);
+            
+            //step4：添加审核任务
+            AuditTaskInfoModel auditTaskInfoModel = new AuditTaskInfoModel();
+            auditTaskInfoModel.setBusinessId(businessId);
+            auditTaskInfoModel.setUserId(businessEntityModel.getUserId());
+            auditTaskInfoModel.setBusinessType(businessEntityModel.getBusinessCode());
+            auditTaskInfoModel.setState(DictionaryConstants.BUSINESS_AUDIT_STATE_NODEAL);
+            auditTaskInfoDao.addTask(auditTaskInfoModel, session);
+            
+            
+            //step5：添加帐号
+            for (ChoiceAccountRecordModel item : choiceAccountRecordModels)
+            {
+                item.setBusinessId(businessId);
+                item.setNodeId(currNodeId);
+            }
+            choiceAccountRecordDao.addBatch(choiceAccountRecordModels, session);
+            //提交事务
+            session.commitTrans();
+        }
+        catch (Exception e)
+        {
+            if (session != null)
+            {
+                session.rollbackTrans();
+            }
+            throw e;
+        }
+        finally
+        {
+            if (session != null)
+            {
+                session.close();
+            }
+        }
+    }
+    @Override
+    public void updateEntityAndAccountAndPpTask(BusinessEntityModel businessEntityModel, String currNodeId, List<Map<String, String>> allSignList,
+            List<ChoiceAccountRecordModel> choiceAccountRecordModels,String checksign) throws Exception
+    {
+        Session session = null;
+        try
+        {
+            //创建session，开启事务
+            session = SessionFactory.getSession(SystemConstants.DB_ISMP);
+            session.beginTrans();
+            
+            //step1：新增业务办理实例
+            businessEntityModel.setDealResult(DictionaryConstants.DEAL_RESULT_NEEDPP);
+            this.updateBusinessEntityModel(businessEntityModel, session);
+            
+            Long businessId = businessEntityModel.getId();
+            String ip = businessEntityModel.getIp();
+            String opSource = businessEntityModel.getOpSource();
+            String opStation = businessEntityModel.getOpStation();
+            
+            //step2：新增业务节点记录
+            this.addFlowNodeModel(businessId, currNodeId, ip, opSource, opStation, session);
+            
+            //step3：添加节点操作记录
+            this.addNodeLogModel(businessId, currNodeId, ip, opSource, opStation, session);
+            
+            //step4：添加跑批任务、
+            PpTaskModel ppTaskModel = new PpTaskModel();
+            ppTaskModel.setBusinessId(businessId);
+            ppTaskModel.setIsLoop(DictionaryConstants.BOL_FALSE);
+            ppTaskModel.setTaskName(businessEntityModel.getBusinessCode());
+            ppTaskModel.setTaskStatus(DictionaryConstants.PP_TASK_STATUS_EFFECTIVE);
+            ppTaskModel.setExecStatus(DictionaryConstants.PP_TASK_EXEC_STATUS_NODEAL);
+            ppTaskDao.add(ppTaskModel, session);
+            
+            
+            //step6：添加帐号
+            for (ChoiceAccountRecordModel item : choiceAccountRecordModels)
+            {
+                item.setBusinessId(businessId);
+                item.setNodeId(currNodeId);
+            }
+            choiceAccountRecordDao.addBatch(choiceAccountRecordModels, session);
+            //提交事务
+            session.commitTrans();
+        }
+        catch (Exception e)
+        {
+            if (session != null)
+            {
+                session.rollbackTrans();
+            }
+            throw e;
+        }
+        finally
+        {
+            if (session != null)
+            {
+                session.close();
+            }
+        }
+    }
+
+    @Override
+    public void changeBusinessFlowNodeAndAccount(BusinessEntityModel updateBusinessEntityModel, String currNodeId,
+            List<ChoiceAccountRecordModel> choiceAccountRecordModels) throws Exception
+    {
+        Session session = null;
+        try
+        {
+            //创建session，开启事务
+            session = SessionFactory.getSession(SystemConstants.DB_ISMP);
+            session.beginTrans();
+            
+            //入参
+            Long businessId = updateBusinessEntityModel.getId();
+            String ip = updateBusinessEntityModel.getIp();
+            String opSource = updateBusinessEntityModel.getOpSource();
+            String opStation = updateBusinessEntityModel.getOpStation();
+            
+            //step1：修改业务实例
+            this.updateBusinessEntityModel(updateBusinessEntityModel, session);
+            
+            //step2：根据业务实例编号和当前节点查询流程节点记录,新增或更新记录
+            this.addOrUpdateFlowNodeModel(businessId, currNodeId, ip, opSource, opStation, session);
+            
+            //step3：添加节点操作记录
+            this.addNodeLogModel(businessId, currNodeId, ip, opSource, opStation, session);
+            
+            //step4：添加账号选择记录
+            choiceAccountRecordDao.deleteByBusinessIdAndNodeId(businessId, currNodeId, session);
+            for (ChoiceAccountRecordModel item : choiceAccountRecordModels)
+            {
+                item.setBusinessId(businessId);
+                item.setNodeId(currNodeId);
+            }
+            choiceAccountRecordDao.addBatch(choiceAccountRecordModels, session);
+            
+            //提交事务
+            session.commitTrans();
+        }
+        catch (Exception e)
+        {
+            if (session != null)
+            {
+                session.rollbackTrans();
+            }
+            throw e;
+        }
+        finally
+        {
+            if (session != null)
+            {
+                session.close();
+            }
+        }
+        
+    }
+    
+    public DataRow queryBusinessName(String business_code) throws Exception{
+        return businessEntityDao.queryBusinessName(business_code);
+    }
+    
+    @Override
+    public void updateAccountAndPpTask(BusinessEntityModel businessEntityModel, String currNodeId,
+            List<ChoiceAccountRecordModel> choiceAccountRecordModels,String checksign) throws Exception
+    {
+        Session session = null;
+        try
+        {
+            //创建session，开启事务
+            session = SessionFactory.getSession(SystemConstants.DB_ISMP);
+            session.beginTrans();
+            
+            //step1：新增业务办理实例
+            businessEntityModel.setDealResult(DictionaryConstants.DEAL_RESULT_NEEDPP);
+            this.updateBusinessEntityModel(businessEntityModel, session);
+            
+            Long businessId = businessEntityModel.getId();
+            String ip = businessEntityModel.getIp();
+            String opSource = businessEntityModel.getOpSource();
+            String opStation = businessEntityModel.getOpStation();
+            
+            //step2：新增业务节点记录
+            this.addFlowNodeModel(businessId, currNodeId, ip, opSource, opStation, session);
+            
+            //step3：添加节点操作记录
+            this.addNodeLogModel(businessId, currNodeId, ip, opSource, opStation, session);
+            
+            //step4：添加跑批任务、
+            PpTaskModel ppTaskModel = new PpTaskModel();
+            ppTaskModel.setBusinessId(businessId);
+            ppTaskModel.setIsLoop(DictionaryConstants.BOL_FALSE);
+            ppTaskModel.setTaskName(businessEntityModel.getBusinessCode());
+            ppTaskModel.setTaskStatus(DictionaryConstants.PP_TASK_STATUS_EFFECTIVE);
+            ppTaskModel.setExecStatus(DictionaryConstants.PP_TASK_EXEC_STATUS_NODEAL);
+            ppTaskDao.add(ppTaskModel, session);
+            
+            
+            //step6：添加帐号
+            for (ChoiceAccountRecordModel item : choiceAccountRecordModels)
+            {
+                item.setBusinessId(businessId);
+                item.setNodeId(currNodeId);
+            }
+            choiceAccountRecordDao.addBatch(choiceAccountRecordModels, session);
+            //提交事务
+            session.commitTrans();
+        }
+        catch (Exception e)
+        {
+            if (session != null)
+            {
+                session.rollbackTrans();
+            }
+            throw e;
+        }
+        finally
+        {
+            if (session != null)
+            {
+                session.close();
+            }
+        }
+    }
+    
+}

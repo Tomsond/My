@@ -1,0 +1,119 @@
+package com.thinkive.fxc.ismp.bus.business.assets.thirdbank.contants;
+
+/**
+ * @描述: 三方存管常量类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月24日 上午11:36:03
+ */
+public class ThirdBankContants
+{
+	
+	/**
+	 * 用户三方存管同步数据表
+	 */
+	public static final String T_ISMP_USER_BANK_BIND = "T_ISMP_USER_BANK_BIND";
+	
+	/**
+	 * 三方存管业务拓展表
+	 */
+    public static final String T_ISMP_B_THIRDBANK = "T_ISMP_B_THIRDBANK";
+	
+	/**
+	 * 三方存管thirdBankServiceID常量
+	 */
+	public static final String SERVICE_ID_THIRDBANK = "com.thinkive.fxc.ismp.thirdBankService";
+	
+	/**
+     * 三方存管签约状态：0 正常
+     */
+    public static final String CONTRACT_STATUS_NORMAL = "0"; 
+    
+    /**
+     * 三方存管签约状态：1 待签约
+     */
+    public static final String CONTRACT_STATUS_NEEDSIGN = "1"; 
+    
+    /**
+     * 三方存管签约状态：2 冻结
+     */
+    public static final String CONTRACT_STATUS_FROZEN = "2"; 
+    
+    /**
+     * 三方存管签约状态：3 挂失
+     */
+    public static final String CONTRACT_STATUS_LOSS = "3"; //挂失
+    
+    /**
+     * 三方存管签约状态：9 销户
+     */
+    public static final String CONTRACT_STATUS_CANCEL = "9"; 
+    
+    /**
+     * 三方存管绑定方式：1 一步式
+     */
+    public static final String BINDTYPE_ONETYPE = "1"; 
+    
+    /**
+     * 三方存管签约方式：2 预指定
+     */
+    public static final String BINDTYPE_PRE_SPECIFIED = "2"; 
+    
+    /**
+     * 一步式绑定是否需要密码: 1 需要
+     */
+    public static final String IS_PWD_NEED = "1"; 
+    
+    /**
+     * 一步式绑定是否需要密码: 0 不需要
+     */
+    public static final String IS_PWD_NO_NEED = "0"; 
+    
+    /**
+     * 预指定绑定是否需要卡号: 1 需要
+     */
+    public static final String IS_CARD_NEED = "1"; 
+    
+    /**
+     * 预指定绑定是否需要卡号: 0 不需要
+     */
+    public static final String IS_CARD_NO_NEED = "0"; 
+    
+    /**
+     * 三方存管最大准许绑定的银行卡数量配置文件key
+     */
+    public static final String SYSCONFIG_BANKNUMMAX="sysConfig.bankNumMax";
+
+    /**
+     * 三方存管业务办理操作类型:注销
+     */
+    public static final String THIRDBANK_OP_TYPE_CANCEL = "0";
+    
+    /**
+     * 三方存管业务办理操作类型:绑定
+     */
+    public static final String THIRDBANK_OP_TYPE_BIND = "1";
+    
+    /**
+     * 三方存管业务办理操作类型:修改
+     */
+    public static final String THIRDBANK_OP_TYPE_MODIFY = "2";
+    
+    /**
+     * 三方存管业务办理操作类型:注销后绑定
+     */
+    public static final String THIRDBANK_OP_TYPE_CANCELANDBIND = "01";
+    
+    /**
+     * 注销后绑定方式流程节点：注销成功未绑定
+     */
+    public static final String THIRDBANK_ZXBD_ONESTEP = "cancellationOfSuccess";
+    
+    /**
+     * 三方存管绑定失败最大准许次数
+     */
+    public static final String UPDATE_BANKERRORMAX="sysConfig.updateBankErrorMax";
+
+}

@@ -1,0 +1,202 @@
+package com.thinkive.fxc.ismp.bus.business.assets.zhth.function;
+
+import java.util.List;
+import java.util.Map;
+
+import com.thinkive.base.exception.BusinessException;
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.basicdata.contants.BasicServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.basicdata.service.TradeTimeService;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.function.IsmpFlowBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.business.model.BusinessConfigModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.BusinessEntityModel;
+import com.thinkive.fxc.ismp.bus.base.business.service.BusinessConfigService;
+import com.thinkive.fxc.ismp.bus.base.business.service.SignAndVerifyService;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.business.utils.ModularNodeUtil;
+import com.thinkive.fxc.ismp.bus.base.business.vo.UserInfoVo;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeSystem;
+import com.thinkive.fxc.ismp.bus.business.assets.zhth.constants.ErrorCodeBusiness;
+import com.thinkive.fxc.ismp.bus.business.assets.zhth.constants.ZhthConstatans;
+import com.thinkive.fxc.ismp.bus.business.assets.zhth.model.ChangeMainFundExtendModel;
+import com.thinkive.fxc.ismp.bus.business.assets.zhth.service.ChangeMainFundService;
+import com.thinkive.fxc.ismp.bus.business.util.DataFormatUtils;
+import com.thinkive.fxc.ismp.bus.business.util.SmsUtils;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdDictionaryConstants;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdInterfaceConstant;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdInterface;
+import com.thinkive.server.InvokeException;
+import com.thinkive.server.ResultVo;
+
+/**
+ * @描述: 主副资金账号变更，短信校验并提交资金帐号
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2017年3月15日 下午1:14:40
+ */
+public class Function1004802 extends IsmpFlowBaseFunction
+{
+	
+	private String fundAccount;//副资金账号
+	
+	private String mobileCode;//手机验证码
+	
+	private String jsondata;//签名值
+	
+	@Override
+	public ResultVo execute() throws InvokeException, Exception
+	{
+		
+		initVar();
+		//step1:查询用户基本信息和用户主资金帐号基本信息
+		UserInfoService userInfoService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO, UserInfoService.class);
+		UserInfoVo userInfoVo = userInfoService.queryAndCheckUserByUserIdAndType(userId, ThirdInterfaceConstant.USER_ACCOUNT_TYPE_ZQ);
+		
+		//短信校验
+		boolean checkResult = SmsUtils.checkMobileCode(userInfoVo.getMobile(), mobileCode, DictionaryConstants.SMS_TYPE_CHANGEMAINFUND);
+		if (!checkResult)
+		{
+			throw new BusinessException(ErrorCodeSystem.ERROR_MOBILECODE);
+		}
+		
+		//判断主副资金账号当天是否无交易
+		DataRow thirdInput = DataFormatUtils.packThirdInput(userInfoVo);
+		thirdInput.set("op_account", userInfoVo.getFundAccount());
+		if (!checkTradeRecored(thirdInput))
+		{
+			throw new BusinessException(ErrorCodeBusiness.MAIN_FUND_TRADERECORED);
+		}
+		thirdInput.set("op_account", fundAccount);
+		if (!checkTradeRecored(thirdInput))
+		{
+			throw new BusinessException(ErrorCodeBusiness.AUXILIARY_FUND_TRADERECORED);
+		}
+		
+		//获取节点属性组
+		Map<String, DataRow> signParamsMap = ModularNodeUtil.checkAndReturnSignNodeProperty(nodePropertyConfigModelList);
+		
+		//提交的所有协议
+		SignAndVerifyService signAndVerifyService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_SIGNANDVERIFY, SignAndVerifyService.class);
+		List<Map<String, String>> allSignList = signAndVerifyService.verifySignTextAndSubmitThird(jsondata, signParamsMap);
+		
+		//查询业务属性
+		BusinessConfigService businessConfigService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_BUSINESSCONFIG, BusinessConfigService.class);
+		BusinessConfigModel businessConfigModel = businessConfigService.queryByOpSourceAndBusinessCode(businessCode, opSource);
+		
+		//创建新的业务办理数据
+		BusinessEntityModel businessEntityModel = getNewBusinessEntity();
+		businessEntityModel.setNodeId(submitBprocNodeConfigAndDefineVO.getNextBpNodeId());
+		ChangeMainFundExtendModel changeMainFundExtendModel = new ChangeMainFundExtendModel();
+		changeMainFundExtendModel.setOldAccount(userInfoVo.getFundAccount());
+		changeMainFundExtendModel.setNewAccount(fundAccount);
+		ChangeMainFundService changeMainFundService = SpringHelper.getBean(ZhthConstatans.SERVICE_ID_CHANGEMAINFUND, ChangeMainFundService.class);
+		
+		//如果没有配置业务属性,或者配置为需要审核
+		if (businessConfigModel == null || DictionaryConstants.BOL_TRUE.equals(businessConfigModel.getNeedAudit()))
+		{
+			changeMainFundService.addEntityAndAgreeAndAuditTask(businessEntityModel, submitBprocNodeConfigAndDefineVO.getNodeId(), allSignList, changeMainFundExtendModel);
+		}
+		//如果是统一跑批,或者
+		else if (DictionaryConstants.BUSINESS_DATA_SUBMITTYPE_PP.equals(businessConfigModel.getDataSubmitType()))
+		{
+			changeMainFundService.addEntityAndAgreeAndPpTask(businessEntityModel, submitBprocNodeConfigAndDefineVO.getNodeId(), allSignList, changeMainFundExtendModel);
+		}
+		//如果是实时提交
+		else if (DictionaryConstants.BUSINESS_DATA_SUBMITTYPE_THIRD.equals(businessConfigModel.getDataSubmitType()))
+		{
+			DataRow openResult = changeMainFund(userInfoVo, fundAccount);
+			String dealResult = openResult.getString("dealResult");
+			String msg = openResult.getString("msg");
+			businessEntityModel.setDealResult(dealResult);
+			businessEntityModel.setDescription(msg);
+			businessEntityModel.setIsComplete(DictionaryConstants.BOL_TRUE);
+			changeMainFundService.addEntityAndAgree(businessEntityModel, submitBprocNodeConfigAndDefineVO.getNodeId(), allSignList, changeMainFundExtendModel);
+		}
+		//如果中登服务时间提交第三方、非服务时间跑批
+		else if (DictionaryConstants.BUSINESS_DATA_SUBMITTYPE_SERVICETIME.equals(businessConfigModel.getDataSubmitType()))
+		{
+			TradeTimeService tradeTimeService = SpringHelper.getBean(BasicServiceBeanIdConstants.SERVICE_ID_TRADETIME, TradeTimeService.class);
+			//如果不是中登时间则跑批
+			if (!tradeTimeService.checkZdTradeTime())
+			{
+				changeMainFundService.addEntityAndAgreeAndPpTask(businessEntityModel, submitBprocNodeConfigAndDefineVO.getNodeId(), allSignList, changeMainFundExtendModel);
+			}
+			else
+			{
+				DataRow openResult = changeMainFund(userInfoVo, fundAccount);
+				String dealResult = openResult.getString("dealResult");
+				String msg = openResult.getString("msg");
+				businessEntityModel.setDealResult(dealResult);
+				businessEntityModel.setDescription(msg);
+				businessEntityModel.setIsComplete(DictionaryConstants.BOL_TRUE);
+				changeMainFundService.addEntityAndAgree(businessEntityModel, submitBprocNodeConfigAndDefineVO.getNodeId(), allSignList, changeMainFundExtendModel);
+			}
+		}
+		
+		ResultVo resultVo = new ResultVo();
+		return resultVo;
+	}
+	
+	private void initVar()
+	{
+		fundAccount = this.getAndCheckBlankStrParam("fundAccount", ErrorCodeCheckInput.BLANK_FUNDACCOUNT);
+		mobileCode = this.getAndCheckBlankStrParam("mobileCode", ErrorCodeCheckInput.BLANK_VALIDATE_CODE);
+		jsondata = this.getAndCheckBlankStrParam("jsondata", ErrorCodeCheckInput.BLANK_FORMAT_SIGNJSON);
+	}
+	
+	private boolean checkTradeRecored(DataRow thirdInput)
+	{
+		boolean checkFlag = true;
+		ThirdInterface thirdInterface = SpringHelper.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDINTERFACE, ThirdInterface.class);
+		//查询当天是否有委托
+		String hasTodayWtFlag = thirdInterface.hasTodayWt(thirdInput);
+		if (DictionaryConstants.BOL_TRUE.equals(hasTodayWtFlag))
+		{
+			checkFlag = false;
+		}
+		//查询银证转账流水
+		String hasBanktransFerflowFlag = thirdInterface.hasBanktransFerflow(thirdInput);
+		if (DictionaryConstants.BOL_TRUE.equals(hasBanktransFerflowFlag))
+		{
+			checkFlag = false;
+		}
+		return checkFlag;
+	}
+	
+	/**
+	 * @描述：变更主辅资金帐号
+	 * @作者：张斌
+	 * @时间：2016年9月22日 下午4:45:24
+	 * @param trdaccount
+	 * @return
+	 * @throws Exception
+	 */
+	private DataRow changeMainFund(UserInfoVo userInfoVo, String fundAccount) throws Exception
+	{
+		//开通权限
+		ThirdInterface thirdInterface = SpringHelper.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDINTERFACE, ThirdInterface.class);
+		DataRow thirdInput = DataFormatUtils.packThirdInput(userInfoVo);
+		String dealResult = DictionaryConstants.DEAL_RESULT_SUCCESS;
+		String msg = "";
+		try
+		{
+			thirdInput.set("auxiliary_account", fundAccount);
+			thirdInterface.changeMainFund(thirdInput);
+		}
+		catch (InvokeException e)
+		{
+			dealResult = DictionaryConstants.DEAL_RESULT_REAL_TIME_FAILURE;
+			msg = e.getMessage();
+		}
+		DataRow result = new DataRow();
+		result.set("dealResult", dealResult);
+		result.set("msg", msg);
+		return result;
+	}
+}

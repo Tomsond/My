@@ -1,0 +1,70 @@
+package com.thinkive.fxc.ismp.bus.business.assets.thirdbank.dao;
+
+import com.thinkive.fxc.ismp.bus.business.assets.thirdbank.model.UserBankBindModel;
+
+/**
+ * @描述:用户三方存管同步数据表(T_ISMP_USER_BANK_BIND)数据层接口
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 田源
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月24日 上午11:21:13
+ */
+public interface UserBankBindDao
+{
+    /**
+     * @描述：添加用户三方存管同步数据
+     * @作者：田源
+     * @时间：2016年8月24日 下午2:01:24
+     * @param userBankBindModel
+     * @return UserBankBindModel
+     */
+    public UserBankBindModel add(UserBankBindModel userBankBindModel);
+    
+    /**
+     * @描述：根据userId,account,fundAccount修改用户三方存管同步数据，返回更新成功的记录条数
+     * @作者：田源
+     * @时间：2016年8月24日 下午2:02:11
+     * @param userBankBindModel
+     * @return int
+     */
+    public int update(UserBankBindModel userBankBindModel);
+    
+    /**
+     * @描述：根据用户编号userId删除用户三方存管数据
+     * @作者：田源
+     * @时间：2016年8月24日 上午11:22:20
+     * @param userId
+     */
+    public void deleteByUserId(Long userId);
+    
+    /**
+     * @描述：根据银行卡号account和用户编号userId查询用户三方存管数据
+     * @作者：田源
+     * @时间：2016年8月26日 下午2:51:49
+     * @param account
+     * @param userId
+     * @return UserBankBindModel
+     */
+    public UserBankBindModel queryByAccountAndUserId(String account,Long userId);
+    
+    /**
+     * @描述：根据bankCode和fundAccount和userId查询用户三方存管数据(三个参数都必传)
+     * @作者：田源
+     * @时间：2016年8月31日 下午2:24:00
+     * @param bankCode 银行机构代码
+     * @param fundAccount 资金账号
+     * @param userId 用户编号
+     * @return UserBankBindModel
+     */
+    public UserBankBindModel queryByBankCodeAndFundAccountAndUserId(String bankCode,String fundAccount,Long userId);
+
+    /**
+     * @描述:  通过用户id查询客户已绑定的主卡的信息
+     * @Param: [userId]
+     * @return:
+     * @Author: xuzong
+     * @Date: 2018/10/10
+     */
+    UserBankBindModel queryUserBindMainCard(Long userId,String fundAccount);
+}

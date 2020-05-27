@@ -1,0 +1,20 @@
+package com.thinkive.fxc.ismp.bus.business.function.test;
+
+import com.thinkive.fxc.ismp.bus.BaseTest;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessConstants;
+import com.thinkive.fxc.ismp.bus.base.business.function.Function1004913;
+import com.thinkive.server.Function;
+
+public class Function1004913Test extends BaseTest
+{
+	
+	public void testInvoke()
+	{
+		getRequest().setFuncNo(1004913);
+		getRequest().addFieldValue("user_id", "581");
+		getRequest().addFieldValue("businessCode", BusinessConstants.BUSINESS_IDOVERDUE);
+		Function function = new Function1004913();
+		function.invoke(getContext());
+		System.out.println("结果数据为：" + getResponse().getData());
+	}
+}

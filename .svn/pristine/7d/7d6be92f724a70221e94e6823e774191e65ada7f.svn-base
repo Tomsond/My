@@ -1,0 +1,404 @@
+package com.thinkive.fxc.ismp.bus.business.mark;
+
+import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.Calendar; 
+import java.util.Date;
+import java.util.HashMap; 
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import org.apache.log4j.Logger; 
+
+import com.itextpdf.text.BaseColor;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.WritableDirectElement;
+import com.itextpdf.text.pdf.BaseFont;
+import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.text.pdf.draw.LineSeparator;
+import com.itextpdf.tool.xml.ElementHandler;
+import com.itextpdf.tool.xml.Writable;
+import com.itextpdf.tool.xml.XMLWorkerHelper;
+import com.itextpdf.tool.xml.pipeline.WritableElement;
+import com.lowagie.text.pdf.PdfReader;
+import com.lowagie.text.pdf.PdfStamper;
+import com.thinkive.base.config.Configuration;
+import com.thinkive.base.jdbc.DataRow; 
+import com.thinkive.base.util.DateHelper;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.fileupload.bean.FileUploadResultVo;
+import com.thinkive.fxc.fileupload.util.FileUploadClientHelper;
+import com.thinkive.fxc.ismp.bus.base.basicdata.service.EnumInfoService;
+import com.thinkive.fxc.ismp.bus.base.basicdata.service.impl.EnumInfoServiceImpl;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.service.ProtocolService;
+import com.thinkive.fxc.ismp.bus.base.business.service.UserInfoService;
+import com.thinkive.fxc.ismp.bus.base.business.vo.UserInfoVo;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.fxc.ismp.bus.base.constants.SystemConstants;
+import com.thinkive.fxc.ismp.bus.business.util.DataFormatUtils;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdDictionaryConstants;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdInterfaceConstant;
+import com.thinkive.fxc.ismp.bus.third.constants.ThirdTBASConstants;
+import com.thinkive.fxc.ismp.bus.third.service.ThirdInterface;
+import com.thinkive.server.InvokeException;
+import com.thinkive.server.ResultVo;
+import com.thinkive.server.util.SpringUtil;
+import com.thinkive.fxc.ismp.bus.base.util.MD5;
+
+
+/**
+ * 作者：MIKE
+ * 公司：深圳市思迪信息技术股份公司
+ * 日期时间：2017年6月8日 下午3:52:36
+ * 说明：查询协议
+ */
+public class Function1004511 extends ISMPBaseFunction
+{
+	private Long user_id;
+	
+    private String  protocol_type;
+    
+    private String business_code;
+    
+    private ThirdInterface thirdInterface;
+        
+	private ProtocolService protocolservice;
+	
+	private UserInfoService userInfoService;
+	
+	 
+	private static Logger logger = Logger.getLogger(Function1004511.class);
+	@Override
+	public ResultVo execute() throws Exception
+	{
+		initVar();
+		ResultVo resultVo = new ResultVo(); 
+		userInfoService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_USERINFO, UserInfoService.class);
+		
+		thirdInterface = SpringHelper.getBean(ThirdDictionaryConstants.SERVICE_ID_THIRDINTERFACE, ThirdInterface.class);
+		
+		UserInfoVo userInfoVo = userInfoService.queryAndCheckUserByUserIdAndType(user_id, ThirdInterfaceConstant.USER_ACCOUNT_TYPE_ZQ);
+
+           
+		protocolservice = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_PROTOCOLSERVICE, ProtocolService.class);
+        DataRow data = protocolservice.queryProtocol(protocol_type);
+          
+        //查询风险测评结果
+	    DataRow fxcpInput = DataFormatUtils.packThirdInput(userInfoVo);
+		fxcpInput.set("user_id", user_id);
+		fxcpInput.set("survey_sn", ThirdTBASConstants.SNO_FXCP);
+		DataRow FxcpDr = thirdInterface.getQuestionnaire(fxcpInput);
+		DataRow fxcpInfo = packFxcp(FxcpDr);
+		
+		
+		String subitemname = fxcpInfo.getString("subitemname");
+		String riskvalue = fxcpInfo.getString("riskvalue");
+		EnumInfoService enumService = new EnumInfoServiceImpl();
+		//DataRow Model = enumService.queryAppropriateness(business_code,user_id);
+		//String subname =Model.getString("bear_ability");
+		userInfoVo.set("subitemname", subitemname);
+		userInfoVo.set("riskvalue", riskvalue);
+		userInfoVo.set("falg", "匹配");
+		//userInfoVo.set("service_risk", Model.getString("service_risk"));
+//		if(!subname.contains(subitemname)||StringHelper.isEmpty(subitemname)){
+//			userInfoVo.set("falg", "不匹配");
+//		}
+         
+          
+        if(data != null && data.size() > 0) {
+			String agree_content=data.getString("agree_content");//协议文本
+			Map<String, String> keyWords = new HashMap<String, String>();
+			Calendar now = Calendar.getInstance();
+			keyWords.put("username", userInfoVo.getName());//客户名称
+			keyWords.put("accountid", userInfoVo.getClientId());//客户号
+			keyWords.put("subitemname", subitemname);//客户风险等级
+			keyWords.put("falg", userInfoVo.getString("falg"));//匹配状态
+			//keyWords.put("service_risk", Model.getString("service_risk"));//服务风险等级
+			keyWords.put("riskvalue", riskvalue);//风测分数
+			keyWords.put("year", now.get(Calendar.YEAR)+"");//占位符替换为当年 年份
+			keyWords.put("month", (now.get(Calendar.MONTH) + 1) + "");//占位符替换为当年 月份
+			keyWords.put("day", now.get(Calendar.DAY_OF_MONTH) + "");//占位符替换为当年 日
+			String content = getSendMsg(agree_content, keyWords);//替换后文本
+
+			FileUploadResultVo pdfPath= createAgreementToPdf(agree_content, userInfoVo);
+
+			logger.info("pdfPath:" + pdfPath.getFilePath()+"=="+ pdfPath.getSecret());
+			resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+			resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+			return resultVo;
+		}
+        resultVo.setErrorNo(-1);
+		resultVo.setErrorMsg("未获取协议信息");
+		return resultVo;
+		
+	}
+	
+	private FileUploadResultVo createAgreementToPdf(String content, DataRow userInfo)
+	{
+		StringBuffer agreeContentBuffer = new StringBuffer();
+		
+		agreeContentBuffer.append(content);
+	
+		String agreeContents = agreeContentBuffer.toString().replaceAll("font-family", "font");  //故意把html中的css样式设置字体改错 才能保证htmlToPdf()方法中 html头文件设置
+		agreeContents = agreeContents.replaceAll("<br>", "<p></p>");
+		agreeContents = agreeContents.replaceAll("<BR>", "<p></p>");
+		agreeContents = agreeContents.replaceAll("class=MsoNormal", "");
+		
+		agreeContents = agreeContents.replaceAll("\\{accountid\\}", userInfo.getString("client_id"));  //占位符替换为用户的客户号	
+		agreeContents = agreeContents.replaceAll("\\{username\\}", userInfo.getString("name"));  //占位符替换为用户的客户姓名
+		
+		
+		agreeContents = agreeContents.replaceAll("\\{subitemname\\}", userInfo.getString("subitemname")); //客户风险等级
+		agreeContents = agreeContents.replaceAll("\\{falg\\}", userInfo.getString("falg")); //匹配状态
+		agreeContents = agreeContents.replaceAll("\\{service_risk\\}", userInfo.getString("service_risk")); //服务风险等级
+		agreeContents = agreeContents.replaceAll("\\{riskvalue\\}", userInfo.getString("riskvalue")); //风测分数
+		
+		Calendar now = Calendar.getInstance();  
+		
+		agreeContents = agreeContents.replaceAll("\\{year\\}", now.get(Calendar.YEAR)+"");  //占位符替换为当年 年份
+		agreeContents = agreeContents.replaceAll("\\{month\\}", (now.get(Calendar.MONTH) + 1) + "");  //占位符替换为当年 月份
+		agreeContents = agreeContents.replaceAll("\\{day\\}", now.get(Calendar.DAY_OF_MONTH) + "");  //占位符替换为当年 日
+		
+		// 命名规则 user_id + " - " + "business_code"
+		String datetime = DateHelper.formatDate(new Date(), "yyyyMMddhhmmss");
+		String pdfPath = Configuration.getString(SystemConstants.CONFIG_PDF_PATH)+datetime+"/";
+		  File file = new File(pdfPath);
+		    if(!file.exists()&&!file.isDirectory()){//判断文件夹是否存在，不存在就创建
+	            file.mkdir();
+	        } 
+	    pdfPath+=user_id+"_"+protocol_type;
+		 
+	    FileUploadResultVo  path= htmlToPdf(agreeContents, pdfPath); 
+		return path;
+	}
+	
+	private FileUploadResultVo htmlToPdf(String htmlContent, String pdfPath)
+	{
+		 String path_pdf="";
+		try{
+		  String template_pdf = Configuration.getString(SystemConstants.CONFIG_PDF_TEMPLATE)+"template.pdf";//模板文件。
+		  logger.info("路径1"+template_pdf);
+		  String path_html = pdfPath+".html"; 
+		  logger.info("路径2"+path_html);
+		  path_pdf =pdfPath+".pdf";  
+		  logger.info("路径3"+path_pdf); 
+		  DataRow result = new DataRow(); 
+          StringBuffer buffer = new StringBuffer();
+          buffer.append("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">");  
+          buffer.append("<html xmlns=\"http://www.w3.org/1999/xhtml\">")  ;
+          buffer.append("<head>");
+          buffer.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />") ; 
+          buffer.append("</head>");
+          buffer.append("<style type=\"text/css\">body {font-family: SimSun;}</style>");
+          buffer.append("<body>");
+          buffer.append(htmlContent);
+          buffer.append("</body>");
+          buffer.append("</html>");
+          //生成html文件
+          File html_file = new File(path_html);
+          html_file.createNewFile();
+          OutputStreamWriter write = new OutputStreamWriter(new FileOutputStream(html_file),"GBK");
+          BufferedWriter o = new BufferedWriter(write);
+          o.write(buffer.toString());
+          o.close();
+          //获取空白PDF
+          PdfReader reader = new PdfReader(template_pdf);
+          ByteArrayOutputStream bos = null;
+          //写出去 可以用字节流
+          bos = new ByteArrayOutputStream();
+          PdfStamper ps = new PdfStamper(reader, bos);
+          ps.close();
+          
+          //生成空白pdf
+          FileOutputStream fos = new FileOutputStream(path_pdf);
+          fos.write(bos.toByteArray());
+          fos.close();
+          
+          Document document = new Document(PageSize.A4);
+          FileOutputStream outputStream = new FileOutputStream(path_pdf);
+          PdfWriter.getInstance(document, outputStream);
+          document.open();
+          BaseFont bfCN = BaseFont.createFont("STSongStd-Light", "UniGB-UCS2-H", false);
+          // 中文字体定义
+          // 中文字体定义
+          Font chFont = new Font(bfCN, 12, Font.NORMAL, BaseColor.BLUE);
+          Font secFont = new Font(bfCN, 12, Font.NORMAL, new BaseColor(0,
+                  204, 255));
+          final List<Element> pdfeleList = new ArrayList<Element>();
+          ElementHandler elemH = new ElementHandler() {
+              public void add(final Writable w) {
+                  if (w instanceof WritableElement) {
+                      pdfeleList.addAll(((WritableElement) w).elements());
+                  }
+              }
+          };
+          InputStreamReader isr = new InputStreamReader(new FileInputStream(path_html),
+                  "GBK");
+          XMLWorkerHelper.getInstance().parseXHtml(elemH, isr);
+          List<Element> list = new ArrayList<Element>();
+          for (Element ele : pdfeleList) {
+              if (ele instanceof LineSeparator
+                      || ele instanceof WritableDirectElement) {
+                  continue;
+              }
+              list.add(ele);
+          }
+          Paragraph paragraph = new Paragraph();
+          paragraph.addAll(list);
+          document.add(paragraph);
+          document.close(); 
+          String pdfName = user_id + "_" + protocol_type + ".pdf";
+			 try {
+				   //上传PDF到文件服务器
+				   FileUploadResultVo fileUploadResultVo = null;
+				   fileUploadResultVo = uploadPdfToServer(path_pdf, pdfName , user_id+"");
+					
+					if(fileUploadResultVo.getErrorNo() != 0)
+					{
+						throw new InvokeException("上传签署的PDF文件到文件服务器失败！！！" ,-1);
+					}
+					//成功签署后，删除临时文件
+					if(deleteFile(path_pdf))
+					{
+						logger.info("PDF签署后清除完成！清除的文件：" + path_pdf);
+					}
+					else
+					{
+						logger.error("PDF签署清除失败！！！清除的文件：" + path_pdf);
+					}
+					logger.info("合同PDF保存成功！文件服务器保存路径：" + fileUploadResultVo.getFilePath());
+					return fileUploadResultVo;
+			} catch (Exception ew) {
+				ew.printStackTrace();
+				logger.info("======="+ew);
+				throw new InvokeException(getErrorNo(-2), "协议PDF上传文件服务器异常");
+			}  
+		} catch (Exception e) {
+			e.printStackTrace(); 
+			logger.info(e);
+			throw new InvokeException(getErrorNo(1), "协议转PDF出错");
+		} 
+	}
+	
+	/**
+	 * 上传PDF文件到文件服务器
+	 * @param filePath
+	 */
+	private static FileUploadResultVo uploadPdfToServer(String pdfPath , String pdfName , String user_id)
+	{
+		String writeURL = Configuration.getString(SystemConstants.CONFIG_FILESERVER_WRITEURL);
+		String version = Configuration.getString(SystemConstants.CONFIG_FILESERVER_VERSION);
+		byte[] file = getBytes(pdfPath);
+		FileUploadResultVo fileUploadResultVo = FileUploadClientHelper.uploadFile(writeURL, file, pdfName, version, user_id, "0");
+		return fileUploadResultVo;
+	}
+	
+		/** 
+	  * 获得指定文件的byte数组 
+	  */  
+	 private static byte[] getBytes(String filePath){  
+	     byte[] buffer = null;  
+	     try {  
+	         File file = new File(filePath);  
+	         FileInputStream fis = new FileInputStream(file);  
+	         ByteArrayOutputStream bos = new ByteArrayOutputStream(1000);  
+	         byte[] b = new byte[1000];  
+	         int n;  
+	         while ((n = fis.read(b)) != -1) {  
+	             bos.write(b, 0, n);  
+	         }  
+	         fis.close();  
+	         bos.close();  
+	         buffer = bos.toByteArray();  
+	     } catch (FileNotFoundException e) {  
+	         e.printStackTrace();  
+	         logger.info(e);
+	     } catch (IOException e) {  
+	         e.printStackTrace(); 
+	         logger.info(e);
+	     }  
+	     return buffer;  
+	 }
+	
+	  /** 
+	  * 删除单个文件 
+	  * @param   sPath    被删除文件的文件名 
+	  * @return 单个文件删除成功返回true，否则返回false 
+	  */  
+	 public static boolean deleteFile(String sPath) {  
+	 	boolean flag = false;  
+	     File file = new File(sPath);  
+	     // 路径为文件且不为空则进行删除  
+	     if (file.isFile() && file.exists()) {  
+	         file.delete();  
+	         flag = true;
+	     }  
+	     return flag;  
+	 } 
+	
+	/**
+	 * 描述:替换文件中的关键字
+	 * @author MIKE
+	 * @created 2017年6月8日 
+	 * @since 
+	 * @param modelMsg 模版文本
+	 * @param keyWords 关键字  key为替换的字段，value为替换后的文字
+	 * @return
+	 */
+	public static String getSendMsg(String modelMsg, Map<String, String> keyWords)
+	{
+		for (Entry<String, String> item : keyWords.entrySet())
+		{
+			String key = item.getKey();
+			String value = item.getValue();
+			String keys="\\{"+ key+"\\}";
+			modelMsg = modelMsg.replaceAll(keys, value);
+		}
+		return modelMsg;
+	}
+
+	private void initVar()
+	{
+		user_id = this.formatLongParam(this.getAndCheckBlankStrParam("user_id", ErrorCodeCheckInput.BLANK_USERID), ErrorCodeCheckInput.LONG_FORMAT_ERROR);
+		protocol_type = this.getAndCheckBlankStrParam("protocol_type",ErrorCodeCheckInput.BLANK_BUSINESS_PROTOCOL_TYPE);
+//		business_code = this.getStrParameter("business_code");
+//		if(!StringHelper.isNotEmpty(business_code)){
+//			throw new BusinessException(-100500903, "协议类型不能为空");
+//		}
+	}		
+	
+	private DataRow packFxcp(DataRow data)
+	{
+		DataRow outPut = new DataRow();
+		if (data == null)
+		{
+			outPut.set("query_flag", DictionaryConstants.BOL_TRUE);
+			return outPut;
+		}
+		data.set("query_flag", DictionaryConstants.BOL_TRUE);
+		outPut.set("upddate", data.getString("upddate")); //更新时间
+		outPut.set("risklevel", data.getString("risklevel")); //等级 		例如： A B C D
+		outPut.set("subitemname", data.getString("subitemname")); //级别名称  	例如：积极型
+		outPut.set("riskvalue", data.getString("riskvalue")); //分数		例如：98
+		outPut.set("status", data.getString("status")); //状态
+		outPut.set("risk_end_date", data.getString("risk_end_date"));
+		return outPut;
+	}
+	 
+}

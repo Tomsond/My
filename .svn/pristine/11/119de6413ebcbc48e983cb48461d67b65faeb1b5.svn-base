@@ -1,0 +1,239 @@
+package com.thinkive.fxc.ismp.bus.base.business.model;
+
+import java.sql.Timestamp;
+import java.util.Date;
+
+import com.thinkive.base.jdbc.DataRow;
+
+/**
+ * @描述: 业务属性配置表 <p>t_ismp_business_config</p>
+ * @版权: Copyright (c) 2016 
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 尹杰民
+ * @版本: 2.0 
+ * @创建时间: 2016年8月12日 下午2:51:25
+ */
+public class BusinessConfigModel extends DataRow
+{
+	
+	private static final long serialVersionUID = -8561823467573163562L;
+	
+	private static final String ID = "id";
+	
+	private static final String BTYPE_ID = "btype_id";
+	
+	private static final String BUSINESS_CODE = "business_code";
+	
+	private static final String OP_SOURCE = "op_source";
+	
+	private static final String NEED_AUDIT = "need_audit";
+	
+	private static final String DATA_SUBMITTYPE = "data_submittype";
+	
+	private static final String BREAKPOINT_OPERATION = "breakpoint_operation";
+	
+	private static final String RESET_FLOW = "reset_flow";
+	
+	private static final String CREATE_DATE = "create_date";
+	
+	private static final String UPDATE_DATE = "update_date";
+	
+	private static final String REATE_USER = "reate_user";
+	
+	private static final String LAST_UPDATEUSER = "last_updateuser";
+	
+	/**
+	 * 获取自增主键
+	 */
+	public Long getId()
+	{
+		return getLong(ID);
+	}
+	
+	/**
+	 * 设置自增主键
+	 */
+	public void setId(Long id)
+	{
+		set(ID, id);
+	}
+	
+	/**
+	 * 获取流程标识
+	 */
+	public Long getBtypeId()
+	{
+		return getLong(BTYPE_ID);
+	}
+	
+	/**
+	 * 设置流程标识
+	 */
+	public void setBtypeId(Long btypeId)
+	{
+		set(BTYPE_ID, btypeId);
+	}
+	
+	/**
+	 * 获取业务类型编号
+	 */
+	public String getBusinessCode()
+	{
+		return getString(BUSINESS_CODE);
+	}
+	
+	/**
+	 * 设置业务类型编号
+	 */
+	public void setBusinessCode(String businessCode)
+	{
+		set(BUSINESS_CODE, businessCode);
+	}
+	
+	/**
+	 * 获取操作渠道
+	 */
+	public String getOpSource()
+	{
+		return getString(OP_SOURCE);
+	}
+	
+	/**
+	 * 设置操作渠道
+	 */
+	public void setOpSource(String opSource)
+	{
+		set(OP_SOURCE, opSource);
+	}
+	
+	/**
+	 * 获取是否统一后台审核
+	 */
+	public String getNeedAudit()
+	{
+		return getString(NEED_AUDIT);
+	}
+	
+	/**
+	 * 设置是否统一后台审核
+	 */
+	public void setNeedAudit(String needAudit)
+	{
+		set(NEED_AUDIT, needAudit);
+	}
+	
+	/**
+	 * 获取数据提交方式
+	 */
+	public String getDataSubmitType()
+	{
+		return getString(DATA_SUBMITTYPE);
+	}
+	
+	/**
+	 * 设置数据提交方式
+	 */
+	public void setDataSubmitType(String dataSubmitType)
+	{
+		set(DATA_SUBMITTYPE, dataSubmitType);
+	}
+	
+	/**
+	 * 获取是否支持断点操作
+	 */
+	public String getBreakpointOperation()
+	{
+		return getString(BREAKPOINT_OPERATION);
+	}
+	
+	/**
+	 * 设置是否支持断点操作
+	 */
+	public void setBreakpointOperation(String breakpointOperation)
+	{
+		set(BREAKPOINT_OPERATION, breakpointOperation);
+	}
+	
+	/**
+	 * 获取是否可以重置流程
+	 */
+	public String getResetFlow()
+	{
+		return getString(RESET_FLOW);
+	}
+	
+	/**
+	 * 设置是否可以重置流程
+	 */
+	public void setResetFlow(String resetFlow)
+	{
+		set(RESET_FLOW, resetFlow);
+	}
+	
+	/**
+     * 获取创建时间
+     */
+    public Date getCreateDate()
+    {
+        return (Date) get(CREATE_DATE);
+    }
+    
+    /**
+     * 设置创建时间
+     */
+    public void setCreateDate(Date createDate)
+    {
+        Timestamp timestamp = new Timestamp(createDate.getTime());
+        set(CREATE_DATE, timestamp);
+    }
+	
+    /**
+     * 获取更新时间
+     */
+    public Date getUpdateDate()
+    {
+        return (Date) get(UPDATE_DATE);
+    }
+    
+    /**
+     * 设置更新时间
+     */
+    public void setUpdateDate(Date updateDate)
+    {
+        Timestamp timestamp = new Timestamp(updateDate.getTime());
+        set(UPDATE_DATE, timestamp);
+    }
+	
+	/**
+	 * 获取创建人
+	 */
+	public Long getReateUser()
+	{
+		return getLong(REATE_USER);
+	}
+	
+	/**
+	 * 设置创建人
+	 */
+	public void setReateUser(Long reateUser)
+	{
+		set(REATE_USER, reateUser);
+	}
+	
+	/**
+	 * 获取最后修改人
+	 */
+	public Long getLastUpdateUser()
+	{
+		return getLong(LAST_UPDATEUSER);
+	}
+	
+	/**
+	 * 设置最后修改人
+	 */
+	public void setLastUpdateUser(Long lastUpdateUser)
+	{
+		set(LAST_UPDATEUSER, lastUpdateUser);
+	}
+	
+}

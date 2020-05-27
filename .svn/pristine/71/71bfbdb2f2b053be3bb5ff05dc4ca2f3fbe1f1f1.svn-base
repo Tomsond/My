@@ -1,0 +1,411 @@
+package com.thinkive.fxc.ismp.bus.base.constants;
+
+/**
+ * @描述: 数据字典常量类
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年8月22日 下午2:45:37
+ */
+public class DictionaryConstants
+{
+	
+	/**
+	 * 标准布尔false
+	 */
+	public static final String BOL_FALSE = "0"; //否
+	
+	/**
+	 * 标准布尔 true
+	 */
+	public static final String BOL_TRUE = "1"; //是
+	
+	/**
+	 * 流程节点关键字---第一步的前一步
+	 */
+	public static final String FLOW_FIRSTSTEP_PRENODE = "start";
+	
+	/**
+	 * 流程节点关键字---后最一步的下一步
+	 */
+	public static final String FLOW_LASTSTEP_NEXT = "finish";
+	
+	/**
+	 * 问卷来源---本地数据库
+	 */
+	public static final String QUESTION_SOURCE_LOCAL = "0";
+	
+	/**
+	 * 问卷来源---第三方接口
+	 */
+	public static final String QUESTION_SOURCE_THIRD = "1";
+	
+	/**
+	 * 问卷提交方式---本地数据库
+	 */
+	public static final String QUESTION_COMMIT_TYPE_LOCAL = "0";
+	
+	/**
+	 * 问卷提交方式---第三方接口
+	 */
+	public static final String QUESTION_COMMIT_TYPE_THIRD = "1";
+	
+	/**
+	 * 协议签署方式---不使用证书签署
+	 */
+	public static final String AGREE_SIGN_TYPE_NOCERT = "0";
+	
+	/**
+	 * 协议签署方式---中登证书
+	 */
+	public static final String AGREE_SIGN_TYPE_ZDCERT = "1";
+	
+	/**
+	 * 协议签署方式---自建证书
+	 */
+	public static final String AGREE_SIGN_TYPE_ZJCERT = "2";
+	
+	/**
+	* 调用功能号成功标识
+	*/
+	public final static int INVOKE_FUNCTION_SUCCESS = 0;
+	
+	/**
+	 * 调用成功提示
+	 */
+	public final static String INVOKE_FUNCTION_SUCCESSMSG = "调用成功";
+	
+	/**
+	 * 加密BUS加密功能号
+	 */
+	public static final int ENCRYPTIONPSW_FUNCTIONO = 10005;
+	
+	/**
+	 * 加密BUS解密功能号
+	 */
+	public static final int DECRYPTIONPSW_FUNCTIONNO = 10006;
+	
+	/**
+	 * 服务时间类型---中登交易时间
+	 */
+	public static final String SERVICETIME_TYPE_ZDTRADE = "zdTrade";
+	
+	/**
+	 * 服务时间类型---银行交易时间
+	 */
+	public static final String SERVICETIME_TYPE_BANKTRADE = "bankTrade";
+	
+	/**
+	 * 证券股东号状态（所有帐号统计）---不存在
+	 */
+	public static final String ZQACCOUNTSTATE_NO = "0";//0：不存在
+	
+	/**
+	 * 证券股东号状态（所有帐号统计）---正常
+	 */
+	public static final String ZQACCOUNTSTATE_NOMAL = "1";//1：正常
+	
+	/**
+	 * 证券股东号状态（所有帐号统计）---异常
+	 */
+	public static final String ZQACCOUNTSTATE_ERROR = "2";//2：异常状态
+	
+	/**
+	 * 证券股东号状态（所有帐号统计）---未指定
+	 */
+	public static final String ZQACCOUNTSTATE_NOAPPOINT = "3";//3：未指定
+	
+	/**
+	 * 短信类型---修改手机号码
+	 */
+	public static final String SMS_TYPE_CHANGE_MOBILE = "ygt_xgsj";
+	
+	/**
+	 * 短信类型---重置手机号
+	 */
+	public static final String SMS_TYPE_RESET_MOBILE = "ygt_rzsj";
+	
+	/**
+	 * 短信类型---修改三方存管
+	 */
+	public static final String SMS_TYPE_CHANGE_THIRDBANK = "ygt_sfcgxg"; //修改三方存管
+	
+	/**
+	 * 短信类型---重置密码
+	 */
+	public static final String SMS_TYPE_RESETPWD = "resetpwd";
+	
+	/**
+	 * 短信类型---融资融券，确认手机号
+	 */
+	public static final String SMS_TYPE_APPLYCREDITACC_CONTACTMOBILE = "creditacc_contactmobile";
+	
+	/**
+	 * 短信类型---申请自建证书
+	 */
+	public static final String SMS_TYPE_APPLYZJCERT = "applyzjcert";
+	
+	/**
+	 * 短信类型---找回账户
+	 */
+	public static final String SMS_TYPE_REACCOUNT_CHECK = "reaccount_check";
+	
+	/**
+	 * 短信类型---融资融券预约预留手机号校验
+	 */
+	public static final String SMS_TYPE_PREAPPLYZJCERT = "preapplycredit";
+	
+	/**
+	 * 短信类型---变更主辅资金帐号
+	 */
+	public static final String SMS_TYPE_CHANGEMAINFUND = "changemainfund";
+	
+	/**
+	 * 
+	 */
+	public static final String SMS_TYPE_LIMITADJUST = "limitadjust";//融资融券额度变更
+	
+	/**
+	 * 短信发送类型---校验类型（例如验证码）
+	 */
+	public static final String SEND_TYPE_CHECK = "1";
+	
+	/**
+	 * 短信发送类型---操作完成
+	 */
+	public static final String SEND_TYPE_OPCOMPLETE = "2";
+	
+	/**
+	 * 短信发送类型---驳回
+	 */
+	public static final String SEND_TYPE_REJECT = "3";
+	
+	/**
+	 * 短信发送类型---业务办理成功
+	 */
+	public static final String SEND_TYPE_BUSINESS_SUCCESS = "4";
+	
+	/**
+	 * 短信发送类型---业务办理失败
+	 */
+	public static final String SEND_TYPE_BUSINESS_FAIL = "5";
+	
+	/**
+	 * 数据字典中短信发送类型enumNo
+	 */
+	public static final String ENUMNO_SMS_TYPE = "sms_type"; //短信发送类型
+	
+	/**
+	 * 手机验证码位数
+	 */
+	public static final int VERIFICATION_CODE_LENGTH = 6;
+	
+	/**
+	 * 业务办理结果：成功
+	 */
+	public static final String DEAL_RESULT_SUCCESS = "1";
+	
+	/**
+	 * 业务办理结果：审核不通过
+	 */
+	public static final String DEAL_RESULT_FAILURE = "2";
+	
+	/**
+	 * 业务办理结果：跑批不通过
+	 */
+	public static final String DEAL_RESULT_RUN_BATCH_FAILURE = "3";
+	
+	/**
+	 * 业务办理结果：审核驳回
+	 */
+	public static final String DEAL_RESULT_REVIEW_THE_REJECTED = "4";
+	
+	/**
+	 * 业务办理结果：跑批驳回
+	 */
+	public static final String DEAL_RESULT_RUN_BATCH_REJECTED = "5";
+	
+	/**
+	 * 业务办理结果：用户主动关闭申请
+	 */
+	public static final String DEAL_RESULT_GIVE_UP = "6";
+	
+	/**
+	 * 业务办理结果：实时办理失败
+	 */
+	public static final String DEAL_RESULT_REAL_TIME_FAILURE = "7";
+	
+	/**
+	 * 业务办理结果：待审核
+	 */
+	public static final String DEAL_RESULT_NEEDAUTIT = "8";
+	
+	/**
+	 * 业务办理结果：待跑批
+	 */
+	public static final String DEAL_RESULT_NEEDPP = "9";
+	
+	/**
+	 * 业务办理结果：审核作废
+	 */
+	public static final String DEAL_RESULT_AUTITCANCEL = "10";
+	
+	/**
+	 * 业务办理结果：驳回后重新提交
+	 */
+	public static final String DEAL_RESULT_REJECTSUBMIT = "11";
+	
+	/**
+	 * 选择的帐号处理结果---未开始
+	 */
+	public static final String CHOICEACCOUNT_DEALRESULT_NOTSTART = "0";
+	
+	/**
+	 * 选择的帐号处理结果---成功
+	 */
+	public static final String CHOICEACCOUNT_DEALRESULT_SUCCESS = "1";
+	
+	/**
+	 * 选择的帐号处理结果---失败
+	 */
+	public static final String CHOICEACCOUNT_DEALRESULT_FAIL = "2";
+	
+	/**
+	 * 登录类型---资金帐号登录
+	 */
+	public static final String LOGIN_TYPE_LOGIN_FOR_FUNDACCOUNT = "4";
+	
+	/**
+	 * 登录类型---交易帐号登录
+	 */
+	public static final String LOGIN_TYPE_LOGIN_FOR_TRDACCOUNT = "5";
+	
+	/**
+	 * 登录类型---客户号登录
+	 */
+	public static final String LOGIN_TYPE_LOGIN_FOR_CLIENTID = "6";
+	
+	/**
+	 * 文件存储方式-数据库
+	 */
+	public static final String IMAGE_SAVE_TYPE_DB = "0";
+	
+	/**
+	 * 文件存储方式-本地磁盘
+	 */
+	public static final String IMAGE_SAVE_TYPE_LOCALDISK = "1";
+	
+	/**
+	 * 文件存储方式-文件服务器
+	 */
+	public static final String IMAGE_SAVE_TYPE_FILESERVER = "2";
+	
+	/**
+	 * 业务审核任务状态---未处理
+	 */
+	public static final String BUSINESS_AUDIT_STATE_NODEAL = "0";
+	
+	/**
+	 * 业务审核任务状态---驳回
+	 */
+	public static final String BUSINESS_AUDIT_STATE_REBACK = "1";
+	
+	/**
+	 * 业务审核任务状态---已完成
+	 */
+	public static final String BUSINESS_AUDIT_STATE_COMPLETE = "2";
+	
+	/**
+	 * 身份证位数---18位
+	 */
+	public static final int IDENTITYNUM_EIGHTEEN = 18;
+	
+	/**
+	 * 身份证位数---15位
+	 */
+	public static final int IDENTITYNUM_FIFTEEN = 15;
+	
+	/**
+	 * 数据提交方式---统一实时提交第三方
+	 */
+	public static final String BUSINESS_DATA_SUBMITTYPE_THIRD = "0";
+	
+	/**
+	 * 数据提交方式---统一跑批提交第三方
+	 */
+	public static final String BUSINESS_DATA_SUBMITTYPE_PP = "1";
+	
+	/**
+	 * 数据提交方式---服务时间提交，非服务时间跑批
+	 */
+	public static final String BUSINESS_DATA_SUBMITTYPE_SERVICETIME = "2";
+	
+	/**
+	 * 数据提交方式---保存本地数据库
+	 */
+	public static final String BUSINESS_DATA_SUBMITTYPE_LOCALDB = "3";
+	
+	/**
+	 * 跑批任务状态---无效
+	 */
+	public static final String PP_TASK_STATUS_INVALID = "0";
+	
+	/**
+	 * 跑批任务状态---有效
+	 */
+	public static final String PP_TASK_STATUS_EFFECTIVE = "1";
+	
+	/**
+	 * 跑批执行状态---未处理
+	 */
+	public static final String PP_TASK_EXEC_STATUS_NODEAL = "0";
+	
+	/**
+	 * 跑批执行状态---处理中
+	 */
+	public static final String PP_TASK_EXEC_STATUS_DEALING = "1";
+	
+	/**
+	 * 跑批执行状态---处理成功
+	 */
+	public static final String PP_TASK_EXEC_STATUS_SUCCESS = "2";
+	
+	/**
+	 * 跑批执行状态---处理失败
+	 */
+	public static final String PP_TASK_EXEC_STATUS_FAIL = "4";
+	
+	/**
+	 * 选择帐号节点提交的帐号异常
+	 */
+	public static String CHOICE_ACCOUNT_ACCOUNTSTATEERROR = "帐号异常";
+	
+	/**
+	 * 选择帐号节点提交的帐号实时开通成功
+	 */
+	public static String CHOICE_ACCOUNT_OPENSUCCESS = "开通成功";
+	
+	/**
+	 * 页面默认显示记录数
+	 */
+	public static final String PAGE_COUNT_DEFAULT = "8";
+	
+	/**
+	 * email对帐单操作类型（1：新增，2：取消，3：开启，4：关闭）
+	 */
+	public static final String EMAIL_OP_TYPE = "4";
+	
+	/**
+	* 加密方式 ---AES加密
+	*/
+	public static final String ENCRYPTION_TYPE_AES = "2";
+	
+	/**
+	* 加解密bus加密
+	*/
+	public static final String ENCRYPTION_TYPE_TBAS = "1";
+
+	public static final String ENUMNO_IDENTITY_TYPE = "idtype"; //身份证类型
+	
+}

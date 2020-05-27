@@ -1,0 +1,107 @@
+package com.thinkive.fxc.ismp.bus.business.dzjy.function;
+
+import java.util.List;
+import java.util.Map;
+
+import com.thinkive.server.ResultVo;
+import com.thinkive.base.jdbc.DataRow;
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.basicdata.contants.BasicServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.basicdata.service.TradeTimeService;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.function.IsmpFlowBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.business.model.BusinessConfigModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.BusinessEntityModel;
+import com.thinkive.fxc.ismp.bus.base.business.service.BusinessConfigService;
+import com.thinkive.fxc.ismp.bus.base.business.service.BusinessEntityService;
+import com.thinkive.fxc.ismp.bus.base.business.service.SignAndVerifyService;
+import com.thinkive.fxc.ismp.bus.base.business.utils.ModularNodeUtil;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+
+/**
+ * @描述: 大宗交易权限办理申请 
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2017年3月20日 上午9:56:30
+ */
+public class Function1004465 extends IsmpFlowBaseFunction
+{
+	
+	private String jsondata;//签名json字符串
+	
+	@Override
+	public ResultVo execute() throws Exception
+	{
+		initVar();
+		//获取节点属性组
+		Map<String, DataRow> signParamsMap = ModularNodeUtil.checkAndReturnSignNodeProperty(nodePropertyConfigModelList);
+		
+		//提交的所有协议
+		SignAndVerifyService signAndVerifyService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_SIGNANDVERIFY, SignAndVerifyService.class);
+		List<Map<String, String>> allSignList = signAndVerifyService.verifySignTextAndSubmitThird(jsondata, signParamsMap);
+		
+		//查询业务属性
+		BusinessConfigService businessConfigService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_BUSINESSCONFIG, BusinessConfigService.class);
+		BusinessConfigModel businessConfigModel = businessConfigService.queryByOpSourceAndBusinessCode(businessCode, opSource);
+		BusinessEntityService businessEntityService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_BUSINESSENTITY, BusinessEntityService.class);
+		
+		//获取新业务实例对象
+		BusinessEntityModel businessEntityModel = getNewBusinessEntity();
+		businessEntityModel.setNodeId(submitBprocNodeConfigAndDefineVO.getNextBpNodeId());
+		
+		//如果没有配置业务属性,或者配置为需要审核
+		if (businessConfigModel == null || DictionaryConstants.BOL_TRUE.equals(businessConfigModel.getNeedAudit()))
+		{
+			businessEntityService.addEntityAndAgreeAndAuditTask(businessEntityModel, submitBprocNodeConfigAndDefineVO.getNodeId(), allSignList,"");
+		}
+		//如果是统一跑批,或者
+		else if (DictionaryConstants.BUSINESS_DATA_SUBMITTYPE_PP.equals(businessConfigModel.getDataSubmitType()))
+		{
+			businessEntityService.addEntityAndAgreeAndPpTask(businessEntityModel, submitBprocNodeConfigAndDefineVO.getNodeId(), allSignList,"");
+		}
+		//如果是实时提交
+		else if (DictionaryConstants.BUSINESS_DATA_SUBMITTYPE_THIRD.equals(businessConfigModel.getDataSubmitType()))
+		{
+			Map<String, Object> openResult = openDzjy();
+			String dealResult = (String) openResult.get("dealResult");
+			businessEntityModel.setDealResult(dealResult);
+			businessEntityModel.setIsComplete(DictionaryConstants.BOL_TRUE);
+			businessEntityService.addEntityAndAgree(businessEntityModel, submitBprocNodeConfigAndDefineVO.getNodeId(), allSignList,"");
+		}
+		//如果中登服务时间提交第三方、非服务时间跑批
+		else if (DictionaryConstants.BUSINESS_DATA_SUBMITTYPE_SERVICETIME.equals(businessConfigModel.getDataSubmitType()))
+		{
+			TradeTimeService tradeTimeService = SpringHelper.getBean(BasicServiceBeanIdConstants.SERVICE_ID_TRADETIME, TradeTimeService.class);
+			//如果不是中登时间则跑批
+			if (!tradeTimeService.checkZdTradeTime())
+			{
+				businessEntityService.addEntityAndAgreeAndPpTask(businessEntityModel, submitBprocNodeConfigAndDefineVO.getNodeId(), allSignList,"");
+			}
+			else
+			{
+				Map<String, Object> openResult = openDzjy();
+				String dealResult = (String) openResult.get("dealResult");
+				businessEntityModel.setDealResult(dealResult);
+				businessEntityModel.setIsComplete(DictionaryConstants.BOL_TRUE);
+				businessEntityService.addEntityAndAgree(businessEntityModel, submitBprocNodeConfigAndDefineVO.getNodeId(), allSignList,"");
+			}
+		}
+		resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);//返回成功标示
+		resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+		return resultVo;
+	}
+	
+	private Map<String, Object> openDzjy()
+	{
+		// TODO 实时开通大宗交易业务代码
+		return null;
+	}
+	
+	private void initVar()
+	{
+		jsondata = this.getAndCheckBlankStrParam("jsondata", ErrorCodeCheckInput.BLANK_FORMAT_SIGNJSON);
+	}
+}

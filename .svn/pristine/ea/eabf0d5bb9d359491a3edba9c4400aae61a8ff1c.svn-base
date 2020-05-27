@@ -1,0 +1,154 @@
+package com.thinkive.fxc.ismp.bus.business.fundaccount.model;
+
+import java.sql.Timestamp;
+import java.util.Date;
+
+import com.thinkive.base.jdbc.DataRow;
+
+/**
+ * @描述: 基金开户扩展信息表（t_ismp_jj_extend）
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年9月20日 下午2:52:38
+ */
+public class JjExtendModel extends DataRow
+{
+	
+	private static final long serialVersionUID = -8564086515995019153L;
+	
+	private static final String ID = "id"; //基金公司自增id
+	
+	private static final String BUSINESS_ID = "business_id"; //业务实例编号
+	
+	private static final String ADDRESS = "address"; //联系地址
+	
+	private static final String POSTCODE = "postcode";//邮编
+	
+	private static final String MOBILE = "mobile";//手机号码
+	
+	private static final String EMAIL = "email";//邮箱
+	
+	private static final String OCCUPATIONAL = "occupational";//职业
+	
+	private static final String EDUCATION = "education";//学历
+	
+	private static final String CREATE_DATE = "create_date ";
+	
+	private static final String UPDATE_DATE = "update_date ";
+	
+	public Long getId()
+	{
+		return getLong(ID);
+	}
+	
+	public void setId(Long id)
+	{
+		set(ID, id);
+	}
+	
+	public Long getBusinessId()
+	{
+		return getLong(BUSINESS_ID);
+	}
+	
+	public void setBusinessId(Long businessId)
+	{
+		set(BUSINESS_ID, businessId);
+	}
+	
+	public String getAddress()
+	{
+		return getString(ADDRESS);
+	}
+	
+	public void setAddress(String address)
+	{
+		set(ADDRESS, address);
+	}
+	
+	public String getPostcode()
+	{
+		return getString(POSTCODE);
+	}
+	
+	public void setPostcode(String postcode)
+	{
+		set(POSTCODE, postcode);
+	}
+	
+	public String getMobile()
+	{
+		return getString(MOBILE);
+	}
+	
+	public void setMobile(String mobile)
+	{
+		set(MOBILE, mobile);
+	}
+	
+	public String getEmail()
+	{
+		return getString(EMAIL);
+	}
+	
+	public void setEmail(String email)
+	{
+		set(EMAIL, email);
+	}
+	
+	public String getOccupational()
+	{
+		return getString(OCCUPATIONAL);
+	}
+	
+	public void setOccupational(String occupational)
+	{
+		set(OCCUPATIONAL, occupational);
+	}
+	
+	public String getEducation()
+	{
+		return getString(EDUCATION);
+	}
+	
+	public void setEducation(String education)
+	{
+		set(EDUCATION, education);
+	}
+	
+	/**
+	 * 获取创建时间
+	 */
+	public Date getCreateDate()
+	{
+		return (Date) get(CREATE_DATE);
+	}
+	
+	/**
+	 * 设置创建时间
+	 */
+	public void setCreateDate(Date createDate)
+	{
+		Timestamp timestamp = new Timestamp(createDate.getTime());
+		set(CREATE_DATE, timestamp);
+	}
+	
+	/**
+	 * 获取更新时间
+	 */
+	public Date getUpdateDate()
+	{
+		return (Date) get(UPDATE_DATE);
+	}
+	
+	/**
+	 * 设置更新时间
+	 */
+	public void setUpdateDate(Date updateDate)
+	{
+		Timestamp timestamp = new Timestamp(updateDate.getTime());
+		set(UPDATE_DATE, timestamp);
+	}
+}

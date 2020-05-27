@@ -1,0 +1,111 @@
+package com.thinkive.fxc.ismp.bus.base.business.function;
+
+import java.util.List;
+import java.util.Map;
+
+import com.thinkive.base.util.SpringHelper;
+import com.thinkive.fxc.ismp.bus.base.business.constants.BusinessServiceBeanIdConstants;
+import com.thinkive.fxc.ismp.bus.base.business.model.BusinessEntityModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.ImageRecordModel;
+import com.thinkive.fxc.ismp.bus.base.business.model.NodePropertyConfigModel;
+import com.thinkive.fxc.ismp.bus.base.business.service.BusinessEntityService;
+import com.thinkive.fxc.ismp.bus.base.business.service.FlowNodeManageService;
+import com.thinkive.fxc.ismp.bus.base.business.service.ImageRecordService;
+import com.thinkive.fxc.ismp.bus.base.business.utils.ModularNodeUtil;
+import com.thinkive.fxc.ismp.bus.base.business.vo.BusinessEntityAndConfigVO;
+import com.thinkive.fxc.ismp.bus.base.common.ISMPBaseFunction;
+import com.thinkive.fxc.ismp.bus.base.constants.DictionaryConstants;
+import com.thinkive.fxc.ismp.bus.base.constants.ErrorCodeCheckInput;
+import com.thinkive.server.ResultVo;
+
+/**
+ * @描述: 通用---上传身份证
+ *       1.只处理身份证上传,不修改业务实例当前节点
+ *       2.用户在上传完当前页面需要的所有照片后，点击下一步时，需要调用单独的接口去校验身份证是否上传完成并修改当前节点
+ *       3.如果上传照片是第一步，需要创建业务办理实例，且当前节点为第一步节点
+ * @版权: Copyright (c) 2010
+ * @公司: 深圳市思迪信息技术股份有限公司
+ * @作者: 刘恺
+ * @版本: 2.0.0 
+ * @创建时间: 2016年9月10日 上午10:14:43
+ */
+public class Function1004905 extends ISMPBaseFunction
+{
+	
+	protected Long userId;//用户编号
+	
+	protected String opSource;//客户端类型
+	
+	protected String businessCode;//业务类型
+	
+	protected String nodeId;//节点英文标识
+	
+	private String mediaCode; //影像资料编号
+	
+	private String imgSecretKey; //图像密钥
+	
+	private String imgPath; //图像路径
+	
+	@SuppressWarnings("unchecked")
+	public ResultVo execute() throws Exception
+	{
+		initVar();
+		//step1：节点权限校验，并返回当前业务实例
+		FlowNodeManageService flowNodeManageService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_FLOWNODEMANAGE, FlowNodeManageService.class);
+		Map<String, Object> checkResult = flowNodeManageService.checkNodeAuthAndReturnInfo(userId, businessCode, opSource, nodeId);
+		BusinessEntityAndConfigVO businessEntityAndConfigVO = (BusinessEntityAndConfigVO) checkResult.get("businessEntityAndConfigVO");
+		List<NodePropertyConfigModel> nodePropertyConfigModelList = (List<NodePropertyConfigModel>) checkResult.get("nodePropertyConfigModelList");//节点属性列表
+		boolean isNewBusiness = businessEntityAndConfigVO == null ? true : false;
+		
+		//step2：检查当前提交的影像资料是否存在，配置是否正确
+		ModularNodeUtil.getUploadImgProperty(nodePropertyConfigModelList, mediaCode);
+		
+		//step3：新增业务办理实例
+		if (isNewBusiness)
+		{
+			BusinessEntityModel businessEntityModel = new BusinessEntityModel();
+			businessEntityModel.setUserId(userId);
+			businessEntityModel.setOpSource(opSource);
+			businessEntityModel.setOpStation(opStation);
+			businessEntityModel.setBusinessCode(businessCode);
+			businessEntityModel.setIsComplete(DictionaryConstants.BOL_FALSE);
+			businessEntityModel.setIp(ip);
+			businessEntityModel.setNodeId(nodeId);
+			BusinessEntityService businessEntityService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_BUSINESSENTITY, BusinessEntityService.class);
+			businessEntityService.add(businessEntityModel, nodeId);
+			businessEntityAndConfigVO = new BusinessEntityAndConfigVO();
+			businessEntityAndConfigVO.putAll(businessEntityModel);
+		}
+		
+		//添加影像资料上传记录
+		ImageRecordService imageRecordService = SpringHelper.getBean(BusinessServiceBeanIdConstants.SERVICE_ID_IMAGERECORD, ImageRecordService.class);
+		ImageRecordModel imageRecordModel = new ImageRecordModel();
+		imageRecordModel.setBusinessId(businessEntityAndConfigVO.getId());
+		imageRecordModel.setImagePath(imgPath);
+		imageRecordModel.setMediaCode(mediaCode);
+		imageRecordModel.setNodeId(nodeId);
+		imageRecordModel.setSecretKey(imgSecretKey);
+		imageRecordService.addOrUpdate(imageRecordModel);
+		
+		ResultVo resultVo = new ResultVo();
+		resultVo.setErrorNo(DictionaryConstants.INVOKE_FUNCTION_SUCCESS);
+		resultVo.setErrorMsg(DictionaryConstants.INVOKE_FUNCTION_SUCCESSMSG);
+		return resultVo;
+	}
+	
+	/**
+	 * @描述：获取业务入参
+	 * @作者：刘恺
+	 * @时间：2016年8月23日 下午8:55:24
+	 */
+	private void initVar()
+	{
+		userId = this.formatLongParam(this.getAndCheckBlankStrParam("user_id", ErrorCodeCheckInput.BLANK_USERID), ErrorCodeCheckInput.LONG_FORMAT_ERROR);
+		opSource = this.getAndCheckBlankStrParam("op_source", ErrorCodeCheckInput.BLANK_OP_SOURCE);
+		businessCode = this.getAndCheckBlankStrParam("businessCode", ErrorCodeCheckInput.BLANK_BUSINESSCODE);
+		nodeId = this.getAndCheckBlankStrParam("nodeId", ErrorCodeCheckInput.BLANK_NODEID);
+		mediaCode = this.getAndCheckBlankStrParam("mediaCode", ErrorCodeCheckInput.BLANK_IMG_TYPE);
+		imgSecretKey = this.getAndCheckBlankStrParam("imgSecretKey", ErrorCodeCheckInput.BLANK_IMG_IMGSECRETKEY);
+		imgPath = this.getAndCheckBlankStrParam("imgPath", ErrorCodeCheckInput.BLANK_IMG_IMGPATH);
+	}
+}
