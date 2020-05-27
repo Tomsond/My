@@ -1,9 +1,0 @@
-package com.thinkive.fxc.ismp.bus.business.zqCancel.constants;
-
-public class ZqCancelConstants {
-	
-	public static final String SERVER_ID_ZQ_CANCEL = "com.thinkive.fxc.ismp.bus.business.zqCancel.service.ZqCancelService";
-	
-	public static final String ZQCANCEL_CHOOSE_ACCOUNT = "zqcancel_choose_account";
-	
-}
